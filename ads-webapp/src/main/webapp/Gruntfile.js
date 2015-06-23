@@ -62,6 +62,5 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-jsbeautifier");
 
     // Developer
-    grunt.registerTask('default', ['jsbeautifier', 'less']);
-
+    grunt.registerTask('default', 'jsbeautifier', 'less');
 };

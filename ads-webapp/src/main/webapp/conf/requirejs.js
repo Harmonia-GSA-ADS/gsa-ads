@@ -14,6 +14,6 @@ var require = {
         moment: 'lib/moment.min',
         handlebars: 'lib/Handlebars',
         text: 'lib/requirejs-text',
-        bootstrap: '../lib/bootstrap/js/bootstrap.min'
+        bootstrap: 'lib/bootstrap.min'
     }
 };
