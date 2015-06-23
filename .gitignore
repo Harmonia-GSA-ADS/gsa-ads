@@ -1,0 +1,11 @@
+.settings
+.project
+.classpath
+target
+npm-debug.log
+styles.min.css
+nbactions.xml
+nb-configuration.xml
+/asset-webapp/src/main/webapp/docs
+node_modules
+.tern-project

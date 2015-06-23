@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="myruleset"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>ADS PMD Ruleset</description>
+
+    <!--
+        See http://pmd.sourceforge.net/pmd-5.1.0/rules/index.html for a list of
+        available rules. For instructions on how to construct this file, see
+        http://pmd.sourceforge.net/pmd-5.1.0/howtomakearuleset.html
+    -->
+
+    <!-- Bring in these rulesets -->
+    <rule ref="rulesets/java/basic.xml"/>
+    <rule ref="rulesets/java/imports.xml"/>
+    <rule ref="rulesets/java/strings.xml">
+        <exclude name="AvoidDuplicateLiterals" />
+        <exclude name="ConsecutiveLiteralAppends" />
+    </rule>
+
+    <!-- Bring in unused code ruleset without UnusedModifier -->
+    <rule ref="rulesets/java/unusedcode.xml">
+        <exclude name="UnusedModifier"/>
+    </rule>
+
+</ruleset>
