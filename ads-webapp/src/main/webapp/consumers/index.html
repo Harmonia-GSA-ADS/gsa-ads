@@ -51,148 +51,160 @@
     </nav>
   
 	<div class="container theme-showcase" role="main">
-		<div class="row">
-			<div class="col-md-8">
-			
-				<!-- Adverse Events Search Form -->
-				<div class="panel panel-primary">
-					<div class="panel-heading">
-						<h3 class="panel-title">Adverse Event Search</h3>
-					</div>
-					<div class="panel-body">
-						<div class="well">Explore reported adverse events for certain patient characteristics and drugs</div>
-						<form role="form" id="adverseEventsSearch">
-							<fieldset>
-								<legend>Event Date (range)</legend>
-								<div class="form-group">
-									<div class="form-group">
-										<input type="input" id="minDate" class="form-control" placeholder="Minimum Date" />
-									</div>
-									<div class="form-group">
-										<input type="input" id="maxDate" class="form-control" placeholder="Maximum Date" />
-									</div>
-								</div>
-							</fieldset>
-							<div class="row">
-								<div class="col-md-6">
-									<fieldset>
-										<legend>Patient Information</legend>
-										<div class="form-group">
-											<div class="form-group">
-												<label for="minAge">Age (range)</label>
-												<input type="input" id="minAge" class="form-control" placeholder="Minimum Age" />
-											</div>
-											<div class="form-group">
-												<input type="input" id="maxAge" class="form-control" placeholder="Maximum Age" />
-											</div>
-										</div>
-										<div class="form-group">
-											<label>Gender</label>
-											<div class="radio-inline">
-												<label><input type="radio" name="gender">Male</label>
-											</div>
-											<div class="radio-inline">
-												<label><input type="radio" name="gender">Female</label>
-											</div>
-										</div>
-										<div class="form-group">
-											<label>Weight (range)</label>
-											<div class="form-group">
-												<input type="input" id="minWeight" class="form-control" placeholder="Minimum Weight" />
-											</div>
-											<div class="form-group">
-												<input type="input" id="maxWeight" class="form-control" placeholder="Maximum Weight" />
-											</div>
-										</div>
-									</fieldset>
-								</div>
-								<div class="col-md-6">
-									<fieldset>
-										<legend>Drug Information</legend>
-										<div class="form-group">
-											<label for="indiciation">Indication</label> <input type="input"
-												id="indication" class="form-control" />
-										</div>
-										<div class="form-group">
-											<label for="brandName">Brand Name</label> <input type="input"
-												id="brandName" class="form-control" />
-										</div>
-										<div class="form-group">
-											<label for="genericName">Generic Name</label> <input
-												type="input" id="genericName" class="form-control" />
-										</div>
-										<div class="form-group">
-											<label for="manufacturerName">Manufacturer Name</label> <input
-												type="input" id="manufacturerName" class="form-control" />
-										</div>
-										<div class="form-group">
-											<label for="substanceName">Substance Name</label> <input
-												type="input" id="substanceName" class="form-control" />
-										</div>
-									</fieldset>
-								</div>
+	
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Adverse Events Lookup</a></li>
+		</ul>
+		<div class="tab-content">
+		
+			<!-- Adverse Event Lookup Tab -->
+			<div id="adverseEventLookup" class="tab-pane fade in active">
+
+				<div class="well">Explore reported adverse events for certain patient characteristics and drugs</div>
+
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Adverse Events Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Adverse Event Search</h3>
 							</div>
-		
-							<button type="button" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
-		
-						</form>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-			
-				<!-- Adverse Events Saved Searches -->
-				<div id="aeSavedSearches" class="panel panel-primary">
-					<div class="panel-heading">
-						<h3 class="panel-title">Saved Searches</h3>
-					</div>
-					<div class="panel-body">
-						<ul class="list-group">
-							<li class="list-group-item">
-								<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
-								<button type="button" class="btn btn-xs btn-success">Search</button>
-								<button type="button" class="btn btn-xs btn-warning">New</button>
-								<button type="button" class="btn btn-xs btn-danger">Delete</button>
-							</li>
-							<li class="list-group-item">Saved Search 2</li>
-							<li class="list-group-item">Saved Search 3</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<!-- Results -->
-		<div class="row">
-			<div id="adverseEventsResultsPanel" class="panel panel-primary">
-				<div class="panel-heading">
-					<h3 class="panel-title">Adverse Event Search Results</h3>
-				</div>
-				<div class="panel-body">
+							<div class="panel-body">
+								<form role="form" id="adverseEventsSearch">
+									<fieldset>
+										<legend>Event Date (range)</legend>
+										<div class="form-group">
+											<div class="form-group">
+												<input type="input" id="minDate" class="form-control" placeholder="Minimum Date" />
+											</div>
+											<div class="form-group">
+												<input type="input" id="maxDate" class="form-control" placeholder="Maximum Date" />
+											</div>
+										</div>
+									</fieldset>
+									<div class="row">
+										<div class="col-md-6">
+											<fieldset>
+												<legend>Patient Information</legend>
+												<div class="form-group">
+													<div class="form-group">
+														<label for="minAge">Age (range)</label>
+														<input type="input" id="minAge" class="form-control" placeholder="Minimum Age" />
+													</div>
+													<div class="form-group">
+														<input type="input" id="maxAge" class="form-control" placeholder="Maximum Age" />
+													</div>
+												</div>
+												<div class="form-group">
+													<label>Gender</label>
+													<div class="radio-inline">
+														<label><input type="radio" name="gender">Male</label>
+													</div>
+													<div class="radio-inline">
+														<label><input type="radio" name="gender">Female</label>
+													</div>
+												</div>
+												<div class="form-group">
+													<label>Weight (range)</label>
+													<div class="form-group">
+														<input type="input" id="minWeight" class="form-control" placeholder="Minimum Weight" />
+													</div>
+													<div class="form-group">
+														<input type="input" id="maxWeight" class="form-control" placeholder="Maximum Weight" />
+													</div>
+												</div>
+											</fieldset>
+										</div>
+										<div class="col-md-6">
+											<fieldset>
+												<legend>Drug Information</legend>
+												<div class="form-group">
+													<label for="indiciation">Indication</label> <input type="input"
+														id="indication" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="brandName">Brand Name</label> <input type="input"
+														id="brandName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="genericName">Generic Name</label> <input
+														type="input" id="genericName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="manufacturerName">Manufacturer Name</label> <input
+														type="input" id="manufacturerName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="substanceName">Substance Name</label> <input
+														type="input" id="substanceName" class="form-control" />
+												</div>
+											</fieldset>
+										</div>
+									</div>
 				
-					<!-- Save Search Form -->
-					<div class="pull-right ss-wrap">
-						<form class="form-inline" id="saveAdverseEventsSearch" role="form">
-							<input type="text" class="form-control" placeholder="Saved Search Name" />
-							<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
-						</form>
-					</div>
+									<button type="button" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
 				
-					<!-- Results Table -->
-					<table id="adverseEventsResults" class="table">
-						<thead>
-							<tr>
-								<th>Reactions</th>
-								<th>Drugs</th>
-								<th>Serious</th>
-								<th>Death</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Adverse Events Saved Searches -->
+						<div id="aeSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul class="list-group">
+									<li class="list-group-item">
+										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
+										<button type="button" class="btn btn-xs btn-success">Search</button>
+										<button type="button" class="btn btn-xs btn-warning">New</button>
+										<button type="button" class="btn btn-xs btn-danger">Delete</button>
+									</li>
+									<li class="list-group-item">Saved Search 2</li>
+									<li class="list-group-item">Saved Search 3</li>
+								</ul>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
+				
+				<!-- Results -->
+				<div class="row">
+					<div id="adverseEventsResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Adverse Event Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveAdverseEventsSearch" role="form">
+									<input type="text" class="form-control" placeholder="Saved Search Name" />
+									<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Results Table -->
+							<table id="adverseEventsResults" class="table">
+								<thead>
+									<tr>
+										<th>Reactions</th>
+										<th>Drugs</th>
+										<th>Serious</th>
+										<th>Death</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Adverse Events Results Panel -->
+				</div>
+			</div><!-- End Adverse Event Lookup Tab -->
 		</div>
 		
 	</div>

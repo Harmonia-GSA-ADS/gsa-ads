@@ -15,6 +15,10 @@
     <!-- Application CSS -->
 	<link href="../css/styles.min.css" rel="stylesheet">
 
+    <!-- Application JS -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/professionals.js"></script>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -25,7 +29,7 @@
   <body role="document">
   
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -47,12 +51,234 @@
     </nav>
   
 	<div class="container theme-showcase" role="main">
-    	<h1>Hello, world!</h1>
+
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#routeLookup">Route Lookup</a></li>
+		  <li><a data-toggle="tab" href="#drugLookup">Drug Lookup</a></li>
+		</ul>
+		<div class="tab-content">
+		
+			<!-- Route Lookup Tab -->
+			<div id="routeLookup" class="tab-pane fade in active">
+			
+				<div class="well">Explore routes of administration for certain drugs</div>
+			
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Route Lookup Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Routes of Administration Lookup Search</h3>
+							</div>
+							<div class="panel-body">
+								<form role="form" id="routeSearch">
+									<fieldset>
+										<legend>Drug Information</legend>
+										<div class="form-group">
+											<label for="indiciation">Indication</label> <input type="input"
+												id="indication" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="brandName">Brand Name</label> <input type="input"
+												id="brandName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="genericName">Generic Name</label> <input
+												type="input" id="genericName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="manufacturerName">Manufacturer Name</label> <input
+												type="input" id="manufacturerName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="substanceName">Substance Name</label> <input
+												type="input" id="substanceName" class="form-control" />
+										</div>
+									</fieldset>
+				
+									<button type="button" id="routesSubmit" class="btn btn-success btn-block">Search</button>
+				
+								</form>
+							</div>
+						</div><!-- End Route Lookup Form -->
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Route Lookup Saved Searches -->
+						<div id="routesSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul class="list-group">
+									<li class="list-group-item">
+										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
+										<button type="button" class="btn btn-xs btn-success">Search</button>
+										<button type="button" class="btn btn-xs btn-warning">New</button>
+										<button type="button" class="btn btn-xs btn-danger">Delete</button>
+									</li>
+									<li class="list-group-item">Saved Search 2</li>
+									<li class="list-group-item">Saved Search 3</li>
+								</ul>
+							</div>
+						</div><!-- End Route Lookup Saved Searches -->
+					</div>
+				</div>
+				
+				<!-- Route Lookup Results -->
+				<div class="row">
+					<div id="routesResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Routes of Administration Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveRoutesSearch" role="form">
+									<input type="text" class="form-control" placeholder="Saved Search Name" />
+									<button type="button" id="routesSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Results Table -->
+							<table id="routesResults" class="table">
+								<thead>
+									<tr>
+										<th>Reactions</th>
+										<th>Drugs</th>
+										<th>Serious</th>
+										<th>Death</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Route Lookup Results panel -->
+				</div>
+		  </div><!-- End Route Lookup Tab -->
+		  
+		  <!-- Drug Lookup Tab -->
+		  <div id="drugLookup" class="tab-pane fade">
+			
+				<div class="well">Explore drugs with certain routes of administration</div>
+			
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Drug Lookup Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Drug Lookup Search</h3>
+							</div>
+							<div class="panel-body">
+								<form role="form" id="drugsSearch">
+									<fieldset>
+										<legend>Drug Information</legend>
+										<div class="form-group">
+											<label for="indiciation">Indication</label> <input type="input"
+												id="indication" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="brandName">Brand Name</label> <input type="input"
+												id="brandName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="genericName">Generic Name</label> <input
+												type="input" id="genericName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="manufacturerName">Manufacturer Name</label> <input
+												type="input" id="manufacturerName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="substanceName">Substance Name</label> <input
+												type="input" id="substanceName" class="form-control" />
+										</div>
+									</fieldset>
+				
+									<button type="button" id="drugsSubmit" class="btn btn-success btn-block">Search</button>
+				
+								</form>
+							</div>
+						</div><!-- End Drugs Lookup Form -->
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Drugs Lookup Saved Searches -->
+						<div id="drugsSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul class="list-group">
+									<li class="list-group-item">
+										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
+										<button type="button" class="btn btn-xs btn-success">Search</button>
+										<button type="button" class="btn btn-xs btn-warning">New</button>
+										<button type="button" class="btn btn-xs btn-danger">Delete</button>
+									</li>
+									<li class="list-group-item">Saved Search 2</li>
+									<li class="list-group-item">Saved Search 3</li>
+								</ul>
+							</div>
+						</div><!-- End Drugs Lookup Saved Searches -->
+					</div>
+				</div>
+				
+				<!-- Drugs Lookup Results -->
+				<div class="row">
+					<div id="drugsResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Drugs Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveDrugsSearch" role="form">
+									<input type="text" class="form-control" placeholder="Saved Search Name" />
+									<button type="button" id="drugsSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Drugs Results Table -->
+							<table id="drugsResults" class="table">
+								<thead>
+									<tr>
+										<th>Reactions</th>
+										<th>Drugs</th>
+										<th>Serious</th>
+										<th>Death</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Drugs Lookup Results panel -->
+				</div>
+		  </div><!-- End Drug Lookup Tab -->
+		</div>
+		
 	</div>
 	
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
+        <script>
+    	$(document).ready(function() {
+    		$('#routesSubmit').click(routeSearch);
+    		$('#routesSavedSearchSubmit').click(routeSavedSearch);
+    		$('#routesResultsPanel').hide();
+    		
+    		$('#drugsSubmit').click(drugSearch);
+    		$('#drugsSavedSearchSubmit').click(drugSavedSearch);
+    		$('#drugsResultsPanel').hide();
+    	});
+    </script>
   </body>
 </html>
