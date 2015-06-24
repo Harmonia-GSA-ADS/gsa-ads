@@ -11,6 +11,9 @@
     <link href="../css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
     <link href="../css/lib/bootstrap/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="../css/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     
     <!-- Application CSS -->
 	<link href="../css/styles.min.css" rel="stylesheet">
@@ -99,10 +102,10 @@
 												<div class="form-group">
 													<label>Gender</label>
 													<div class="radio-inline">
-														<label><input type="radio" name="gender">Male</label>
+														<label><input type="radio" name="gender" value="Male">Male</label>
 													</div>
 													<div class="radio-inline">
-														<label><input type="radio" name="gender">Female</label>
+														<label><input type="radio" name="gender" value="Female">Female</label>
 													</div>
 												</div>
 												<div class="form-group">
@@ -157,12 +160,12 @@
 								<h3 class="panel-title">Saved Searches</h3>
 							</div>
 							<div class="panel-body">
-								<ul class="list-group">
+								<ul id="ssList" class="list-group">
 									<li class="list-group-item">
 										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
-										<button type="button" class="btn btn-xs btn-success">Search</button>
-										<button type="button" class="btn btn-xs btn-warning">New</button>
-										<button type="button" class="btn btn-xs btn-danger">Delete</button>
+										<button type="button" class="btn btn-xs btn-success ssSearch">Search</button>
+										<button type="button" class="btn btn-xs btn-warning ssNew">New</button>
+										<button type="button" class="btn btn-xs btn-danger ssDelete">Delete</button>
 									</li>
 									<li class="list-group-item">Saved Search 2</li>
 									<li class="list-group-item">Saved Search 3</li>
@@ -183,7 +186,9 @@
 							<!-- Save Search Form -->
 							<div class="pull-right ss-wrap">
 								<form class="form-inline" id="saveAdverseEventsSearch" role="form">
-									<input type="text" class="form-control" placeholder="Saved Search Name" />
+									<span>
+										<input type="text" id="ssName" class="form-control ssName" placeholder="Saved Search Name" />
+									</span>
 									<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
 								</form>
 							</div>
@@ -206,18 +211,79 @@
 				</div>
 			</div><!-- End Adverse Event Lookup Tab -->
 		</div>
-		
 	</div>
 	
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<!-- Hidden field for storing last search criteria -->
+	<input type="hidden" id="ssMinDate" />
+	<input type="hidden" id="ssMaxDate" />
+	<input type="hidden" id="ssMinAge" />
+	<input type="hidden" id="ssMaxAge" />
+	<input type="hidden" id="ssGender" />
+	<input type="hidden" id="ssMinWeight" />
+	<input type="hidden" id="ssMaxWeight" />				
+	<input type="hidden" id="ssIndication" />
+	<input type="hidden" id="ssBrandName" />
+	<input type="hidden" id="ssGenericName" />
+	<input type="hidden" id="ssSubstanceName" />
+	<input type="hidden" id="ssManufacturerName" />
+
+	<div id="confirmDelete" class="modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Delete Confirmation</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Are you sure you want to delete the saved search?</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary confirmDeleteTrue">Delete</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<!-- Delete Confirmation -->
+	<div class="modal fade loading">
+		<div class="modal-dialog modal-sm">
+			      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Delete Confirmation</h4>
+	      </div>
+	    	<div class="modal-content">
+				<i class="fa fa-repeat"></i>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Loading Mask -->
+	<div class="searchLoading modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-body" style="text-align:center">
+	        <i class="fa fa-spinner fa-pulse"></i> Searching...
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
+    <script src="../js/lib/validator.js"></script>
     <script>
     	$(document).ready(function() {
     		$('#adverseEventsSubmit').click(adverseEventSearch);
     		$('#aeSavedSearchSubmit').click(adverseEventSavedSearch);
     		$('#adverseEventsResultsPanel').hide();
+    		
+    		$('.ssName').keyup(clearError);
+    		$('.ssSearch').click(runSavedSearch);
+    		$('.ssNew').click(newSavedSearch);
+    		$('.ssDelete').click(deleteSavedSearch);
     	});
     </script>
   </body>

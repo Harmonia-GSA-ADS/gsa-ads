@@ -3,6 +3,9 @@
  * Performs an Adverse Event search
  */
 function adverseEventSearch() {
+	
+	loading();
+	
 	// TODO Deal with different deployment paths in a better way
 	var context = location.pathname;
 	if (context.indexOf('ads-webapp') > -1) {
@@ -10,13 +13,29 @@ function adverseEventSearch() {
 	} else {
 		context = 'ads';
 	}
+	
+	// clear results table
+	var $resultsTable = $('#adverseEventsResults tbody');
+	$resultsTable.empty();
+	
+	// extract user-values from form
+	var minDate = $('#minDate').val();
+	var maxDate = $('#maxDate').val();
+	var minAge = $('#minAge').val();
+	var maxAge = $('#maxAge').val();
+	var gender = $('input:radio[name=gender]:checked').val();
+	var minWeight = $('#minWeight').val();
+	var maxWeight = $('#maxWeight').val();
+	var indication = $('#indication').val();
+	var brandName = $('#brandName').val();
+	var genericName = $('#genericName').val();
+	var manufacturerName = $('#manufacturerName').val();
+	var substanceName = $('#substanceName').val();
 
+	// TODO Update to be real call
 	// make search request to server
 	$.ajax('/' + context + '/rest/event', {
 		success: function(data, textStatus, jqXHR) {
-			
-			var $resultsTable = $('#adverseEventsResults tbody');
-			
 			if (data.results) {
 				for (var i = 0; i < data.results.length; i++) {
 					var result = data.results[i];
@@ -58,6 +77,22 @@ function adverseEventSearch() {
 					$tr.append($death);
 					
 					$resultsTable.append($tr); 
+
+					// store values in hidden field to support saved search creation
+					$('#ssMinDate').val(minDate);
+					$('#ssMaxDate').val(maxDate);
+					$('#ssMinAge').val(minAge);
+					$('#ssMaxAge').val(maxAge);
+					$('#ssGender').val(gender);
+					$('#ssMinWeight').val(minWeight);
+					$('#ssMaxWeight').val(maxWeight);
+					$('#ssIndication').val(indication);
+					$('#ssBrandName').val(brandName);
+					$('#ssGenericName').val(genericName);
+					$('#ssManufacturerName').val(manufacturerName);
+					$('#ssSubstanceName').val(substanceName);
+					
+					loading(true);
 					
 					$('#adverseEventsResultsPanel').show();
 					navigate('adverseEventsResultsPanel');
@@ -67,6 +102,7 @@ function adverseEventSearch() {
 		error: function(jqXHR, textStatus, errorThrown) {
 			// TODO add error handling
 			console.log(errorThrown);
+			loading(true);
 		}
 	});
 }
@@ -75,7 +111,35 @@ function adverseEventSearch() {
  * Saves an Adverse Event search
  */
 function adverseEventSavedSearch() {
-	// TODO Save Search
 	
-	navigate("aeSavedSearches");
+	// get name
+	var ssName = $('#ssName').val();
+	
+	if (ssName) {
+		
+		// extract search criteria values to save
+		var minDate = $('#ssMinDate').val();
+		var maxDate = $('#ssMaxDate').val();
+		var minAge = $('#ssMinAge').val();
+		var maxAge = $('#ssMaxAge').val();
+		var gender = $('#ssGender').val();
+		var minWeight = $('#ssMinWeight').val();
+		var maxWeight = $('#ssMaxWeight').val();
+		var indication = $('#ssIndication').val();
+		var brandName = $('#ssBrandName').val();
+		var genericName = $('#ssGenericName').val();
+		var manufacturerName = $('#ssManufacturerName').val();
+		var substanceName = $('#ssSubstanceName').val();
+		
+		// TODO make call to server
+		var ssId = 1111;
+		var dateTime = '6/23/2015 2:30pm';
+		
+		// add item to list
+		$ssList = $('#ssList');
+		addSavedSearch($ssList, ssId, ssName, dateTime);
+		navigate("aeSavedSearches");
+	} else {
+		$('#ssName').parent('span').addClass('has-error');
+	}
 }
