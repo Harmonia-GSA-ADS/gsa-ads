@@ -224,23 +224,18 @@
 							<goal>run</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2-beta-5</version>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/java/com/harmonia/ads/aws/zip.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
 					<execution>
-						<id>make-assembly</id>
+						<id>move-file</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>run</goal>
 						</goals>
+						<configuration>
+							<tasks>
+								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/appspec.yml" tofile="${basedir}/target/appspec.yml"/>
+								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/deploy.sh" tofile="${basedir}/target/deploy.sh"/>
+							</tasks>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
