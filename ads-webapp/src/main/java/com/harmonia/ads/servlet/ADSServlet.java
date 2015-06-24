@@ -38,8 +38,6 @@ public class ADSServlet {
 
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
 
-	private final String apiBase = "https://api.fda.gov";
-
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/test/")
@@ -88,7 +86,8 @@ public class ADSServlet {
 		System.out.println("gender string: " + genderParameter);
 		String weightParameter = createWeightParameter(weightStart, weightEnd);
 		System.out.println("weight string: " + weightParameter);
-		String drugsParameter = createDrugsParameter(indication, brandName, genericName, manufacturerName, substanceName);
+		String drugsParameter = createDrugsParameter(indication, brandName,
+				genericName, manufacturerName, substanceName);
 		System.out.println("drugs string: " + drugsParameter);
 
 		String and = "+AND+";
@@ -115,11 +114,11 @@ public class ADSServlet {
 
 		String search = sb.toString();
 		System.out.println(search);
-		
+
 		if (search.endsWith(and)) {
 			search = search.substring(0, search.length() - and.length());
 		}
-		search.replace(" ", "+");
+		search = search.replace(" ", "+");
 
 		System.out.println(search);
 
@@ -127,6 +126,60 @@ public class ADSServlet {
 		try {
 			HttpGet httpget = new HttpGet(
 					"https://api.fda.gov/drug/event.json?search=" + search
+							+ "&limit=5");
+			CloseableHttpResponse response = httpClient.execute(httpget);
+			result = EntityUtils.toString(response.getEntity());
+		} catch (Exception e) {
+			// TODO
+		}
+
+		return result;
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/routes")
+	public String getRoutes(@QueryParam("indication") String indication,
+			@QueryParam("brandName") String brandName,
+			@QueryParam("genericName") String genericName,
+			@QueryParam("manufacturerName") String manufacturerName,
+			@QueryParam("substanceName") String substanceName) {
+
+		String search = createRouteSearch(indication, brandName, genericName,
+				manufacturerName, substanceName);
+		search = search.replace(" ", "+");
+		System.out.println("routes search string: " + search);
+
+		String result = "";
+		try {
+			HttpGet httpget = new HttpGet(
+					"https://api.fda.gov/drug/label.json?search=" + search
+							+ "&limit=5");
+			System.out.println(httpget.getURI().toString());
+			CloseableHttpResponse response = httpClient.execute(httpget);
+			result = EntityUtils.toString(response.getEntity());
+		} catch (Exception e) {
+			// TODO
+			System.out.println(e);
+		}
+
+		return result;
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/drugs")
+	public String getDrugs(@QueryParam("indication") String indication,
+			@QueryParam("route") String route) {
+
+		String search = createDrugRouteSearch(indication, route);
+
+		search = search.replace(" ", "+");
+		System.out.println("drugs search string: " + search);
+		String result = "";
+		try {
+			HttpGet httpget = new HttpGet(
+					"https://api.fda.gov/drug/label.json?search=" + search
 							+ "&limit=5");
 			CloseableHttpResponse response = httpClient.execute(httpget);
 			result = EntityUtils.toString(response.getEntity());
@@ -210,34 +263,40 @@ public class ADSServlet {
 		return weightConditionString;
 	}
 
-	private String createDrugsParameter(String indication, String brandName, String genericName, String manufacturerName, String substanceName) {
+	private String createDrugsParameter(String indication, String brandName,
+			String genericName, String manufacturerName, String substanceName) {
 		StringBuilder sb = new StringBuilder("(");
 		String or = "+OR+";
-		
+
 		if (StringUtils.isNotBlank(indication)) {
 			sb.append("patient.drug.drugindication:" + indication.toUpperCase());
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(brandName)) {
-			sb.append("patient.drug.openfda.brand_name:" + brandName.toUpperCase());
+			sb.append("patient.drug.openfda.brand_name:"
+					+ brandName.toUpperCase());
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(genericName)) {
-			sb.append("patient.drug.openfda.generic_name:" + genericName.toUpperCase());
+			sb.append("patient.drug.openfda.generic_name:"
+					+ genericName.toUpperCase());
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(manufacturerName)) {
 			// This one isn't all caps
-			sb.append("patient.drug.openfda.manufacturer_name:" + manufacturerName);
+			sb.append("patient.drug.openfda.manufacturer_name:%22"
+					+ manufacturerName + "%22");
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(substanceName)) {
-			sb.append("patient.drug.openfda.substance_name:" + substanceName.toUpperCase());
+			sb.append("patient.drug.openfda.substance_name:"
+					+ substanceName.toUpperCase());
 		}
-		
+
 		String drugsConditionString = sb.toString();
 		if (drugsConditionString.endsWith(or)) {
-			drugsConditionString = drugsConditionString.substring(0, drugsConditionString.length() - or.length());
+			drugsConditionString = drugsConditionString.substring(0,
+					drugsConditionString.length() - or.length());
 		}
 		if (drugsConditionString.equals("(")) {
 			drugsConditionString = "";
@@ -246,5 +305,51 @@ public class ADSServlet {
 		}
 
 		return drugsConditionString;
+	}
+
+	private String createRouteSearch(String indication, String brandName,
+			String genericName, String manufacturerName, String substanceName) {
+
+		StringBuilder sb = new StringBuilder();
+		String or = "+OR+";
+
+		if (StringUtils.isNotBlank(indication)) {
+			sb.append("indications_and_usage:" + indication);
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(brandName)) {
+			sb.append("openfda.brand_name:" + brandName.toUpperCase());
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(genericName)) {
+			sb.append("openfda.generic_name:" + genericName.toUpperCase());
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(manufacturerName)) {
+			sb.append("openfda.manufacturer_name:%22" + manufacturerName
+					+ "%22"); // %22 = '"'
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(substanceName)) {
+			sb.append("openfda.substance_name:" + substanceName.toUpperCase());
+		}
+
+		String search = sb.toString();
+		if (search.endsWith(or)) {
+			search = search.substring(0, search.length() - or.length());
+		}
+
+		return search;
+	}
+
+	private String createDrugRouteSearch(String indication, String route) {
+
+		String search = "";
+		if (StringUtils.isNotBlank(indication) && StringUtils.isNotBlank(route)) {
+			search = "indications_and_usage:" + indication
+					+ "+AND+openfda.route:" + route.toUpperCase();
+		}
+
+		return search;
 	}
 }
