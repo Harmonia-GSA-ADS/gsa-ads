@@ -75,17 +75,6 @@
 							</div>
 							<div class="panel-body">
 								<form role="form" id="adverseEventsSearch">
-									<fieldset>
-										<legend>Event Date (range)</legend>
-										<div class="form-group">
-											<div class="form-group">
-												<input type="input" id="minDate" class="form-control" placeholder="Minimum Date" />
-											</div>
-											<div class="form-group">
-												<input type="input" id="maxDate" class="form-control" placeholder="Maximum Date" />
-											</div>
-										</div>
-									</fieldset>
 									<div class="row">
 										<div class="col-md-6">
 											<fieldset>
@@ -93,10 +82,10 @@
 												<div class="form-group">
 													<div class="form-group">
 														<label for="minAge">Age (range)</label>
-														<input type="input" id="minAge" class="form-control" placeholder="Minimum Age" />
+														<input type="input" id="minAge" name="minAge" class="form-control" placeholder="Minimum Age" />
 													</div>
 													<div class="form-group">
-														<input type="input" id="maxAge" class="form-control" placeholder="Maximum Age" />
+														<input type="input" id="maxAge" name="maxAge" class="form-control" placeholder="Maximum Age" />
 													</div>
 												</div>
 												<div class="form-group">
@@ -111,10 +100,10 @@
 												<div class="form-group">
 													<label>Weight (range)</label>
 													<div class="form-group">
-														<input type="input" id="minWeight" class="form-control" placeholder="Minimum Weight" />
+														<input type="input" id="minWeight" name="minWeight" class="form-control" placeholder="Minimum Weight" />
 													</div>
 													<div class="form-group">
-														<input type="input" id="maxWeight" class="form-control" placeholder="Maximum Weight" />
+														<input type="input" id="maxWeight" name="maxWeight" class="form-control" placeholder="Maximum Weight" />
 													</div>
 												</div>
 											</fieldset>
@@ -273,6 +262,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
+    <script src="../js/lib/jquery.validate.min.js"></script>
     <script>
     	$(document).ready(function() {
     		$('#adverseEventsSubmit').click(adverseEventSearch);
