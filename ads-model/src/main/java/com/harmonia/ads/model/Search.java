@@ -139,16 +139,6 @@ public class Search {
 	}
 
 	/**
-	 * Sets the unique id of the saved search
-	 * 
-	 * @param id
-	 *            Unique id of the saved search
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/**
 	 * Returns the name of the saved search
 	 * 
 	 * @return Name of the saved search
@@ -174,16 +164,6 @@ public class Search {
 	 */
 	public Date getDatetime() {
 		return datetime;
-	}
-
-	/**
-	 * Sets the date and time that the search was saved
-	 * 
-	 * @param datetime
-	 *            Date and time that the search was saved
-	 */
-	public void setDatetime(Date datetime) {
-		this.datetime = datetime;
 	}
 
 	/**
