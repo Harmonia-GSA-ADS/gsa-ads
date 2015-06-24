@@ -233,6 +233,7 @@
 						<configuration>
 							<tasks>
 								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/appspec.yml" tofile="${basedir}/target/appspec.yml"/>
+								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/deploy.sh" tofile="${basedir}/target/deploy.sh"/>
 							</tasks>
 						</configuration>
 					</execution>

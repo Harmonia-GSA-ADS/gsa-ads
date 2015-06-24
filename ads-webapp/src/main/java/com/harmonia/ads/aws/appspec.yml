@@ -3,8 +3,13 @@ os: linux
 files:
   - source: ads.war
     destination: /home/ec2-user
+  - source: deploy.sh
+    destination: /home/ec2-user
+permissions:
+  - object: deploy.sh
+    mode: 755
 hooks:
   AfterInstall:
-    - location: /home/ec2-user/deploy.sh
+    - location: deploy.sh
       timeout: 300
       runas: ec2-user
