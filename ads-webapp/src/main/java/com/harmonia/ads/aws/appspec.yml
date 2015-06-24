@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: ads.war
+    destination: /home/ec2-user
+hooks:
+  AfterInstall:
+    - location: /home/ec2-user/deploy.sh
+      timeout: 300
+      runas: root
