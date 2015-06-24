@@ -151,10 +151,12 @@
 							<table id="routesResults" class="table">
 								<thead>
 									<tr>
-										<th>Reactions</th>
-										<th>Drugs</th>
-										<th>Serious</th>
-										<th>Death</th>
+										<th>Brand Name</th>
+										<th>Generic Name</th>
+										<th>Routes</th>
+										<th>Manufacturer Name</th>
+										<th>Substance Name</th>
+										<th>Indication</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -183,12 +185,12 @@
 									<fieldset>
 										<legend>Drug Information</legend>
 										<div class="form-group">
-											<label for="dIndiciation">Indication</label> <input type="input"
-												id="dIndication" class="form-control" />
+											<label for="dIndiciation">Indication</label>
+											<input type="input" id="dIndication" name="dIndication" class="form-control" />
 										</div>
 										<div class="form-group">
-											<label for="dRoute">Route of Administration</label> <input type="input"
-												id="dRoute" class="form-control" />
+											<label for="dRoute">Route of Administration</label>
+											<input type="input" id="dRoute" name="dRoute" class="form-control" />
 										</div>
 									</fieldset>
 				
@@ -243,10 +245,11 @@
 							<table id="drugsResults" class="table">
 								<thead>
 									<tr>
-										<th>Reactions</th>
-										<th>Drugs</th>
-										<th>Serious</th>
-										<th>Death</th>
+										<th>Brand Name</th>
+										<th>Generic Name</th>
+										<th>Routes</th>
+										<th>Indication</th>
+										<th>Purposes</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -303,6 +306,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
+    <script src="../js/lib/jquery.validate.min.js"></script>
         <script>
     	$(document).ready(function() {
     		$('#routesSubmit').click(routeSearch);

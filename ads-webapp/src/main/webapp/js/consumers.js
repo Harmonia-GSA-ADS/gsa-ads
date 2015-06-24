@@ -44,7 +44,6 @@ function adverseEventSearch() {
 		var $resultsTable = $('#adverseEventsResults tbody');
 		$resultsTable.empty();
 	
-		// TODO Update to be real call
 		// make search request to server
 		$.ajax('/' + context + '/rest/events', {
 			type: 'get',
@@ -63,7 +62,11 @@ function adverseEventSearch() {
 				substanceName: substanceName
 			},
 			success: function(data, textStatus, jqXHR) {
-				if (data.results) {
+				if (data.error) {
+					// TODO handle error
+					loading(true);
+					window.alert(data.error.message);
+				} else if (data.results) {
 					for (var i = 0; i < data.results.length; i++) {
 						var result = data.results[i];
 						
