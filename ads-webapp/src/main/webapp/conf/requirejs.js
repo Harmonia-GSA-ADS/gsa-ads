@@ -8,7 +8,6 @@ var require = {
     baseUrl: 'js',
     paths: {
         text: 'lib/requirejs-text',
-        bootstrap: 'lib/bootstrap.min',
-        validator: 'lib/validator'
+        bootstrap: 'lib/bootstrap.min'
     }
 };

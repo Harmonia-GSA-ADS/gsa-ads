@@ -34,7 +34,17 @@ function adverseEventSearch() {
 
 	// TODO Update to be real call
 	// make search request to server
-	$.ajax('/' + context + '/rest/event', {
+	$.ajax('/' + context + '/rest/events', {
+		type: 'get',
+		data: {
+			dateStart: minDate,
+			dateEnd: maxDate,
+			ageStart: minAge,
+			ageEnd: maxAge,
+			gender: gender,
+			weightStart: minWeight,
+			weightEnd: maxWeight
+		},
 		success: function(data, textStatus, jqXHR) {
 			if (data.results) {
 				for (var i = 0; i < data.results.length; i++) {

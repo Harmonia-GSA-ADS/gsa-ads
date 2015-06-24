@@ -57,7 +57,7 @@ function deleteSavedSearch() {
  * @param id Id of the element to scroll to
  */
 function navigate(id) {
-	$('html, body').animate({ scrollTop: $("#" + id).offset().top }, 1500);
+	$('html, body').animate({ scrollTop: $("#" + id).offset().top }, 150);
 }
 
 /**

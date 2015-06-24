@@ -8,11 +8,13 @@ import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -67,22 +69,21 @@ public class ADSServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
-	public String getAdverseDrugEvents(@Context UriInfo info) {
-		MultivaluedMap<String, String> params = info.getQueryParameters();
+	public String getAdverseDrugEvents(@QueryParam("ageStart") String ageStart,
+			@QueryParam("ageEnd") String ageEnd,
+			@QueryParam("dateStart") String dateStart,
+			@QueryParam("dateEnd") String dateEnd,
+			@QueryParam("weightStart") String weightStart,
+			@QueryParam("weightEnd") String weightEnd,
+			@QueryParam("gender") String gender) {
 
-		System.out.println("Retrieved query parameters from UriInfo.");
-
-		String ageParameter = createAgeParameter(params.getFirst("ageStart"),
-				params.getFirst("ageEnd"));
+		String ageParameter = createAgeParameter(ageStart, ageEnd);
 		System.out.println("age string: " + ageParameter);
-		String dateParameter = createDateParameter(
-				params.getFirst("dateStart"), params.getFirst("dateEnd"));
+		String dateParameter = createDateParameter(dateStart, dateEnd);
 		System.out.println("date string: " + dateParameter);
-		String genderParameter = createGenderParameter(params
-				.getFirst("gender"));
+		String genderParameter = createGenderParameter(gender);
 		System.out.println("gender string: " + genderParameter);
-		String weightParameter = createWeightParameter(
-				params.getFirst("weightStart"), params.getFirst("weightEnd"));
+		String weightParameter = createWeightParameter(weightStart, weightEnd);
 		System.out.println("weight string: " + weightParameter);
 
 		// TODO: need to figure out how to handle the drug parameters
@@ -95,22 +96,30 @@ public class ADSServlet {
 
 		String and = "+AND+";
 		StringBuilder sb = new StringBuilder();
-		sb.append(ageParameter);
-		sb.append(and);
-		sb.append(dateParameter);
-		sb.append(and);
-		sb.append(genderParameter);
-		sb.append(and);
-		sb.append(weightParameter);
+		if (StringUtils.isNotBlank(ageParameter)) {
+			sb.append(ageParameter);
+			sb.append(and);
+		}
+		if (StringUtils.isNotBlank(dateParameter)) {
+			sb.append(dateParameter);
+			sb.append(and);
+		}
+		if (StringUtils.isNotBlank(genderParameter)) {
+			sb.append(genderParameter);
+			sb.append(and);
+		}
+		if (StringUtils.isNotBlank(weightParameter)) {
+			sb.append(weightParameter);
+		}
 
 		String search = sb.toString();
 		System.out.println(search);
-		while (search.contains(and + and)) {
-			search = search.replace(and + and, and);
-		}
-		if (search.startsWith(and)) {
-			search = search.substring(and.length());
-		}
+		// while (search.contains(and + and)) {
+		// search = search.replace(and + and, and);
+		// }
+		// if (search.startsWith(and)) {
+		// search = search.substring(and.length());
+		// }
 		if (search.endsWith(and)) {
 			search = search.substring(0, search.length() - and.length());
 		}
@@ -121,7 +130,8 @@ public class ADSServlet {
 		String result = "";
 		try {
 			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/event.json?search=" + search);
+					"https://api.fda.gov/drug/event.json?search=" + search
+							+ "&limit=5");
 			CloseableHttpResponse response = httpClient.execute(httpget);
 			result = EntityUtils.toString(response.getEntity());
 		} catch (Exception e) {
@@ -132,14 +142,14 @@ public class ADSServlet {
 	}
 
 	private String createAgeParameter(String ageStart, String ageEnd) {
-		if (ageStart != null && ageEnd == null) {
+		if (StringUtils.isNotBlank(ageStart) && StringUtils.isBlank(ageEnd)) {
 			ageEnd = ageStart;
 		}
-		if (ageStart == null && ageEnd != null) {
+		if (StringUtils.isBlank(ageStart) && StringUtils.isNotBlank(ageEnd)) {
 			ageStart = ageEnd;
 		}
 		String ageConditionString = "";
-		if (ageStart != null) {
+		if (StringUtils.isNotBlank(ageStart)) {
 			ageConditionString = "patient.patientonsetage:[" + ageStart
 					+ "+TO+" + ageEnd + "]+AND+patient.patientonsetageunit:801";
 		}
@@ -147,14 +157,14 @@ public class ADSServlet {
 	}
 
 	private String createDateParameter(String dateStart, String dateEnd) {
-		if (dateStart != null && dateEnd == null) {
+		if (StringUtils.isNotBlank(dateStart) && StringUtils.isBlank(dateEnd)) {
 			dateEnd = dateStart;
 		}
-		if (dateStart == null && dateEnd != null) {
+		if (StringUtils.isBlank(dateStart) && StringUtils.isNotBlank(dateEnd)) {
 			dateStart = dateEnd;
 		}
 		String dateConditionString = "";
-		if (dateStart != null) {
+		if (StringUtils.isNotBlank(dateStart)) {
 			dateConditionString = "receivedate:[" + dateStart + "+TO+"
 					+ dateEnd + "]";
 		}
@@ -163,7 +173,7 @@ public class ADSServlet {
 
 	private String createGenderParameter(String gender) {
 		String genderValue = null;
-		if (gender != null) {
+		if (StringUtils.isNotBlank(gender)) {
 			if (gender.equalsIgnoreCase("male")) {
 				genderValue = "1";
 			}
@@ -175,29 +185,31 @@ public class ADSServlet {
 			}
 		}
 		String genderConditionString = "";
-		if (genderValue != null) {
+		if (StringUtils.isNotBlank(genderValue)) {
 			genderConditionString = "patient.patientsex:" + genderValue;
 		}
 		return genderConditionString;
 	}
 
 	private String createWeightParameter(String weightStart, String weightEnd) {
-		if (weightStart != null)
+		if (StringUtils.isNotBlank(weightStart))
 			weightStart = "" + Integer.parseInt(weightStart) * 0.453592; // lbs
 																			// to
 																			// kg
-		if (weightEnd != null)
+		if (StringUtils.isNotBlank(weightEnd))
 			weightEnd = "" + Integer.parseInt(weightEnd) * 0.453592;
-		if (weightStart != null && weightEnd == null) {
+		if (StringUtils.isNotBlank(weightStart)
+				&& StringUtils.isBlank(weightEnd)) {
 			weightEnd = weightStart;
 		}
-		if (weightStart == null && weightEnd != null) {
+		if (StringUtils.isBlank(weightStart)
+				&& StringUtils.isNotBlank(weightEnd)) {
 			weightStart = weightEnd;
 		}
 		String weightConditionString = "";
-		if (weightStart != null) {
+		if (StringUtils.isNotBlank(weightStart)) {
 			weightConditionString = "patient.patientweight:[" + weightStart
-					+ "+TO+" + "weightEnd" + "]";
+					+ "+TO+" + weightEnd + "]";
 		}
 		return weightConditionString;
 	}
