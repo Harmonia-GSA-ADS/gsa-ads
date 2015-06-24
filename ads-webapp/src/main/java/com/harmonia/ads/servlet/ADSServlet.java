@@ -11,8 +11,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -75,7 +73,12 @@ public class ADSServlet {
 			@QueryParam("dateEnd") String dateEnd,
 			@QueryParam("weightStart") String weightStart,
 			@QueryParam("weightEnd") String weightEnd,
-			@QueryParam("gender") String gender) {
+			@QueryParam("gender") String gender,
+			@QueryParam("indication") String indication,
+			@QueryParam("brandName") String brandName,
+			@QueryParam("genericName") String genericName,
+			@QueryParam("manufacturerName") String manufacturerName,
+			@QueryParam("substanceName") String substanceName) {
 
 		String ageParameter = createAgeParameter(ageStart, ageEnd);
 		System.out.println("age string: " + ageParameter);
@@ -85,14 +88,8 @@ public class ADSServlet {
 		System.out.println("gender string: " + genderParameter);
 		String weightParameter = createWeightParameter(weightStart, weightEnd);
 		System.out.println("weight string: " + weightParameter);
-
-		// TODO: need to figure out how to handle the drug parameters
-		// Need to receive a list of tuples, one tuple per drug containing a
-		// subset of
-		// indication, brand name, generic name, manufacturer name, active
-		// ingredients
-		// then convert to the api format, ex
-		// (indication:tuple_1_indication+AND+generic:tuple_1_generic)+AND+(indication:tuple_2_indication)
+		String drugsParameter = createDrugsParameter(indication, brandName, genericName, manufacturerName, substanceName);
+		System.out.println("drugs string: " + drugsParameter);
 
 		String and = "+AND+";
 		StringBuilder sb = new StringBuilder();
@@ -110,16 +107,15 @@ public class ADSServlet {
 		}
 		if (StringUtils.isNotBlank(weightParameter)) {
 			sb.append(weightParameter);
+			sb.append(and);
+		}
+		if (StringUtils.isNotBlank(drugsParameter)) {
+			sb.append(drugsParameter);
 		}
 
 		String search = sb.toString();
 		System.out.println(search);
-		// while (search.contains(and + and)) {
-		// search = search.replace(and + and, and);
-		// }
-		// if (search.startsWith(and)) {
-		// search = search.substring(and.length());
-		// }
+		
 		if (search.endsWith(and)) {
 			search = search.substring(0, search.length() - and.length());
 		}
@@ -212,5 +208,43 @@ public class ADSServlet {
 					+ "+TO+" + weightEnd + "]";
 		}
 		return weightConditionString;
+	}
+
+	private String createDrugsParameter(String indication, String brandName, String genericName, String manufacturerName, String substanceName) {
+		StringBuilder sb = new StringBuilder("(");
+		String or = "+OR+";
+		
+		if (StringUtils.isNotBlank(indication)) {
+			sb.append("patient.drug.drugindication:" + indication.toUpperCase());
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(brandName)) {
+			sb.append("patient.drug.openfda.brand_name:" + brandName.toUpperCase());
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(genericName)) {
+			sb.append("patient.drug.openfda.generic_name:" + genericName.toUpperCase());
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(manufacturerName)) {
+			// This one isn't all caps
+			sb.append("patient.drug.openfda.manufacturer_name:" + manufacturerName);
+			sb.append(or);
+		}
+		if (StringUtils.isNotBlank(substanceName)) {
+			sb.append("patient.drug.openfda.substance_name:" + substanceName.toUpperCase());
+		}
+		
+		String drugsConditionString = sb.toString();
+		if (drugsConditionString.endsWith(or)) {
+			drugsConditionString = drugsConditionString.substring(0, drugsConditionString.length() - or.length());
+		}
+		if (drugsConditionString.equals("(")) {
+			drugsConditionString = "";
+		} else {
+			drugsConditionString += ")";
+		}
+
+		return drugsConditionString;
 	}
 }
