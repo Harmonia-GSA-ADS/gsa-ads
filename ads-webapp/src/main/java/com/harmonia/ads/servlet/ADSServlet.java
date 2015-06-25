@@ -53,17 +53,17 @@ public class ADSServlet {
 	 * Returns a list of adverse drug events based on the supplied criteria
 	 * 
 	 * @param ageStart
-	 *            Minimum age of patient
+	 *            Minimum age of patient, in years
 	 * @param ageEnd
-	 *            Maximum age of patient
+	 *            Maximum age of patient, in years
 	 * @param dateStart
 	 *            Earliest date of event
 	 * @param dateEnd
 	 *            Latest date of event
 	 * @param weightStart
-	 *            Minimum weight of patient
+	 *            Minimum weight of patient, in pounds
 	 * @param weightEnd
-	 *            Maximum weight of patient
+	 *            Maximum weight of patient, in pounds
 	 * @param gender
 	 *            Gender of the patient
 	 * @param indication
@@ -76,6 +76,8 @@ public class ADSServlet {
 	 *            Manufacturer name of drug
 	 * @param substanceName
 	 *            Substance name (active ingredient) of drug
+	 * @param limit
+	 *            The maximum number of results to return
 	 * @return List of adverse events based on the supplied criteria
 	 */
 	@GET
@@ -92,19 +94,16 @@ public class ADSServlet {
 			@QueryParam("brandName") String brandName,
 			@QueryParam("genericName") String genericName,
 			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName) {
+			@QueryParam("substanceName") String substanceName,
+			@QueryParam("limit") Integer limit) {
 
 		String ageParameter = createAgeParameter(ageStart, ageEnd);
-		System.out.println("age string: " + ageParameter);
 		String dateParameter = createDateParameter(dateStart, dateEnd);
-		System.out.println("date string: " + dateParameter);
 		String genderParameter = createGenderParameter(gender);
-		System.out.println("gender string: " + genderParameter);
 		String weightParameter = createWeightParameter(weightStart, weightEnd);
-		System.out.println("weight string: " + weightParameter);
 		String drugsParameter = createDrugsParameter(indication, brandName,
 				genericName, manufacturerName, substanceName);
-		System.out.println("drugs string: " + drugsParameter);
+		int lim = limit == null ? 5 : limit;
 
 		String and = "+AND+";
 		StringBuilder sb = new StringBuilder();
@@ -129,24 +128,22 @@ public class ADSServlet {
 		}
 
 		String search = sb.toString();
-		System.out.println(search);
 
 		if (search.endsWith(and)) {
 			search = search.substring(0, search.length() - and.length());
 		}
 		search = search.replace(" ", "+");
 
-		System.out.println(search);
-
 		String result = "";
 		try {
 			HttpGet httpget = new HttpGet(
 					"https://api.fda.gov/drug/event.json?search=" + search
-							+ "&limit=5");
+							+ "&limit=" + lim);
 			CloseableHttpResponse response = httpClient.execute(httpget);
 			result = EntityUtils.toString(response.getEntity());
 		} catch (Exception e) {
 			// TODO
+			System.out.println(e);
 		}
 
 		return result;
@@ -165,6 +162,8 @@ public class ADSServlet {
 	 *            Manufacturer name of drug
 	 * @param substanceName
 	 *            Substance name (active ingredient) of drug
+	 * @param limit
+	 *            The maximum number of results to return
 	 * @return Routes of administration for a drug
 	 */
 	@GET
@@ -174,19 +173,19 @@ public class ADSServlet {
 			@QueryParam("brandName") String brandName,
 			@QueryParam("genericName") String genericName,
 			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName) {
+			@QueryParam("substanceName") String substanceName,
+			@QueryParam("limit") Integer limit) {
 
 		String search = createRouteSearch(indication, brandName, genericName,
 				manufacturerName, substanceName);
 		search = search.replace(" ", "+");
-		System.out.println("routes search string: " + search);
+		int lim = limit == null ? 5 : limit;
 
 		String result = "";
 		try {
 			HttpGet httpget = new HttpGet(
 					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=5");
-			System.out.println(httpget.getURI().toString());
+							+ "&limit=" + lim);
 			CloseableHttpResponse response = httpClient.execute(httpget);
 			result = EntityUtils.toString(response.getEntity());
 		} catch (Exception e) {
@@ -205,27 +204,31 @@ public class ADSServlet {
 	 *            Purpose of drug
 	 * @param route
 	 *            Route of administration of the drug
+	 * @param limit
+	 *            The maximum number of results to return
 	 * @return Drugs matching the given indication and route of administration
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
 	public String getDrugs(@QueryParam("indication") String indication,
-			@QueryParam("route") String route) {
+			@QueryParam("route") String route,
+			@QueryParam("limit") Integer limit) {
 
 		String search = createDrugRouteSearch(indication, route);
+		int lim = limit == null ? 5 : limit;
 
 		search = search.replace(" ", "+");
-		System.out.println("drugs search string: " + search);
 		String result = "";
 		try {
 			HttpGet httpget = new HttpGet(
 					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=5");
+							+ "&limit=" + lim);
 			CloseableHttpResponse response = httpClient.execute(httpget);
 			result = EntityUtils.toString(response.getEntity());
 		} catch (Exception e) {
 			// TODO
+			System.out.println(e);
 		}
 
 		return result;
@@ -235,9 +238,9 @@ public class ADSServlet {
 	 * Creates the patient age parameter for OpenFDA queries
 	 * 
 	 * @param ageStart
-	 *            Minimum age of patient
+	 *            Minimum age of patient, in years
 	 * @param ageEnd
-	 *            Maximum age of patient
+	 *            Maximum age of patient, in years
 	 * @return Query string section for patient age
 	 */
 	private String createAgeParameter(String ageStart, String ageEnd) {
@@ -310,9 +313,9 @@ public class ADSServlet {
 	 * Creates the weight range parameter for OpenFDA queries
 	 * 
 	 * @param weightStart
-	 *            Minimum weight of patient
+	 *            Minimum weight of patient, in pounds
 	 * @param weightEnd
-	 *            Maximum weight of patient
+	 *            Maximum weight of patient, in pounds
 	 * @return Query string section for weight range
 	 */
 	private String createWeightParameter(String weightStart, String weightEnd) {
@@ -537,13 +540,13 @@ public class ADSServlet {
 	 * @param substanceName
 	 *            Search criteria value for substance name
 	 * @param minAge
-	 *            Search criteria value for min age
+	 *            Search criteria value for min age, in years
 	 * @param maxAge
-	 *            Search criteria value for max age
+	 *            Search criteria value for max age, in years
 	 * @param minWeight
-	 *            Search criteria value for min weight
+	 *            Search criteria value for min weight, in pounds
 	 * @param maxWeight
-	 *            Search criteria value for max weight
+	 *            Search criteria value for max weight, in pounds
 	 * @param gender
 	 *            Search criteria value for gender
 	 * @param route
