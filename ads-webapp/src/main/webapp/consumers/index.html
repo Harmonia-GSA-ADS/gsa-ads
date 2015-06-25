@@ -150,14 +150,6 @@
 							</div>
 							<div class="panel-body">
 								<ul id="ssList" class="list-group">
-									<li class="list-group-item">
-										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
-										<button type="button" class="btn btn-xs btn-success ssSearch">Search</button>
-										<button type="button" class="btn btn-xs btn-warning ssNew">New</button>
-										<button type="button" class="btn btn-xs btn-danger ssDelete">Delete</button>
-									</li>
-									<li class="list-group-item">Saved Search 2</li>
-									<li class="list-group-item">Saved Search 3</li>
 								</ul>
 							</div>
 						</div>
@@ -273,6 +265,8 @@
     		$('.ssSearch').click(runSavedSearch);
     		$('.ssNew').click(newSavedSearch);
     		$('.ssDelete').click(deleteSavedSearch);
+    		
+    		loadAdverseEventsSavedSearches();
     	});
     </script>
   </body>

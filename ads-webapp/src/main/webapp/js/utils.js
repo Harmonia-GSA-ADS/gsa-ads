@@ -12,15 +12,34 @@ function clearError() {
 function runSavedSearch() {
 	var ssId = $(this).parent('li').attr('ssId');
 	
-	// TODO get saved search data from server
-	// TODO fill form fields with saved search criteria
-	// TODO execute search
-	
-	// TODO call correct search function based on type
-	//adverseEventSearch();
-	//routeSavedSearch();
-	//drugSavedSearch()
-	
+	// get saved search data from server
+	$.ajax('/' + getContext() + '/rest/search', {
+		type: 'get',
+		data: {
+			id: ssId,
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				var ssId = data.id;
+				var type = data.type;
+				
+				if (type == 'ADVERSE_EVENTS') {
+					populateAdverseEventsSearchForm(data);
+					adverseEventSearch();
+				} else if (type == 'ROUTES') {
+					populateRoutesSearchForm(data);
+					routeSearch();
+				} else if (type == 'DRUGS') {
+					populateDrugsSearchForm(data);
+					drugSearch();
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
 }
 
 /**
@@ -28,9 +47,32 @@ function runSavedSearch() {
  */
 function newSavedSearch() {
 	var ssId = $(this).parent('li').attr('ssId');
-
-	// TODO get saved search data from server
-	// TODO fill form fields with saved search criteria
+	
+	// get saved search data from server
+	$.ajax('/' + getContext() + '/rest/search', {
+		type: 'get',
+		data: {
+			id: ssId,
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				var ssId = data.id;
+				var type = data.type;
+				
+				if (type == 'ADVERSE_EVENTS') {
+					populateAdverseEventsSearchForm(data);
+				} else if (type == 'ROUTES') {
+					populateRoutesSearchForm(data);
+				} else if (type == 'DRUGS') {
+					populateDrugsSearchForm(data);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
 }
 
 /**
@@ -43,11 +85,19 @@ function deleteSavedSearch() {
 	$('.confirmDeleteTrue').click(function() {
 
 		// TODO make delete call to server
-		
-		// remove saved search from list
-		$li.remove();
-		
-		$('#confirmDelete').modal('hide');
+		// get saved search data from server
+		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
+			type: 'delete',
+			success: function(data, textStatus, jqXHR) {
+				$li.remove();
+				$('#confirmDelete').modal('hide');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// TODO add error handling
+				console.log(errorThrown);
+				$('#confirmDelete').modal('hide');
+			}
+		});
 	});
 	$('#confirmDelete').modal();
 }
@@ -73,8 +123,32 @@ function addSavedSearch(list, ssId, name, date) {
 	$li = $('<li>').attr('ssId', ssId).addClass('list-group-item');
 	$li.appendTo(list);
 	
+	// format date
+	var formattedDate = date.getMonth() + 1;
+	formattedDate += '/';
+	formattedDate += date.getDate();
+	formattedDate += '/';
+	formattedDate += date.getFullYear();
+	
+	// format time
+	var period = 'am';
+	var hours = date.getHours();
+	if (hours === 0) {
+		hours = 12;
+	} else if (hours > 12) {
+		period = 'pm';
+		hours = hours - 12;
+	}
+	var minutes = date.getMinutes();
+	if (minutes < 10) {
+		minutes = '0' + minutes;
+	}
+	var formattedTime = hours + ':' + minutes + period;
+	
 	// add saved search name and date
-	$('<div>').html(name + ' <small>[' + date + ']</small>').appendTo($li);
+	//6/23/2015 2:30pm
+	
+	$('<div>').html(name + ' <small>[' + formattedDate + ' ' + formattedTime + ']</small>').appendTo($li);
 	
 	// add buttons
 	$('<button>').attr('type', 'button').addClass('btn btn-xs btn-success ssSearch').css('margin-right','4px').text('Search').appendTo($li);
@@ -97,4 +171,17 @@ function loading(hide) {
 	} else {
 		$('.searchLoading').modal();
 	}
+}
+
+/**
+ * Get the context given the different deployment paths.
+ */
+function getContext() {
+	var context = location.pathname;
+	if (context.indexOf('ads-webapp') > -1) {
+		context = 'ads-webapp';
+	} else {
+		context = 'ads';
+	}
+	return context;
 }

@@ -15,6 +15,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -385,8 +386,8 @@ public class ADSServlet {
 	}
 
 	@DELETE
-	@Path("/search")
-	public void deleteSavedSearch(@QueryParam("id") String id) {
+	@Path("/search/{id}")
+	public void deleteSavedSearch(@PathParam("id") String id) {
 		if (id == null) {
 			System.out.println("id is null");
 		} else {
@@ -434,16 +435,16 @@ public class ADSServlet {
 		if (StringUtils.isNotBlank(substanceName)) {
 			newSearch.setSubstanceName(substanceName);
 		}
-		if (minAge != null) {
+		if (minAge != null && minAge > -1) {
 			newSearch.setMinAge(minAge);
 		}
-		if (maxAge != null) {
+		if (maxAge != null && maxAge > -1) {
 			newSearch.setMaxAge(maxAge);
 		}
-		if (minWeight != null) {
+		if (minWeight != null && minWeight > -1) {
 			newSearch.setMinWeight(minWeight);
 		}
-		if (maxWeight != null) {
+		if (maxWeight != null && maxWeight > -1) {
 			newSearch.setMaxWeight(maxWeight);
 		}
 		if (StringUtils.isNotBlank(gender)) {

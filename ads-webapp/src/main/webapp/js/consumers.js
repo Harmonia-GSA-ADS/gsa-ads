@@ -139,6 +139,24 @@ function adverseEventSearch() {
 }
 
 /**
+ * Fills in values of the adverse events search form with values from the given saved search.
+ * 
+ * @param savedSearch Saved search from which to get values
+ */
+function populateAdverseEventsSearchForm(savedSearch) {
+	$('#minAge').val(savedSearch.minAge > 0 ? savedSearch.minAge : '');
+	$('#maxAge').val(savedSearch.maxAge > 0 ? savedSearch.maxAge : '');
+	$('input:radio[name=gender]').val(savedSearch.gender);
+	$('#minWeight').val(savedSearch.minWeight > 0 ? savedSearch.minWeight : '');
+	$('#maxWeight').val(savedSearch.maxWeight > 0 ? savedSearch.maxWeight : '');
+	$('#indication').val(savedSearch.indication);
+	$('#brandName').val(savedSearch.brandName);
+	$('#genericName').val(savedSearch.genericName);
+	$('#manufacturerName').val(savedSearch.manufacturerName);
+	$('#substanceName').val(savedSearch.substanceName);
+}
+
+/**
  * Saves an Adverse Event search
  */
 function adverseEventSavedSearch() {
@@ -162,15 +180,72 @@ function adverseEventSavedSearch() {
 		var manufacturerName = $('#ssManufacturerName').val();
 		var substanceName = $('#ssSubstanceName').val();
 		
-		// TODO make call to server
-		var ssId = 1111;
-		var dateTime = '6/23/2015 2:30pm';
-		
-		// add item to list
-		$ssList = $('#ssList');
-		addSavedSearch($ssList, ssId, ssName, dateTime);
-		navigate("aeSavedSearches");
+		// make request to server to create saved search
+		$.ajax('/' + getContext() + '/rest/search', {
+			type: 'post',
+			data: {
+				name: ssName,
+				type: 'ADVERSE_EVENTS',
+				minAge: minAge ? minAge : -1,
+				maxAge: maxAge ? maxAge : -1,
+				gender: gender,
+				minWeight: minWeight ? minWeight : -1,
+				maxWeight: maxWeight ? maxWeight: -1,
+				indication: indication,
+				brandName: brandName,
+				genericName: genericName,
+				manufacturerName: manufacturerName,
+				substanceName: substanceName
+			},
+			success: function(data, textStatus, jqXHR) {
+				if (data) {
+					var ssId = data.id;
+					var dateTime = new Date(data.datetime);
+					
+					// add item to list
+					$ssList = $('#ssList');
+					addSavedSearch($ssList, ssId, ssName, dateTime);
+					navigate("aeSavedSearches");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// TODO add error handling
+				console.log(errorThrown);
+			}
+		});
 	} else {
 		$('#ssName').parent('span').addClass('has-error');
 	}
+}
+
+/**
+ * Loads the existing adverse event saved searches into the list
+ */
+function loadAdverseEventsSavedSearches() {
+	// make request to server to get saved searches
+	$.ajax('/' + getContext() + '/rest/searches', {
+		type: 'get',
+		data: {
+			type: 'ADVERSE_EVENTS'
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				
+				console.log(data);
+				
+				$ssList = $('#ssList');
+				for (var i = 0; i < data.length; i++) {
+					var ss = data[i];
+					var ssId = ss.id;
+					var ssName = ss.name;
+					var ssDate = new Date(ss.datetime);
+					addSavedSearch($ssList, ssId, ssName, ssDate);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
 }

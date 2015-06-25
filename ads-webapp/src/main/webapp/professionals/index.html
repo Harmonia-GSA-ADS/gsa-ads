@@ -115,14 +115,6 @@
 							</div>
 							<div class="panel-body">
 								<ul id="routeSSList" class="list-group">
-									<li class="list-group-item">
-										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
-										<button type="button" class="btn btn-xs btn-success ssSearch">Search</button>
-										<button type="button" class="btn btn-xs btn-warning ssNew">New</button>
-										<button type="button" class="btn btn-xs btn-danger ssDelete">Delete</button>
-									</li>
-									<li class="list-group-item">Saved Search 2</li>
-									<li class="list-group-item">Saved Search 3</li>
 								</ul>
 							</div>
 						</div><!-- End Route Lookup Saved Searches -->
@@ -209,14 +201,6 @@
 							</div>
 							<div class="panel-body">
 								<ul id="drugSSList" class="list-group">
-									<li class="list-group-item">
-										<div>Saved Search 1 <small>[6/23/2015 2:30pm]</small></div>
-										<button type="button" class="btn btn-xs btn-success ssSearch">Search</button>
-										<button type="button" class="btn btn-xs btn-warning ssNew">New</button>
-										<button type="button" class="btn btn-xs btn-danger ssDelete">Delete</button>
-									</li>
-									<li class="list-group-item">Saved Search 2</li>
-									<li class="list-group-item">Saved Search 3</li>
 								</ul>
 							</div>
 						</div><!-- End Drugs Lookup Saved Searches -->
@@ -321,6 +305,8 @@
     		$('.ssSearch').click(runSavedSearch);
     		$('.ssNew').click(newSavedSearch);
     		$('.ssDelete').click(deleteSavedSearch);
+    		
+    		loadRoutesSavedSearches();
     	});
     </script>
   </body>

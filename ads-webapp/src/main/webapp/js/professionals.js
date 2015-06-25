@@ -112,6 +112,19 @@ function routeSearch() {
 }
 
 /**
+ * Fills in values of the routes search form with values from the given saved search.
+ * 
+ * @param savedSearch Saved search from which to get values
+ */
+function populateRoutesSearchForm(savedSearch) {
+	$('#rIndication').val(savedSearch.indication);
+	$('#rBrandName').val(savedSearch.brandName);
+	$('#rGenericName').val(savedSearch.genericName);
+	$('#rManufacturerName').val(savedSearch.manufacturerName);
+	$('#rSubstanceName').val(savedSearch.substanceName);
+}
+
+/**
  * Saves an Route of Administration search
  */
 function routeSavedSearch() {
@@ -127,19 +140,68 @@ function routeSavedSearch() {
 		var manufacturerName = $('#ssRouteManufacturerName').val();
 		var substanceName = $('#ssRouteSubstanceName').val();
 		
-		// TODO make call to server
-		var ssId = 1111;
-		var dateTime = '6/23/2015 2:30pm';
-		
-		// add item to list
-		$ssList = $('#routeSSList');
-		addSavedSearch($ssList, ssId, ssName, dateTime);
-		navigate("routesSavedSearches");
+		// make request to server to create saved search
+		$.ajax('/' + getContext() + '/rest/search', {
+			type: 'post',
+			data: {
+				name: ssName,
+				type: 'ROUTES',
+				indication: indication,
+				brandName: brandName,
+				genericName: genericName,
+				manufacturerName: manufacturerName,
+				substanceName: substanceName
+			},
+			success: function(data, textStatus, jqXHR) {
+				if (data) {
+					var ssId = data.id;
+					var dateTime = new Date(data.datetime);
+					
+					// add item to list
+					$ssList = $('#routeSSList');
+					addSavedSearch($ssList, ssId, ssName, dateTime);
+					navigate("routesSavedSearches");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// TODO add error handling
+				console.log(errorThrown);
+				loading(true);
+			}
+		});
 	} else {
 		$('#routeSSName').parent('span').addClass('has-error');
 	}
 }
 
+/**
+ * Loads the existing routes saved searches into the list
+ */
+function loadRoutesSavedSearches() {
+	// make request to server to get saved searches
+	$.ajax('/' + getContext() + '/rest/searches', {
+		type: 'get',
+		data: {
+			type: 'ROUTES'
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				$ssList = $('#routeSSList');
+				for (var i = 0; i < data.length; i++) {
+					var ss = data[i];
+					var ssId = ss.id;
+					var ssName = ss.name;
+					var ssDate = new Date(ss.datetime);
+					addSavedSearch($ssList, ssId, ssName, ssDate);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
+}
 
 /**
  * Performs a Drugs search
@@ -229,7 +291,7 @@ function drugSearch() {
 						var $purposes = $('<td>');
 						var $purposesList = $('<ul>').appendTo($purposes);
 						if (rPurposes) {
-							for (var j = 0; j < rPurposes.length; j++) {
+							for (j = 0; j < rPurposes.length; j++) {
 								var rPurpose = rPurposes[j];
 								$('<li>').text(rPurpose).appendTo($purposesList);
 							}
@@ -259,6 +321,16 @@ function drugSearch() {
 }
 
 /**
+ * Fills in values of the drugs search form with values from the given saved search.
+ * 
+ * @param savedSearch Saved search from which to get values
+ */
+function populateDrugsSearchForm(savedSearch) {
+	$('#dIndication').val(savedSearch.indication);
+	$('#dRoute').val(savedSearch.route);
+}
+
+/**
  * Saves a Drugs search
  */
 function drugSavedSearch() {
@@ -271,16 +343,61 @@ function drugSavedSearch() {
 		var indication = $('#ssDrugIndication').val();
 		var route = $('#ssDrugRoute').val();
 		
-		// TODO make call to server
-		var ssId = 1111;
-		var dateTime = '6/23/2015 2:30pm';
-
-		// add item to list
-		$ssList = $('#drugSSList');
-		addSavedSearch($ssList, ssId, ssName, dateTime);
-		navigate("drugsSavedSearches");
+		// make request to server to create saved search
+		$.ajax('/' + getContext() + '/rest/search', {
+			type: 'post',
+			data: {
+				name: ssName,
+				type: 'DRUGS',
+				indication: indication,
+				route: route
+			},
+			success: function(data, textStatus, jqXHR) {
+				if (data) {
+					var ssId = data.id;
+					var dateTime = new Date(data.datetime);
+					
+					// add item to list
+					$ssList = $('#drugSSList');
+					addSavedSearch($ssList, ssId, ssName, dateTime);
+					navigate("drugsSavedSearches");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// TODO add error handling
+				console.log(errorThrown);
+			}
+		});
 	} else {
 		$('#drugSSName').parent('span').addClass('has-error');
 	}
+}
 
+/**
+ * Loads the existing drugs saved searches into the list
+ */
+function loadDrugsSavedSearches() {
+	// make request to server to get saved searches
+	$.ajax('/' + getContext() + '/rest/searches', {
+		type: 'get',
+		data: {
+			type: 'DRUGS'
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				$ssList = $('#drugSSList');
+				for (var i = 0; i < data.length; i++) {
+					var ss = data[i];
+					var ssId = ss.id;
+					var ssName = ss.name;
+					var ssDate = new Date(ss.datetime);
+					addSavedSearch($ssList, ssId, ssName, ssDate);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
 }
