@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.harmonia.ads</groupId>
-        <artifactId>gsa-ads</artifactId>
-        <version>1.0</version>
+        <groupId>com.harmonia.medfinder</groupId>
+        <artifactId>medfinder</artifactId>
+        <version>1.1</version>
     </parent>
 
     <artifactId>build-tools</artifactId>
