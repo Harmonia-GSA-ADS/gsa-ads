@@ -1,11 +1,19 @@
 package com.harmonia.ads.servlet;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -19,6 +27,9 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import com.harmonia.ads.ejb.bean.SearchBean;
+import com.harmonia.ads.model.Search;
 
 /**
  * REST endpoint for ADS-related operations
@@ -37,6 +48,9 @@ public class ADSServlet {
 	private HttpServletRequest httpRequest;
 
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
+
+	@EJB
+	private SearchBean searchBean;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -352,4 +366,96 @@ public class ADSServlet {
 
 		return search;
 	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/searches")
+	public List<Search> getSavedSearchesOfType(
+			@QueryParam("type") Search.SearchType type) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("type", type);
+		return searchBean.findWithNamedQuery(Search.Q_FIND_BY_TYPE, param);
+	}
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/search")
+	public Search getSearchById(@QueryParam("id") String id) {
+		return searchBean.findById(id);
+	}
+
+	@DELETE
+	@Path("/search")
+	public void deleteSavedSearch(@QueryParam("id") String id) {
+		if (id == null) {
+			System.out.println("id is null");
+		} else {
+			System.out.println(id);
+		}
+		searchBean.delete(id);
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("/search")
+	public Search createSavedSearch(@FormParam("name") String name,
+			@FormParam("type") Search.SearchType type,
+			@FormParam("indication") String indication,
+			@FormParam("brandName") String brandName,
+			@FormParam("genericName") String genericName,
+			@FormParam("manufacturerName") String manufacturerName,
+			@FormParam("substanceName") String substanceName,
+			@FormParam("minAge") Integer minAge,
+			@FormParam("maxAge") Integer maxAge,
+			@FormParam("minWeight") Double minWeight,
+			@FormParam("maxWeight") Double maxWeight,
+			@FormParam("gender") String gender, @FormParam("route") String route) {
+
+		Search newSearch = new Search();
+		if (StringUtils.isNotBlank(name)) {
+			newSearch.setName(name);
+		}
+		if (type != null) {
+			newSearch.setType(type);
+		}
+		if (StringUtils.isNotBlank(indication)) {
+			newSearch.setIndication(indication);
+		}
+		if (StringUtils.isNotBlank(brandName)) {
+			newSearch.setBrandName(brandName);
+		}
+		if (StringUtils.isNotBlank(genericName)) {
+			newSearch.setGenericName(genericName);
+		}
+		if (StringUtils.isNotBlank(manufacturerName)) {
+			newSearch.setManufacturerName(manufacturerName);
+		}
+		if (StringUtils.isNotBlank(substanceName)) {
+			newSearch.setSubstanceName(substanceName);
+		}
+		if (minAge != null) {
+			newSearch.setMinAge(minAge);
+		}
+		if (maxAge != null) {
+			newSearch.setMaxAge(maxAge);
+		}
+		if (minWeight != null) {
+			newSearch.setMinWeight(minWeight);
+		}
+		if (maxWeight != null) {
+			newSearch.setMaxWeight(maxWeight);
+		}
+		if (StringUtils.isNotBlank(gender)) {
+			newSearch.setGender(gender);
+		}
+		if (StringUtils.isNotBlank(route)) {
+			newSearch.setRoute(route);
+		}
+
+		searchBean.persist(newSearch);
+
+		return newSearch;
+	}
+
 }

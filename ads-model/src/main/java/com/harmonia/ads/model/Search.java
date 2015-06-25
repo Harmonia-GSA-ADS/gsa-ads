@@ -6,7 +6,10 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import com.harmonia.ads.converters.SearchTypeConverter;
@@ -18,8 +21,11 @@ import com.harmonia.ads.converters.SearchTypeConverter;
  */
 @Entity
 @Table(name = "search")
+@NamedQuery(name = Search.Q_FIND_BY_TYPE, query = "SELECT s FROM Search s WHERE s.type = :type")
 public class Search {
 
+	public static final String Q_FIND_BY_TYPE = "Search.findByType"; 
+	
 	/**
 	 * Enumeration for search type
 	 * 
