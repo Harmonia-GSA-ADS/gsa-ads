@@ -1,13 +1,11 @@
 package com.harmonia.ads.servlet;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,13 +16,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -33,7 +29,7 @@ import com.harmonia.ads.ejb.bean.SearchBean;
 import com.harmonia.ads.model.Search;
 
 /**
- * REST endpoint for ADS-related operations
+ * REST endpoint for MedFinder operations
  * 
  * @author janway
  */
@@ -43,40 +39,45 @@ import com.harmonia.ads.model.Search;
 public class ADSServlet {
 
 	/**
-	 * Request object
+	 * HTTP client used for contacting the OpenFDA API
 	 */
-	@Context
-	private HttpServletRequest httpRequest;
-
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
 
+	/**
+	 * Bean for saved search related operations
+	 */
 	@EJB
 	private SearchBean searchBean;
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/test/")
-	public String test() {
-		return "Test";
-	}
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("event")
-	public String getOneAdverseDrugEvent() {
-		String ret = "";
-		try {
-			URI uri = new URIBuilder().setScheme("https")
-					.setHost("api.fda.gov").setPath("/drug/event.json").build();
-			HttpGet httpget = new HttpGet(uri);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			ret = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-		}
-		return ret;
-	}
-
+	/**
+	 * Returns a list of adverse drug events based on the supplied criteria
+	 * 
+	 * @param ageStart
+	 *            Minimum age of patient
+	 * @param ageEnd
+	 *            Maximum age of patient
+	 * @param dateStart
+	 *            Earliest date of event
+	 * @param dateEnd
+	 *            Latest date of event
+	 * @param weightStart
+	 *            Minimum weight of patient
+	 * @param weightEnd
+	 *            Maximum weight of patient
+	 * @param gender
+	 *            Gender of the patient
+	 * @param indication
+	 *            Purpose of drug
+	 * @param brandName
+	 *            Brand name of drug
+	 * @param genericName
+	 *            Generic name of drug
+	 * @param manufacturerName
+	 *            Manufacturer name of drug
+	 * @param substanceName
+	 *            Substance name (active ingredient) of drug
+	 * @return List of adverse events based on the supplied criteria
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
@@ -151,6 +152,21 @@ public class ADSServlet {
 		return result;
 	}
 
+	/**
+	 * Returns the routes of administration for a drug
+	 * 
+	 * @param indication
+	 *            Purpose of drug
+	 * @param brandName
+	 *            Brand name of drug
+	 * @param genericName
+	 *            Generic name of drug
+	 * @param manufacturerName
+	 *            Manufacturer name of drug
+	 * @param substanceName
+	 *            Substance name (active ingredient) of drug
+	 * @return Routes of administration for a drug
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/routes")
@@ -181,6 +197,16 @@ public class ADSServlet {
 		return result;
 	}
 
+	/**
+	 * Returns the drugs matching the given indication and route of
+	 * administration
+	 * 
+	 * @param indication
+	 *            Purpose of drug
+	 * @param route
+	 *            Route of administration of the drug
+	 * @return Drugs matching the given indication and route of administration
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
@@ -205,6 +231,15 @@ public class ADSServlet {
 		return result;
 	}
 
+	/**
+	 * Creates the patient age parameter for OpenFDA queries
+	 * 
+	 * @param ageStart
+	 *            Minimum age of patient
+	 * @param ageEnd
+	 *            Maximum age of patient
+	 * @return Query string section for patient age
+	 */
 	private String createAgeParameter(String ageStart, String ageEnd) {
 		if (StringUtils.isNotBlank(ageStart) && StringUtils.isBlank(ageEnd)) {
 			ageEnd = ageStart;
@@ -220,6 +255,15 @@ public class ADSServlet {
 		return ageConditionString;
 	}
 
+	/**
+	 * Creates the event date range parameter for OpenFDA queries
+	 * 
+	 * @param dateStart
+	 *            Earliest date of event
+	 * @param dateEnd
+	 *            Latest date of event
+	 * @return Query string section for event date range
+	 */
 	private String createDateParameter(String dateStart, String dateEnd) {
 		if (StringUtils.isNotBlank(dateStart) && StringUtils.isBlank(dateEnd)) {
 			dateEnd = dateStart;
@@ -235,6 +279,13 @@ public class ADSServlet {
 		return dateConditionString;
 	}
 
+	/**
+	 * Creates the gender parameter for OpenFDA queries
+	 * 
+	 * @param gender
+	 *            Gender of the patient
+	 * @return Query string section for gender
+	 */
 	private String createGenderParameter(String gender) {
 		String genderValue = null;
 		if (StringUtils.isNotBlank(gender)) {
@@ -255,6 +306,15 @@ public class ADSServlet {
 		return genderConditionString;
 	}
 
+	/**
+	 * Creates the weight range parameter for OpenFDA queries
+	 * 
+	 * @param weightStart
+	 *            Minimum weight of patient
+	 * @param weightEnd
+	 *            Maximum weight of patient
+	 * @return Query string section for weight range
+	 */
 	private String createWeightParameter(String weightStart, String weightEnd) {
 		if (StringUtils.isNotBlank(weightStart))
 			weightStart = "" + Integer.parseInt(weightStart) * 0.453592; // lbs
@@ -278,6 +338,21 @@ public class ADSServlet {
 		return weightConditionString;
 	}
 
+	/**
+	 * Creates the drugs parameter for OpenFDA queries
+	 * 
+	 * @param indication
+	 *            Purpose of drug
+	 * @param brandName
+	 *            Brand name of drug
+	 * @param genericName
+	 *            Generic name of drug
+	 * @param manufacturerName
+	 *            Manufacturer name of drug
+	 * @param substanceName
+	 *            Substance name (active ingredient) of drug
+	 * @return Query string section for drugs
+	 */
 	private String createDrugsParameter(String indication, String brandName,
 			String genericName, String manufacturerName, String substanceName) {
 		StringBuilder sb = new StringBuilder("(");
@@ -322,6 +397,23 @@ public class ADSServlet {
 		return drugsConditionString;
 	}
 
+	/**
+	 * Creates the query string for OpenFDA queries to find routes of
+	 * administration for drugs
+	 * 
+	 * @param indication
+	 *            Purpose of drug
+	 * @param brandName
+	 *            Brand name of drug
+	 * @param genericName
+	 *            Generic name of drug
+	 * @param manufacturerName
+	 *            Manufacturer name of drug
+	 * @param substanceName
+	 *            Substance name (active ingredient) of drug
+	 * @return Query string for OpenFDA queries to find routes of administration
+	 *         for drugs
+	 */
 	private String createRouteSearch(String indication, String brandName,
 			String genericName, String manufacturerName, String substanceName) {
 
@@ -357,6 +449,17 @@ public class ADSServlet {
 		return search;
 	}
 
+	/**
+	 * Creates the query string for OpenFDA queries to find drugs based on
+	 * purpose and route of administration
+	 * 
+	 * @param indication
+	 *            Purpose of drug
+	 * @param route
+	 *            Route of administration
+	 * @return Query string for OpenFDA queries to find drugs based on purpose
+	 *         and route of administration
+	 */
 	private String createDrugRouteSearch(String indication, String route) {
 
 		String search = "";
@@ -368,6 +471,13 @@ public class ADSServlet {
 		return search;
 	}
 
+	/**
+	 * Returns all saved searches with the given type
+	 * 
+	 * @param type
+	 *            Saved search type
+	 * @return List of all saved searches with the given type
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searches")
@@ -378,6 +488,13 @@ public class ADSServlet {
 		return searchBean.findWithNamedQuery(Search.Q_FIND_BY_TYPE, param);
 	}
 
+	/**
+	 * Returns the saved search with the given id
+	 * 
+	 * @param id
+	 *            Id of the saved search
+	 * @return Saved search with the given id
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/search")
@@ -385,6 +502,12 @@ public class ADSServlet {
 		return searchBean.findById(id);
 	}
 
+	/**
+	 * Deletes the saved search with the given id
+	 * 
+	 * @param id
+	 *            Id of the saved search
+	 */
 	@DELETE
 	@Path("/search/{id}")
 	public void deleteSavedSearch(@PathParam("id") String id) {
@@ -396,6 +519,37 @@ public class ADSServlet {
 		searchBean.delete(id);
 	}
 
+	/**
+	 * Creates a saved search
+	 * 
+	 * @param name
+	 *            Name of the saved search
+	 * @param type
+	 *            Type of the saved search
+	 * @param indication
+	 *            Search criteria value for indication
+	 * @param brandName
+	 *            Search criteria value for brand name
+	 * @param genericName
+	 *            Search criteria value for generic name
+	 * @param manufacturer
+	 *            Name Search criteria value for manufacturer name
+	 * @param substanceName
+	 *            Search criteria value for substance name
+	 * @param minAge
+	 *            Search criteria value for min age
+	 * @param maxAge
+	 *            Search criteria value for max age
+	 * @param minWeight
+	 *            Search criteria value for min weight
+	 * @param maxWeight
+	 *            Search criteria value for max weight
+	 * @param gender
+	 *            Search criteria value for gender
+	 * @param route
+	 *            Search criteria value for route
+	 * @return New saved search
+	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
