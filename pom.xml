@@ -107,7 +107,7 @@
 					<version>3.3</version>
 					<dependencies>
 						<dependency>
-							<groupId>com.arknss</groupId>
+							<groupId>com.harmonia.ads</groupId>
 							<artifactId>build-tools</artifactId>
 							<version>${project.version}</version>
 						</dependency>
