@@ -4,13 +4,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.harmonia.ads</groupId>
-	<artifactId>gsa-ads</artifactId>
+	<groupId>com.harmonia.medfinder</groupId>
+	<artifactId>medfinder</artifactId>
 	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>ADS</name>
-	<description>Top-level aggregrator project for ADS.</description>
+	<name>MedFinder</name>
+	<description>Top-level aggregrator project for MedFinder.</description>
 
 
 	<distributionManagement>
@@ -21,9 +21,9 @@
 	</distributionManagement>
 
 	<scm>
-		<developerConnection>scm:git:ssh://github.com/Harmonia-GSA-ADS/gsa-ads.git</developerConnection>
+		<developerConnection>scm:git:ssh://github.com/HarmoniaHoldings/medfinder.git</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/Harmonia-GSA-ADS/gsa-ads</url>
+		<url>https://github.com/HarmoniaHoldings/medfinder</url>
 	</scm>
 
 	<properties>
@@ -31,9 +31,9 @@
 	</properties>
 
 	<modules>
-		<module>ads-model</module>
-		<module>ads-ejb</module>
-		<module>ads-webapp</module>
+		<module>medfinder-model</module>
+		<module>medfinder-ejb</module>
+		<module>medfinder-webapp</module>
 		<module>build-tools</module>
 	</modules>
 	<dependencies>
@@ -107,7 +107,7 @@
 					<version>3.3</version>
 					<dependencies>
 						<dependency>
-							<groupId>com.harmonia.ads</groupId>
+							<groupId>com.harmonia.medfinder</groupId>
 							<artifactId>build-tools</artifactId>
 							<version>${project.version}</version>
 						</dependency>

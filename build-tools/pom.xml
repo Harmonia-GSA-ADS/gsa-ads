@@ -2,8 +2,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.harmonia.ads</groupId>
-        <artifactId>gsa-ads</artifactId>
+        <groupId>com.harmonia.medfinder</groupId>
+        <artifactId>medfinder</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
