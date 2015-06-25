@@ -12,6 +12,9 @@
     <!-- Bootstrap theme -->
     <link href="css/lib/bootstrap/bootstrap-theme.min.css" rel="stylesheet">
     
+    <!-- Font Awesome -->
+    <link href="css/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    
     <!-- Application CSS -->
 	<link href="css/styles.min.css" rel="stylesheet">
 
@@ -25,7 +28,7 @@
   <body role="document">
   
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -48,9 +51,53 @@
   
 	<div class="container theme-showcase" role="main">
 		<h1>Welcome to MedFinder!</h1>
-    	<div class="well">
-    		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin luctus bibendum tincidunt. Cras maximus arcu purus, ut volutpat turpis volutpat ac. Curabitur eget mi efficitur neque finibus sollicitudin sed at mi. Praesent sodales dolor in sapien volutpat pretium. Quisque suscipit nisl vel nunc porttitor posuere id vel elit. Maecenas tortor nisi, cursus sed tempus non, cursus sed justo. Quisque ut eleifend tortor, sed aliquet mi. Sed a aliquam lectus.</p>
-			<p>Praesent condimentum consectetur commodo. Maecenas vitae felis in enim sodales pharetra et a magna. Aliquam erat volutpat. Ut et erat sed est blandit ultricies vitae feugiat ante. Etiam sodales, dui eget interdum condimentum, nisi neque ullamcorper magna, at suscipit sapien mauris sit amet neque. Nulla facilisi. Donec iaculis imperdiet ligula, vitae finibus enim ornare porta. Duis euismod turpis ut arcu dignissim, ac lacinia orci posuere. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis ac turpis euismod, ultrices turpis in, cursus erat.</p>
+		<br/><br/>
+    	<div class="row">
+    		<div class="col-md-6">
+		    	<div class="panel panel-primary welcome">
+					<div class="panel-heading">
+						<h3 class="panel-title">Consumer Tools</h3>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-3">
+								<i class="fa fa-meh-o fa-5x"></i>
+							</div>
+							<div>
+								<h2><a href="consumers">Adverse Event Search</a></h2>
+								<p>Learn about possible side effects</p>
+							</div>
+						</div>
+					</div>
+				</div>
+    		</div>
+    		<div class="col-md-6">
+				<div class="panel panel-primary welcome">
+					<div class="panel-heading">
+						<h3 class="panel-title">Medical Professional Tools</h3>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-3">
+								<i class="fa fa-eyedropper fa-5x"></i>
+							</div>
+							<div>
+								<h2><a href="professionals">Route of Administration Lookup</a></h2>
+								<p>Find routes of administration for medications</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3">
+								<i class="fa fa-medkit fa-5x"></i>
+							</div>
+							<div>
+								<h2><a href="professionals#drugLookup">Drug Lookup</a></h2>
+								<p>Find medications by use and route of administration</p>
+							</div>
+						</div>
+					</div>
+				</div>    		
+    		</div>
     	</div>
 	</div>
 	
