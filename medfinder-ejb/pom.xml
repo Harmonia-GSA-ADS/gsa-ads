@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.harmonia.medfinder</groupId>
 		<artifactId>medfinder</artifactId>
-		<version>1.1</version>
+		<version>1.2-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.harmonia.medfinder</groupId>
