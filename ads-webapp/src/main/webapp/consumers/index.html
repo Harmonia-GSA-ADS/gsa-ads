@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="../css/lib/bootstrap/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="../css/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Application CSS -->
+	<link href="../css/styles.min.css" rel="stylesheet">
+
+    <!-- Application JS -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/consumers.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+  
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">MedFinder</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../">Home</a></li>
+            <li class="active"><a href="#about">Consumers</a></li>
+            <li><a href="../professionals">Medical Professionals</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+  
+	<div class="container theme-showcase" role="main">
+	
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Adverse Events Lookup</a></li>
+		</ul>
+		<div class="tab-content">
+		
+			<!-- Adverse Event Lookup Tab -->
+			<div id="adverseEventLookup" class="tab-pane fade in active">
+
+				<div class="well">Explore reported adverse events for certain patient characteristics and drugs</div>
+
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Adverse Events Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Adverse Event Search</h3>
+							</div>
+							<div class="panel-body">
+								<form role="form" id="adverseEventsSearch">
+									<div class="row">
+										<div class="col-md-6">
+											<fieldset>
+												<legend>Patient Information</legend>
+												<div class="form-group">
+													<div class="form-group">
+														<label for="minAge">Age (range)</label>
+														<input type="input" id="minAge" name="minAge" class="form-control" placeholder="Minimum Age" />
+													</div>
+													<div class="form-group">
+														<input type="input" id="maxAge" name="maxAge" class="form-control" placeholder="Maximum Age" />
+													</div>
+												</div>
+												<div class="form-group">
+													<label>Gender</label>
+													<div class="radio-inline">
+														<label><input type="radio" name="gender" value="Male">Male</label>
+													</div>
+													<div class="radio-inline">
+														<label><input type="radio" name="gender" value="Female">Female</label>
+													</div>
+												</div>
+												<div class="form-group">
+													<label>Weight (range)</label>
+													<div class="form-group">
+														<input type="input" id="minWeight" name="minWeight" class="form-control" placeholder="Minimum Weight" />
+													</div>
+													<div class="form-group">
+														<input type="input" id="maxWeight" name="maxWeight" class="form-control" placeholder="Maximum Weight" />
+													</div>
+												</div>
+											</fieldset>
+										</div>
+										<div class="col-md-6">
+											<fieldset>
+												<legend>Drug Information</legend>
+												<div class="form-group">
+													<label for="indiciation">Indication</label> <input type="input"
+														id="indication" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="brandName">Brand Name</label> <input type="input"
+														id="brandName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="genericName">Generic Name</label> <input
+														type="input" id="genericName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="manufacturerName">Manufacturer Name</label> <input
+														type="input" id="manufacturerName" class="form-control" />
+												</div>
+												<div class="form-group">
+													<label for="substanceName">Substance Name</label> <input
+														type="input" id="substanceName" class="form-control" />
+												</div>
+											</fieldset>
+										</div>
+									</div>
+				
+									<button type="button" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
+				
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Adverse Events Saved Searches -->
+						<div id="aeSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul id="ssList" class="list-group">
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Results -->
+				<div class="row">
+					<div id="adverseEventsResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Adverse Event Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveAdverseEventsSearch" role="form">
+									<span>
+										<input type="text" id="ssName" class="form-control ssName" placeholder="Saved Search Name" />
+									</span>
+									<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Results Table -->
+							<table id="adverseEventsResults" class="table">
+								<thead>
+									<tr>
+										<th>Reactions</th>
+										<th>Drugs</th>
+										<th>Serious</th>
+										<th>Death</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Adverse Events Results Panel -->
+				</div>
+			</div><!-- End Adverse Event Lookup Tab -->
+		</div>
+	</div>
+	
+	<!-- Hidden field for storing last search criteria -->
+	<input type="hidden" id="ssMinDate" />
+	<input type="hidden" id="ssMaxDate" />
+	<input type="hidden" id="ssMinAge" />
+	<input type="hidden" id="ssMaxAge" />
+	<input type="hidden" id="ssGender" />
+	<input type="hidden" id="ssMinWeight" />
+	<input type="hidden" id="ssMaxWeight" />				
+	<input type="hidden" id="ssIndication" />
+	<input type="hidden" id="ssBrandName" />
+	<input type="hidden" id="ssGenericName" />
+	<input type="hidden" id="ssSubstanceName" />
+	<input type="hidden" id="ssManufacturerName" />
+
+	<div id="confirmDelete" class="modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Delete Confirmation</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Are you sure you want to delete the saved search?</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary confirmDeleteTrue">Delete</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<!-- Delete Confirmation -->
+	<div class="modal fade loading">
+		<div class="modal-dialog modal-sm">
+			      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Delete Confirmation</h4>
+	      </div>
+	    	<div class="modal-content">
+				<i class="fa fa-repeat"></i>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Loading Mask -->
+	<div class="searchLoading modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-body" style="text-align:center">
+	        <i class="fa fa-spinner fa-pulse"></i> Searching...
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../js/lib/bootstrap.min.js"></script>
+    <script src="../js/lib/jquery.validate.min.js"></script>
+    <script>
+    	$(document).ready(function() {
+    		$('#adverseEventsSubmit').click(adverseEventSearch);
+    		$('#aeSavedSearchSubmit').click(adverseEventSavedSearch);
+    		$('#adverseEventsResultsPanel').hide();
+    		
+    		$('.ssName').keyup(clearError);
+    		$('.ssSearch').click(runSavedSearch);
+    		$('.ssNew').click(newSavedSearch);
+    		$('.ssDelete').click(deleteSavedSearch);
+    		
+    		loadAdverseEventsSavedSearches();
+    	});
+    </script>
+  </body>
+</html>

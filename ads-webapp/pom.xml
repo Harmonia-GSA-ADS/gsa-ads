@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.harmonia.ads</groupId>
+		<artifactId>gsa-ads</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<artifactId>ads-webapp</artifactId>
+	<packaging>war</packaging>
+	<name>ADS Web App</name>
+
+	<properties>
+		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<shiro.version>1.2.1</shiro.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.harmonia.ads</groupId>
+			<artifactId>ads-ejb</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5</version>
+		</dependency>
+
+		<!-- Testing Dependencies -->
+		<dependency>
+			<groupId>org.jboss.spec</groupId>
+			<artifactId>jboss-javaee-7.0</artifactId>
+			<version>1.0.2.Final</version>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<compilerArguments>
+						<endorseddirs>${endorsed.dir}</endorseddirs>
+					</compilerArguments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${endorsed.dir}</outputDirectory>
+							<silent>true</silent>
+							<artifactItems>
+								<artifactItem>
+									<groupId>javax</groupId>
+									<artifactId>javaee-endorsed-api</artifactId>
+									<version>6.0</version>
+									<type>jar</type>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<version>2.7</version>
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>index</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+						</plugin>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+							<version>2.5.2</version>
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>findbugs</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+							<configuration>
+								<xmlOutput>true</xmlOutput>
+								<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-pmd-plugin</artifactId>
+							<reportSets>
+								<reportSet>
+									<reports>
+										<report>pmd</report>
+										<report>cpd</report>
+									</reports>
+								</reportSet>
+							</reportSets>
+							<configuration>
+								<rulesets>
+									<ruleset>/rulesets/pmd-ads.xml</ruleset>
+								</rulesets>
+							</configuration>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.4.6</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<attachClasses>true</attachClasses>
+					<packagingExcludes>Gruntfile.js,package.json,less/*,less,node_modules/**,node_modules</packagingExcludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>npm-install-grunt</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<target name="building">
+								<echo><!-- NPM INSTALL -->
+								</echo>
+								<exec executable="cmd" dir="${project.basedir}/src/main/webapp"
+									osfamily="windows" failonerror="true">
+									<arg line="/c npm config set color false" />
+								</exec>
+								<exec executable="npm" dir="${project.basedir}/src/main/webapp"
+									osfamily="unix" failonerror="true">
+									<arg line="config set color false" />
+								</exec>
+								<exec executable="cmd" dir="${project.basedir}/src/main/webapp"
+									osfamily="windows" failonerror="true">
+									<arg line="/c npm install" />
+								</exec>
+								<exec executable="npm" dir="${project.basedir}/src/main/webapp"
+									osfamily="unix" failonerror="true">
+									<arg line="install" />
+								</exec>
+								<echo><!-- GRUNT -->
+								</echo>
+								<exec executable="cmd" dir="${project.basedir}/src/main/webapp"
+									osfamily="windows" output="${project.basedir}/src/main/webapp/grunt.status"
+									resultproperty="cmdresult">
+									<arg line="/c grunt --no-color" />
+								</exec>
+								<exec executable="grunt" dir="${project.basedir}/src/main/webapp"
+									osfamily="unix" output="${project.basedir}/src/main/webapp/grunt.status"
+									resultproperty="cmdresult">
+									<arg line="--no-color" />
+								</exec>
+								<loadfile property="grunt.status"
+									srcFile="${project.basedir}/src/main/webapp/grunt.status" />
+								<echo>${grunt.status}</echo>
+								<delete file="${project.basedir}/src/main/webapp/grunt.status"
+									quiet="true" />
+								<condition property="cmdsuccess">
+									<equals arg1="${cmdresult}" arg2="0" />
+								</condition>
+								<fail unless="cmdsuccess" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>move-file</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/appspec.yml" tofile="${basedir}/target/appspec.yml"/>
+								<copy file="${basedir}/src/main/java/com/harmonia/ads/aws/deploy.sh" tofile="${basedir}/target/deploy.sh"/>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<finalName>ads</finalName>
+
+	</build>
+</project>

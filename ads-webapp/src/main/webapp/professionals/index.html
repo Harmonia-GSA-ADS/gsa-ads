@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="../css/lib/bootstrap/bootstrap-theme.min.css" rel="stylesheet">
+    
+    <!-- Application CSS -->
+	<link href="../css/styles.min.css" rel="stylesheet">
+	
+	<!-- Font Awesome -->
+    <link href="../css/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Application JS -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/professionals.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+  
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">MedFinder</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../">Home</a></li>
+            <li><a href="../consumers">Consumers</a></li>
+            <li class="active"><a href="#">Medical Professionals</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+  
+	<div class="container theme-showcase" role="main">
+
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#routeLookup">Route Lookup</a></li>
+		  <li><a data-toggle="tab" href="#drugLookup">Drug Lookup</a></li>
+		</ul>
+		<div class="tab-content">
+		
+			<!-- Route Lookup Tab -->
+			<div id="routeLookup" class="tab-pane fade in active">
+			
+				<div class="well">Explore routes of administration for certain drugs</div>
+			
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Route Lookup Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Routes of Administration Lookup Search</h3>
+							</div>
+							<div class="panel-body">
+								<form role="form" id="routeSearch">
+									<fieldset>
+										<legend>Drug Information</legend>
+										<div class="form-group">
+											<label for="rIndiciation">Indication</label> <input type="input"
+												id="rIndication" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="rBrandName">Brand Name</label> <input type="input"
+												id="rBrandName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="rGenericName">Generic Name</label> <input
+												type="input" id="rGenericName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="rManufacturerName">Manufacturer Name</label> <input
+												type="input" id="rManufacturerName" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="rSubstanceName">Substance Name</label> <input
+												type="input" id="rSubstanceName" class="form-control" />
+										</div>
+									</fieldset>
+				
+									<button type="button" id="routesSubmit" class="btn btn-success btn-block">Search</button>
+				
+								</form>
+							</div>
+						</div><!-- End Route Lookup Form -->
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Route Lookup Saved Searches -->
+						<div id="routesSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul id="routeSSList" class="list-group">
+								</ul>
+							</div>
+						</div><!-- End Route Lookup Saved Searches -->
+					</div>
+				</div>
+				
+				<!-- Route Lookup Results -->
+				<div class="row">
+					<div id="routesResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Routes of Administration Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveRoutesSearch" role="form">
+									<span>
+										<input type="text" id="routeSSName" class="form-control ssName" placeholder="Saved Search Name" />
+									</span>
+									<button type="button" id="routesSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Results Table -->
+							<table id="routesResults" class="table">
+								<thead>
+									<tr>
+										<th>Brand Name</th>
+										<th>Generic Name</th>
+										<th>Routes</th>
+										<th>Manufacturer Name</th>
+										<th>Substance Name</th>
+										<th>Indication</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Route Lookup Results panel -->
+				</div>
+		  </div><!-- End Route Lookup Tab -->
+		  
+		  <!-- Drug Lookup Tab -->
+		  <div id="drugLookup" class="tab-pane fade">
+			
+				<div class="well">Explore drugs with certain routes of administration</div>
+			
+				<div class="row">
+					<div class="col-md-8">
+					
+						<!-- Drug Lookup Search Form -->
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Drug Lookup Search</h3>
+							</div>
+							<div class="panel-body">
+								<form role="form" id="drugsSearch">
+									<fieldset>
+										<legend>Drug Information</legend>
+										<div class="form-group">
+											<label for="dIndiciation">Indication</label>
+											<input type="input" id="dIndication" name="dIndication" class="form-control" />
+										</div>
+										<div class="form-group">
+											<label for="dRoute">Route of Administration</label>
+											<input type="input" id="dRoute" name="dRoute" class="form-control" />
+										</div>
+									</fieldset>
+				
+									<button type="button" id="drugsSubmit" class="btn btn-success btn-block">Search</button>
+				
+								</form>
+							</div>
+						</div><!-- End Drugs Lookup Form -->
+					</div>
+					<div class="col-md-4">
+					
+						<!-- Drugs Lookup Saved Searches -->
+						<div id="drugsSavedSearches" class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">Saved Searches</h3>
+							</div>
+							<div class="panel-body">
+								<ul id="drugSSList" class="list-group">
+								</ul>
+							</div>
+						</div><!-- End Drugs Lookup Saved Searches -->
+					</div>
+				</div>
+				
+				<!-- Drugs Lookup Results -->
+				<div class="row">
+					<div id="drugsResultsPanel" class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Drugs Search Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<!-- Save Search Form -->
+							<div class="pull-right ss-wrap">
+								<form class="form-inline" id="saveDrugsSearch" role="form">
+									<span>
+										<input type="text" id="drugSSName" class="form-control ssName" placeholder="Saved Search Name" />
+									</span>
+									<button type="button" id="drugsSavedSearchSubmit" class="btn btn-success">Save Search</button>
+								</form>
+							</div>
+						
+							<!-- Drugs Results Table -->
+							<table id="drugsResults" class="table">
+								<thead>
+									<tr>
+										<th>Brand Name</th>
+										<th>Generic Name</th>
+										<th>Routes</th>
+										<th>Indication</th>
+										<th>Purposes</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div><!-- End Drugs Lookup Results panel -->
+				</div>
+		  </div><!-- End Drug Lookup Tab -->
+		</div>
+		
+	</div>
+	
+	<!-- Hidden field for storing last search criteria -->
+	<input type="hidden" id="ssDrugIndication" />
+	<input type="hidden" id="ssDrugRoute" />
+	<input type="hidden" id="ssRouteIndication" />
+	<input type="hidden" id="ssRouteBrandName" />
+	<input type="hidden" id="ssRouteGenericName" />
+	<input type="hidden" id="ssRouteSubstanceName" />
+	<input type="hidden" id="ssRouteManufacturerName" />
+	
+	<!-- Delete Confirmation -->
+	<div id="confirmDelete" class="modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Delete Confirmation</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Are you sure you want to delete the saved search?</p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary confirmDeleteTrue">Delete</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<!-- Loading Mask -->
+	<div class="searchLoading modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-body" style="text-align:center">
+	        <i class="fa fa-spinner fa-pulse"></i> Searching...
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../js/lib/bootstrap.min.js"></script>
+    <script src="../js/lib/jquery.validate.min.js"></script>
+        <script>
+    	$(document).ready(function() {
+    		$('#routesSubmit').click(routeSearch);
+    		$('#routesSavedSearchSubmit').click(routeSavedSearch);
+    		$('#routesResultsPanel').hide();
+    		
+    		$('#drugsSubmit').click(drugSearch);
+    		$('#drugsSavedSearchSubmit').click(drugSavedSearch);
+    		$('#drugsResultsPanel').hide();
+    		
+    		$('.ssName').keyup(clearError);
+    		$('.ssSearch').click(runSavedSearch);
+    		$('.ssNew').click(newSavedSearch);
+    		$('.ssDelete').click(deleteSavedSearch);
+    		
+    		loadRoutesSavedSearches();
+    	});
+    </script>
+  </body>
+</html>
