@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
+    <title>MedFinder</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -56,14 +56,14 @@
 	<div class="container theme-showcase" role="main">
 	
 		<ul class="nav nav-tabs">
-		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Adverse Events Lookup</a></li>
+		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Side Effects Lookup</a></li>
 		</ul>
 		<div class="tab-content">
 		
 			<!-- Adverse Event Lookup Tab -->
 			<div id="adverseEventLookup" class="tab-pane fade in active">
 
-				<div class="well">Explore reported adverse events for certain patient characteristics and drugs</div>
+				<div class="well">Explore reported side effects for certain patient characteristics and drugs</div>
 
 				<div class="row">
 					<div class="col-md-8">
@@ -71,17 +71,17 @@
 						<!-- Adverse Events Search Form -->
 						<div class="panel panel-primary">
 							<div class="panel-heading">
-								<h3 class="panel-title">Adverse Event Search</h3>
+								<h3 class="panel-title">Side Effect Search <i id="adverseEventInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
 							</div>
 							<div class="panel-body">
-								<form role="form" id="adverseEventsSearch">
+								<form role="form" id="adverseEventsSearch" action="javascript:adverseEventSearch()">
 									<div class="row">
 										<div class="col-md-6">
 											<fieldset>
 												<legend>Patient Information</legend>
 												<div class="form-group">
 													<div class="form-group">
-														<label for="minAge">Age (range)</label>
+														<label for="minAge">Age (Years) [range]</label>
 														<input type="input" id="minAge" name="minAge" class="form-control" placeholder="Minimum Age" />
 													</div>
 													<div class="form-group">
@@ -98,7 +98,7 @@
 													</div>
 												</div>
 												<div class="form-group">
-													<label>Weight (range)</label>
+													<label>Weight (Lbs) [range]</label>
 													<div class="form-group">
 														<input type="input" id="minWeight" name="minWeight" class="form-control" placeholder="Minimum Weight" />
 													</div>
@@ -112,30 +112,44 @@
 											<fieldset>
 												<legend>Drug Information</legend>
 												<div class="form-group">
-													<label for="indiciation">Indication</label> <input type="input"
-														id="indication" class="form-control" />
+													<label for="indiciation">Purpose/Usage</label>
+													<input type="input" id="indication" class="form-control"  placeholder="E.g. Congestion, Pain"/>
 												</div>
 												<div class="form-group">
-													<label for="brandName">Brand Name</label> <input type="input"
-														id="brandName" class="form-control" />
+													<label for="brandName">Brand Name</label>
+													<input type="input" id="brandName" class="form-control" placeholder="E.g. Sudafed, Advil" />
 												</div>
 												<div class="form-group">
-													<label for="genericName">Generic Name</label> <input
-														type="input" id="genericName" class="form-control" />
+													<label for="genericName">Generic Name</label>
+													<input type="input" id="genericName" class="form-control" placeholder="E.g. Psuedoephedrine, Ibuprofen" />
 												</div>
 												<div class="form-group">
-													<label for="manufacturerName">Manufacturer Name</label> <input
-														type="input" id="manufacturerName" class="form-control" />
-												</div>
-												<div class="form-group">
-													<label for="substanceName">Substance Name</label> <input
-														type="input" id="substanceName" class="form-control" />
+													<label for="substanceName">Active Ingredients</label>
+													<input type="input" id="substanceName" class="form-control" placeholder="E.g. Psuedoephedrine Hydrochloride, Ibuprofen" />
 												</div>
 											</fieldset>
 										</div>
 									</div>
+									
+									<!-- Search Options -->
+									<div class="row" style="padding:1em;">
+										<fieldset>
+											<legend>Search Options</legend>
+											<div class="form-group">
+												<label for="indiciation">Result Limit</label>
+												<select id="resultLimit" name="resultLimit" class="form-control">
+													<option value="5">5</option>
+													<option value="10">10</option>
+													<option selected value="15">15</option>
+													<option value="20">20</option>
+													<option value="25">25</option>
+												</select>
+											</div>
+										</fieldset>
+									</div>
 				
-									<button type="button" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
+									<button type="submit" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
+									<button type="button" class="btn btn-warning btn-block form-reset">Reset</button>
 				
 								</form>
 							</div>
@@ -158,7 +172,7 @@
 				
 				<!-- Results -->
 				<div class="row">
-					<div id="adverseEventsResultsPanel" class="panel panel-primary">
+					<div id="adverseEventsResultsPanel" class="panel panel-primary results-panel">
 						<div class="panel-heading">
 							<h3 class="panel-title">Adverse Event Search Results</h3>
 						</div>
@@ -166,19 +180,19 @@
 						
 							<!-- Save Search Form -->
 							<div class="pull-right ss-wrap">
-								<form class="form-inline" id="saveAdverseEventsSearch" role="form">
+								<form class="form-inline" id="saveAdverseEventsSearch" role="form" action="javascript:adverseEventSavedSearch()">
 									<span>
 										<input type="text" id="ssName" class="form-control ssName" placeholder="Saved Search Name" />
 									</span>
-									<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
+									<button type="submit" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
 								</form>
 							</div>
 						
 							<!-- Results Table -->
-							<table id="adverseEventsResults" class="table">
+							<table id="adverseEventsResults" class="table table-striped">
 								<thead>
 									<tr>
-										<th>Reactions</th>
+										<th>Side Effects</th>
 										<th>Drugs</th>
 										<th>Serious</th>
 										<th>Death</th>
@@ -187,6 +201,11 @@
 								<tbody>
 								</tbody>
 							</table>
+							
+							<!-- No results alert -->
+							<div class="alert alert-danger" role="alert">
+								No results found!
+							</div>
 						</div>
 					</div><!-- End Adverse Events Results Panel -->
 				</div>
@@ -206,8 +225,8 @@
 	<input type="hidden" id="ssBrandName" />
 	<input type="hidden" id="ssGenericName" />
 	<input type="hidden" id="ssSubstanceName" />
-	<input type="hidden" id="ssManufacturerName" />
 
+	<!-- Delete Confirmation -->
 	<div id="confirmDelete" class="modal fade">
 	  <div class="modal-dialog modal-sm">
 	    <div class="modal-content">
@@ -225,19 +244,6 @@
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
-
-	<!-- Delete Confirmation -->
-	<div class="modal fade loading">
-		<div class="modal-dialog modal-sm">
-			      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	        <h4 class="modal-title">Delete Confirmation</h4>
-	      </div>
-	    	<div class="modal-content">
-				<i class="fa fa-repeat"></i>
-			</div>
-		</div>
-	</div>
 	
 	<!-- Loading Mask -->
 	<div class="searchLoading modal fade">
@@ -257,16 +263,34 @@
     <script src="../js/lib/jquery.validate.min.js"></script>
     <script>
     	$(document).ready(function() {
-    		$('#adverseEventsSubmit').click(adverseEventSearch);
-    		$('#aeSavedSearchSubmit').click(adverseEventSavedSearch);
+    		
+    		// configure search info pop ups
+    		$('#adverseEventInfo').popover({
+    			container: 'body',
+    			placement: 'right',
+    			content: 'All patient and drug criteria values are joined with the AND operator when the search is performed.'
+    		});
+    		
     		$('#adverseEventsResultsPanel').hide();
+    		$('.form-reset').click(resetForm);
     		
     		$('.ssName').keyup(clearError);
     		$('.ssSearch').click(runSavedSearch);
     		$('.ssNew').click(newSavedSearch);
     		$('.ssDelete').click(deleteSavedSearch);
     		
-    		loadAdverseEventsSavedSearches();
+    		loadSavedSearches('ADVERSE_EVENTS', $('#ssList'))
+    		
+    		// submit form on Enter
+    		$('.form-control').keyup(function(e) {
+    			if (e.keyCode === 13) {
+    				var formId = $(this).parents('form').attr('id');
+    				if (formId === 'adverseEventsSearch') {
+    					adverseEventSearch();
+    				}
+    			}
+    			
+    		});
     	});
     </script>
   </body>

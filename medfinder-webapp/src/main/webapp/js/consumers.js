@@ -29,8 +29,10 @@ function adverseEventSearch() {
 		var indication = $('#indication').val();
 		var brandName = $('#brandName').val();
 		var genericName = $('#genericName').val();
-		var manufacturerName = $('#manufacturerName').val();
 		var substanceName = $('#substanceName').val();
+		
+		// extra search options from form
+		var limit = $('#resultLimit').val();
 		
 		// clear results table
 		var $resultsTable = $('#adverseEventsResults tbody');
@@ -50,14 +52,16 @@ function adverseEventSearch() {
 				indication: indication,
 				brandName: brandName,
 				genericName: genericName,
-				manufacturerName: manufacturerName,
-				substanceName: substanceName
+				substanceName: substanceName,
+				limit: limit
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data.error) {
-					// TODO handle error
 					loading(true);
-					window.alert(data.error.message);
+					$('#adverseEventsResultsPanel').show();
+					$('#adverseEventsResultsPanel table').hide();
+					$('#adverseEventsResultsPanel .alert').show();
+					navigate('adverseEventsResultsPanel');
 				} else if (data.results) {
 					for (var i = 0; i < data.results.length; i++) {
 						var result = data.results[i];
@@ -67,6 +71,16 @@ function adverseEventSearch() {
 						var reactions = result.patient.reaction;
 						var drugs = result.patient.drug;
 						var date = result.receiptdate;
+						
+						// sort and make drug list unique
+						var d = [];
+						for (j = 0; j < drugs.length; j++) {
+							var dName = drugs[j].medicinalproduct;
+							if (d.indexOf(dName) === -1) {
+								d.push(dName);
+							}
+						}
+						d.sort();
 						
 						var $tr = $('<tr>');
 						
@@ -82,9 +96,9 @@ function adverseEventSearch() {
 						// drugs cell
 						var $drugs = $('<td>');
 						var $drugsList = $('<ul>').appendTo($drugs);
-						for (j = 0; j < drugs.length; j++) {
-							var drug = drugs[j];
-							$('<li>').text(drug.medicinalproduct).appendTo($drugsList);
+						for (j = 0; j < d.length; j++) {
+							var drug = d[j];
+							$('<li>').text(drug).appendTo($drugsList);
 						}
 						$tr.append($drugs);
 						
@@ -111,12 +125,13 @@ function adverseEventSearch() {
 						$('#ssIndication').val(indication);
 						$('#ssBrandName').val(brandName);
 						$('#ssGenericName').val(genericName);
-						$('#ssManufacturerName').val(manufacturerName);
 						$('#ssSubstanceName').val(substanceName);
 						
 						loading(true);
 						
 						$('#adverseEventsResultsPanel').show();
+						$('#adverseEventsResultsPanel table').show();
+						$('#adverseEventsResultsPanel .alert').hide();
 						navigate('adverseEventsResultsPanel');
 					}
 				}
@@ -144,7 +159,6 @@ function populateAdverseEventsSearchForm(savedSearch) {
 	$('#indication').val(savedSearch.indication);
 	$('#brandName').val(savedSearch.brandName);
 	$('#genericName').val(savedSearch.genericName);
-	$('#manufacturerName').val(savedSearch.manufacturerName);
 	$('#substanceName').val(savedSearch.substanceName);
 }
 
@@ -169,7 +183,6 @@ function adverseEventSavedSearch() {
 		var indication = $('#ssIndication').val();
 		var brandName = $('#ssBrandName').val();
 		var genericName = $('#ssGenericName').val();
-		var manufacturerName = $('#ssManufacturerName').val();
 		var substanceName = $('#ssSubstanceName').val();
 		
 		// make request to server to create saved search
@@ -186,11 +199,14 @@ function adverseEventSavedSearch() {
 				indication: indication,
 				brandName: brandName,
 				genericName: genericName,
-				manufacturerName: manufacturerName,
 				substanceName: substanceName
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data) {
+					
+					// clear name field
+					$('#ssName').val('');
+					
 					var ssId = data.id;
 					var dateTime = new Date(data.datetime);
 					
@@ -208,36 +224,4 @@ function adverseEventSavedSearch() {
 	} else {
 		$('#ssName').parent('span').addClass('has-error');
 	}
-}
-
-/**
- * Loads the existing adverse event saved searches into the list
- */
-function loadAdverseEventsSavedSearches() {
-	// make request to server to get saved searches
-	$.ajax('/' + getContext() + '/rest/searches', {
-		type: 'get',
-		data: {
-			type: 'ADVERSE_EVENTS'
-		},
-		success: function(data, textStatus, jqXHR) {
-			if (data) {
-				
-				console.log(data);
-				
-				$ssList = $('#ssList');
-				for (var i = 0; i < data.length; i++) {
-					var ss = data[i];
-					var ssId = ss.id;
-					var ssName = ss.name;
-					var ssDate = new Date(ss.datetime);
-					addSavedSearch($ssList, ssId, ssName, ssDate);
-				}
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
-			console.log(errorThrown);
-		}
-	});
 }

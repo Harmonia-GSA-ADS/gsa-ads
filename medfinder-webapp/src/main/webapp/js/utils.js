@@ -80,6 +80,7 @@ function newSavedSearch() {
  */
 function deleteSavedSearch() {
 	var $li = $(this).parent('li');
+	var $list = $li.parent('ul');
 	var ssId = $li.attr('ssId');
 	
 	$('.confirmDeleteTrue').click(function() {
@@ -91,6 +92,12 @@ function deleteSavedSearch() {
 			success: function(data, textStatus, jqXHR) {
 				$li.remove();
 				$('#confirmDelete').modal('hide');
+				
+				// if no searches are present, add "no searches" text
+				if ($list.children().length === 0) {
+					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($list);
+				}
+				
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				// TODO add error handling
@@ -110,6 +117,36 @@ function navigate(id) {
 	$('html, body').animate({ scrollTop: $("#" + id).offset().top }, 150);
 }
 
+function loadSavedSearches(type, $ssList) {
+	// make request to server to get saved searches
+	$.ajax('/' + getContext() + '/rest/searches', {
+		type: 'get',
+		data: {
+			type: type
+		},
+		success: function(data, textStatus, jqXHR) {
+			if (data) {
+				
+				if (data.length === 0) {
+					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($ssList);
+				} else {
+					for (var i = 0; i < data.length; i++) {
+						var ss = data[i];
+						var ssId = ss.id;
+						var ssName = ss.name;
+						var ssDate = new Date(ss.datetime);
+						addSavedSearch($ssList, ssId, ssName, ssDate);
+					}
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// TODO add error handling
+			console.log(errorThrown);
+		}
+	});
+}
+
 /**
  * Adds a saved search to the given list of saved searches
  * @param list List element to add saved search to
@@ -118,6 +155,11 @@ function navigate(id) {
  * @param date Date and time the search was saved
  */
 function addSavedSearch(list, ssId, name, date) {
+	
+	// check if "no searches" item is present and remove it
+	if (!list.children('li').first().attr('ssId')) {
+		list.empty();
+	}
 	
 	// create list item
 	$li = $('<li>').attr('ssId', ssId).addClass('list-group-item');
@@ -184,4 +226,11 @@ function getContext() {
 		context = 'ads';
 	}
 	return context;
+}
+
+/**
+ * Reset button click handler. Clears the form the button is inside of.
+ */
+function resetForm() {
+	$(this).parent('form').trigger('reset');
 }

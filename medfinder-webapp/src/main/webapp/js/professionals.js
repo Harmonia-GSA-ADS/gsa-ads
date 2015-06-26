@@ -10,8 +10,10 @@ function routeSearch() {
 	var indication = $('#rIndication').val();
 	var brandName = $('#rBrandName').val();
 	var genericName = $('#rGenericName').val();
-	var manufacturerName = $('#rManufacturerName').val();
 	var substanceName = $('#rSubstanceName').val();
+	
+	// extra search options from form
+	var limit = $('#routeResultLimit').val();
 	
 	// clear results table
 	var $resultsTable = $('#routesResults tbody');
@@ -24,14 +26,16 @@ function routeSearch() {
 			indication: indication,
 			brandName: brandName,
 			genericName: genericName,
-			manufacturerName: manufacturerName,
-			substanceName: substanceName
+			substanceName: substanceName,
+			limit: limit
 		},
 		success: function(data, textStatus, jqXHR) {
 			if (data.error) {
-				// TODO handle error
 				loading(true);
-				window.alert(data.error.message);
+				$('#routesResultsPanel').show();
+				$('#routesResultsPanel table').hide();
+				$('#routesResultsPanel .alert').show();
+				navigate('routesResultsPanel');
 			} else if (data.results) {
 				for (var i = 0; i < data.results.length; i++) {
 					var result = data.results[i];
@@ -57,10 +61,12 @@ function routeSearch() {
 					
 					// routes cell
 					var $routes = $('<td>');
-					var $routesList = $('<ul>').appendTo($routes);
-					for (var j = 0; j < rRoutes.length; j++) {
-						var rRoute = rRoutes[j];
-						$('<li>').text(rRoute).appendTo($routesList);
+					if (rRoutes) {
+						var $routesList = $('<ul>').appendTo($routes);
+						for (var j = 0; j < rRoutes.length; j++) {
+							var rRoute = rRoutes[j];
+							$('<li>').text(rRoute).appendTo($routesList);
+						}
 					}
 					$tr.append($routes);
 					
@@ -86,12 +92,13 @@ function routeSearch() {
 				$('#ssRouteIndication').val(indication);
 				$('#ssRouteBrandName').val(brandName);
 				$('#ssRouteGenericName').val(genericName);
-				$('#ssRouteManufacturerName').val(manufacturerName);
 				$('#ssRouteSubstanceName').val(substanceName);
 				
 				loading(true);
 				
 				$('#routesResultsPanel').show();
+				$('#routesResultsPanel table').show();
+				$('#routesResultsPanel .alert').hide();
 				navigate('routesResultsPanel');
 			}
 		},
@@ -112,7 +119,6 @@ function populateRoutesSearchForm(savedSearch) {
 	$('#rIndication').val(savedSearch.indication);
 	$('#rBrandName').val(savedSearch.brandName);
 	$('#rGenericName').val(savedSearch.genericName);
-	$('#rManufacturerName').val(savedSearch.manufacturerName);
 	$('#rSubstanceName').val(savedSearch.substanceName);
 }
 
@@ -129,7 +135,6 @@ function routeSavedSearch() {
 		var indication = $('#ssRouteIndication').val();
 		var brandName = $('#ssRouteBrandName').val();
 		var genericName = $('#ssRouteGenericName').val();
-		var manufacturerName = $('#ssRouteManufacturerName').val();
 		var substanceName = $('#ssRouteSubstanceName').val();
 		
 		// make request to server to create saved search
@@ -141,11 +146,14 @@ function routeSavedSearch() {
 				indication: indication,
 				brandName: brandName,
 				genericName: genericName,
-				manufacturerName: manufacturerName,
 				substanceName: substanceName
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data) {
+					
+					// clear name field
+					$('#routeSSName').val('');
+					
 					var ssId = data.id;
 					var dateTime = new Date(data.datetime);
 					
@@ -164,35 +172,6 @@ function routeSavedSearch() {
 	} else {
 		$('#routeSSName').parent('span').addClass('has-error');
 	}
-}
-
-/**
- * Loads the existing routes saved searches into the list
- */
-function loadRoutesSavedSearches() {
-	// make request to server to get saved searches
-	$.ajax('/' + getContext() + '/rest/searches', {
-		type: 'get',
-		data: {
-			type: 'ROUTES'
-		},
-		success: function(data, textStatus, jqXHR) {
-			if (data) {
-				$ssList = $('#routeSSList');
-				for (var i = 0; i < data.length; i++) {
-					var ss = data[i];
-					var ssId = ss.id;
-					var ssName = ss.name;
-					var ssDate = new Date(ss.datetime);
-					addSavedSearch($ssList, ssId, ssName, ssDate);
-				}
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
-			console.log(errorThrown);
-		}
-	});
 }
 
 /**
@@ -216,6 +195,9 @@ function drugSearch() {
 		// extract user-values from form
 		var indication = $('#dIndication').val();
 		var route = $('#dRoute').val();
+		
+		// extra search options from form
+		var limit = $('#drugResultLimit').val();
 	
 		// clear results table
 		var $resultsTable = $('#drugsResults tbody');
@@ -226,13 +208,16 @@ function drugSearch() {
 			type: 'get',
 			data: {
 				indication: indication,
-				route: route
+				route: route,
+				limit: limit
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data.error) {
-					// TODO handle error
 					loading(true);
-					window.alert(data.error.message);
+					$('#drugsResultsPanel').show();
+					$('#drugsResultsPanel table').hide();
+					$('#drugsResultsPanel .alert').show();
+					navigate('drugsResultsPanel');
 				} else if (data.results) {
 					for (var i = 0; i < data.results.length; i++) {
 						var result = data.results[i];
@@ -291,6 +276,8 @@ function drugSearch() {
 					loading(true);
 					
 					$('#drugsResultsPanel').show();
+					$('#drugsResultsPanel table').show();
+					$('#drugsResultsPanel .alert').hide();
 					navigate('drugsResultsPanel');
 				}
 			},
@@ -337,6 +324,10 @@ function drugSavedSearch() {
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data) {
+					
+					// clear name field
+					$('#drugSSName').val('');
+					
 					var ssId = data.id;
 					var dateTime = new Date(data.datetime);
 					
@@ -356,31 +347,3 @@ function drugSavedSearch() {
 	}
 }
 
-/**
- * Loads the existing drugs saved searches into the list
- */
-function loadDrugsSavedSearches() {
-	// make request to server to get saved searches
-	$.ajax('/' + getContext() + '/rest/searches', {
-		type: 'get',
-		data: {
-			type: 'DRUGS'
-		},
-		success: function(data, textStatus, jqXHR) {
-			if (data) {
-				$ssList = $('#drugSSList');
-				for (var i = 0; i < data.length; i++) {
-					var ss = data[i];
-					var ssId = ss.id;
-					var ssName = ss.name;
-					var ssDate = new Date(ss.datetime);
-					addSavedSearch($ssList, ssId, ssName, ssDate);
-				}
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
-			console.log(errorThrown);
-		}
-	});
-}
