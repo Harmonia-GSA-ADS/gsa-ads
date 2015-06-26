@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -24,6 +25,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
@@ -39,16 +42,45 @@ import com.harmonia.medfinder.model.Search;
 public class MedFinderServlet {
 
 	/**
+	 * Static Logger
+	 */
+	private static final Logger LOGGER = LoggerFactory
+            .getLogger(MedFinderServlet.class);
+	
+	/**
 	 * HTTP client used for contacting the OpenFDA API
 	 */
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
-
+	
 	/**
 	 * Bean for saved search related operations
 	 */
 	@EJB
 	private SearchBean searchBean;
 
+	/**
+	 * Handles connecting to a query URI and processing the result
+	 * 
+	 * @param queryURI The URI of the query
+	 * @return A response with an appropriate status code and the content
+	 */
+	private Response executeQuery(String queryURI) {
+		String result = "";
+		int responseCode;
+		System.out.println(queryURI);
+		try {
+			HttpGet httpget = new HttpGet(queryURI);
+			CloseableHttpResponse response = httpClient.execute(httpget); 
+			result = EntityUtils.toString(response.getEntity());
+			responseCode = response.getStatusLine().getStatusCode();
+		} catch (Exception e) {
+			responseCode = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+			LOGGER.error(e.toString());
+		}
+		
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
+	}
+	
 	/**
 	 * Returns a list of adverse drug events based on the supplied criteria
 	 * 
@@ -83,7 +115,7 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
-	public String getAdverseDrugEvents(@QueryParam("ageStart") String ageStart,
+	public Response getAdverseDrugEvents(@QueryParam("ageStart") String ageStart,
 			@QueryParam("ageEnd") String ageEnd,
 			@QueryParam("dateStart") String dateStart,
 			@QueryParam("dateEnd") String dateEnd,
@@ -134,19 +166,9 @@ public class MedFinderServlet {
 		}
 		search = search.replace(" ", "+");
 
-		String result = "";
-		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/event.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
-
-		return result;
+		String queryURI = "https://api.fda.gov/drug/event.json?search=" + search
+							+ "&limit=" + lim;
+		return executeQuery(queryURI);
 	}
 
 	/**
@@ -169,7 +191,7 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/routes")
-	public String getRoutes(@QueryParam("indication") String indication,
+	public Response getRoutes(@QueryParam("indication") String indication,
 			@QueryParam("brandName") String brandName,
 			@QueryParam("genericName") String genericName,
 			@QueryParam("manufacturerName") String manufacturerName,
@@ -181,19 +203,9 @@ public class MedFinderServlet {
 		search = search.replace(" ", "+");
 		int lim = limit == null ? 5 : limit;
 
-		String result = "";
-		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
-
-		return result;
+		String queryURI = "https://api.fda.gov/drug/label.json?search=" + search
+							+ "&limit=" + lim;
+		return executeQuery(queryURI);
 	}
 
 	/**
@@ -211,27 +223,17 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
-	public String getDrugs(@QueryParam("indication") String indication,
+	public Response getDrugs(@QueryParam("indication") String indication,
 			@QueryParam("route") String route,
 			@QueryParam("limit") Integer limit) {
 
 		String search = createDrugRouteSearch(indication, route);
 		int lim = limit == null ? 5 : limit;
-
 		search = search.replace(" ", "+");
-		String result = "";
-		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
-
-		return result;
+		
+		String queryURI = "https://api.fda.gov/drug/label.json?search=" + search
+							+ "&limit=" + lim;
+		return executeQuery(queryURI);
 	}
 
 	/**
