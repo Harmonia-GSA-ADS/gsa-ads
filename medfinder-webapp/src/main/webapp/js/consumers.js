@@ -71,6 +71,9 @@ function adverseEventSearch() {
 						var reactions = result.patient.reaction;
 						var drugs = result.patient.drug;
 						var date = result.receiptdate;
+						var age = result.patient.patientonsetage;
+						var gender = result.patient.patientsex;
+						var weight = result.patient.patientweight; //kg
 						
 						// sort and make drug list unique
 						var d = [];
@@ -81,6 +84,19 @@ function adverseEventSearch() {
 							}
 						}
 						d.sort();
+						
+						// get gender display value
+						var g = 'Unknown';
+						if (gender == 1) {
+							g = 'Male';
+						} else if (gender == 2) {
+							g = 'Female';
+						}
+						
+						// convert weight to lbs
+						if (weight) {
+							weight = Math.round(weight * 2.20462 * 100) / 100;
+						}
 						
 						var $tr = $('<tr>');
 						
@@ -102,15 +118,38 @@ function adverseEventSearch() {
 						}
 						$tr.append($drugs);
 						
+						// age cell
+						var $age = $('<td>');
+						if (age) {
+							$age.text(Math.round(age));
+						}
+						$tr.append($age);
+						
+						// gender cell
+						var $gender = $('<td>');
+						$gender.text(g);
+						$tr.append($gender);
+						
+						// weight cell
+						var $weight = $('<td>');
+						$weight.text(weight);
+						$tr.append($weight);
+						
 						// serious cell
 						var $serious = $('<td>');
 						$serious.text(serious ? 'Yes' : 'No');
 						$tr.append($serious);
+						if (serious) {
+							$serious.addClass('danger');
+						}
 						
 						// death cell
 						var $death = $('<td>');
 						$death.text(death ? 'Yes' : 'No');
 						$tr.append($death);
+						if (death) {
+							$death.addClass('danger');
+						}
 						
 						$resultsTable.append($tr); 
 	
