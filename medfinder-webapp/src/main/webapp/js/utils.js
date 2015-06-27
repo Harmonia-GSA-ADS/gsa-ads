@@ -36,7 +36,7 @@ function runSavedSearch() {
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
+			displayError(jqXHR.responseText);
 			console.log(errorThrown);
 		}
 	});
@@ -69,7 +69,7 @@ function newSavedSearch() {
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
+			displayError(jqXHR.responseText);
 			console.log(errorThrown);
 		}
 	});
@@ -85,10 +85,10 @@ function deleteSavedSearch() {
 	
 	$('.confirmDeleteTrue').click(function() {
 
-		// TODO make delete call to server
-		// get saved search data from server
+		// make delete call to server
 		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
 			type: 'delete',
+			dataType: 'text',
 			success: function(data, textStatus, jqXHR) {
 				$li.remove();
 				$('#confirmDelete').modal('hide');
@@ -100,9 +100,9 @@ function deleteSavedSearch() {
 				
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
-				console.log(errorThrown);
 				$('#confirmDelete').modal('hide');
+				displayError(jqXHR.responseText);
+				console.log(errorThrown);
 			}
 		});
 	});
@@ -146,7 +146,7 @@ function loadSavedSearches(type, $ssList) {
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
+			displayError(jqXHR.responseText);
 			console.log(errorThrown);
 		}
 	});
@@ -263,4 +263,9 @@ function getContext() {
  */
 function resetForm() {
 	$(this).parent('form').trigger('reset');
+}
+
+function displayError(msg) {
+	$('#errorDialog .modal-body p').text(msg);
+	$('#errorDialog').modal();
 }

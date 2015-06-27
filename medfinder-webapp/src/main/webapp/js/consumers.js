@@ -217,8 +217,7 @@ function adverseEventSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
-				console.log(errorThrown);
+				displayError(jqXHR.responseText);
 				loading(true);
 			}
 		});
@@ -295,7 +294,7 @@ function adverseEventSavedSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
+				displayError(jqXHR.responseText);
 				console.log(errorThrown);
 			}
 		});

@@ -146,8 +146,7 @@ function routeSearch() {
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
-			// TODO add error handling
-			console.log(errorThrown);
+			displayError(jqXHR.responseText);
 			loading(true);
 		}
 	});
@@ -207,8 +206,7 @@ function routeSavedSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
-				console.log(errorThrown);
+				displayError(jqXHR.responseText);
 				loading(true);
 			}
 		});
@@ -325,8 +323,7 @@ function drugSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
-				console.log(errorThrown);
+				displayError(jqXHR.responseText);
 				loading(true);
 			}
 		});
@@ -381,8 +378,7 @@ function drugSavedSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// TODO add error handling
-				console.log(errorThrown);
+				displayError(jqXHR.responseText);
 			}
 		});
 	} else {
