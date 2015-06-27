@@ -63,7 +63,7 @@ function adverseEventSearch() {
 	
 	if (valid) {
 		loading();
-		
+
 		// extract user-values from form
 		var minAge = $('#minAge').val();
 		var maxAge = $('#maxAge').val();
@@ -114,7 +114,7 @@ function adverseEventSearch() {
 						var drugs = result.patient.drug;
 						var date = result.receiptdate;
 						var age = result.patient.patientonsetage;
-						var gender = result.patient.patientsex;
+						var rGender = result.patient.patientsex;
 						var weight = result.patient.patientweight; //kg
 						
 						// sort and make drug list unique
@@ -129,9 +129,9 @@ function adverseEventSearch() {
 						
 						// get gender display value
 						var g = 'Unknown';
-						if (gender == 1) {
+						if (rGender == 1) {
 							g = 'Male';
-						} else if (gender == 2) {
+						} else if (rGender == 2) {
 							g = 'Female';
 						}
 						
@@ -194,25 +194,26 @@ function adverseEventSearch() {
 						}
 						
 						$resultsTable.append($tr); 
-	
-						// store values in hidden field to support saved search creation
-						$('#ssMinAge').val(minAge);
-						$('#ssMaxAge').val(maxAge);
-						$('#ssGender').val(gender);
-						$('#ssMinWeight').val(minWeight);
-						$('#ssMaxWeight').val(maxWeight);
-						$('#ssIndication').val(indication);
-						$('#ssBrandName').val(brandName);
-						$('#ssGenericName').val(genericName);
-						$('#ssSubstanceName').val(substanceName);
-						
-						loading(true);
-						
-						$('#adverseEventsResultsPanel').show();
-						$('#adverseEventsResultsPanel table').show();
-						$('#adverseEventsResultsPanel .alert').hide();
-						navigate('adverseEventsResultsPanel');
 					}
+					
+					// store values in hidden field to support saved search creation
+					$('#ssMinAge').val(minAge);
+					$('#ssMaxAge').val(maxAge);
+					$('#ssGender').val(gender);
+					$('#ssMinWeight').val(minWeight);
+					$('#ssMaxWeight').val(maxWeight);
+					$('#ssIndication').val(indication);
+					$('#ssBrandName').val(brandName);
+					$('#ssGenericName').val(genericName);
+					$('#ssSubstanceName').val(substanceName);
+					
+					loading(true);
+					
+					$('#adverseEventsResultsPanel').show();
+					$('#adverseEventsResultsPanel table').show();
+					$('#adverseEventsResultsPanel .alert').hide();
+					
+					navigate('adverseEventsResultsPanel');
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
@@ -309,11 +310,8 @@ function adverseEventSavedSearch() {
  */
 $.validator.addMethod('ageRangeMin', function(value, element) {
 	if (!value) { return true; }
-	console.log($(element).attr('id'));
 	if ($(element).attr('id') === 'minAge') {
-		console.log(value);
 		var maxVal = $('#maxAge').val();
-		console.log(maxVal);
 		return maxVal === '' || value <= Number(maxVal);
 	} 
 	return false;
