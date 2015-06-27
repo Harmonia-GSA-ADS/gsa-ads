@@ -109,19 +109,19 @@
 												<legend>Drug Information</legend>
 												<div class="form-group">
 													<label for="indiciation">Purpose/Usage</label>
-													<input type="input" id="indication" class="form-control"  placeholder="E.g. Congestion, Pain"/>
+													<input type="input" id="indication" name="indication" class="form-control"  placeholder="E.g. Congestion, Pain"/>
 												</div>
 												<div class="form-group">
 													<label for="brandName">Brand Name</label>
-													<input type="input" id="brandName" class="form-control" placeholder="E.g. Sudafed, Advil" />
+													<input type="input" id="brandName" name="brandName" class="form-control" placeholder="E.g. Sudafed, Advil" />
 												</div>
 												<div class="form-group">
 													<label for="genericName">Generic Name</label>
-													<input type="input" id="genericName" class="form-control" placeholder="E.g. Psuedoephedrine, Ibuprofen" />
+													<input type="input" id="genericName" name="genericName" class="form-control" placeholder="E.g. Psuedoephedrine, Ibuprofen" />
 												</div>
 												<div class="form-group">
 													<label for="substanceName">Active Ingredients</label>
-													<input type="input" id="substanceName" class="form-control" placeholder="E.g. Psuedoephedrine Hydrochloride, Ibuprofen" />
+													<input type="input" id="substanceName" name="substanceName" class="form-control" placeholder="E.g. Psuedoephedrine Hydrochloride, Ibuprofen" />
 												</div>
 											</fieldset>
 										</div>
@@ -278,7 +278,16 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
     <script src="../js/lib/jquery.validate.min.js"></script>
+	<!-- esapi4js dependencies -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/lib/log4js.js"></script>
+	<!-- esapi4js i18n resources -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/resources/i18n/ESAPI_Standard_en_US.properties.js"></script>
+	<!-- esapi4js core -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/esapi-compressed.js"></script>
     <!-- Application JS -->
+	<!-- esapi4js configuration -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/resources/Base.esapi.properties.js"></script>
+	 <!-- Application JS -->
     <script src="../js/utils.js"></script>
     <script src="../js/consumers.js"></script>
   </body>

@@ -26,6 +26,17 @@ $(document).ready(function() {
 			}
 		}
 	});
+	
+	// Initialize the ESAPI api
+    Base.esapi.properties.logging['ApplicationLogger'] = {
+        Level: org.owasp.esapi.Logger.ALL,
+        Appenders: [ new Log4js.ConsoleAppender() ],
+        LogUrl: true,
+        LogApplicationName: true,
+        EncodingRequired: true
+    };
+	Base.esapi.properties.application.Name = "MedFinder";
+	org.owasp.esapi.ESAPI.initialize();
 });
 
 /**
@@ -55,6 +66,18 @@ function adverseEventSearch() {
 				number: true,
 				min: 0,
 				weightRangeMax: true
+			},
+			indication: {
+				specialCharacters: true
+			},
+			brandName : {
+				specialCharacters: true
+			},
+			genericName: {
+				specialCharacters: true
+			},
+			substanceName: {
+				specialCharacters: true
 			}
 		}
 	});
@@ -91,13 +114,15 @@ function adverseEventSearch() {
 				gender: gender,
 				weightStart: minWeight,
 				weightEnd: maxWeight,
-				indication: indication,
-				brandName: brandName,
-				genericName: genericName,
-				substanceName: substanceName,
+				indication: $ESAPI.encoder().encodeForURL(indication),
+				brandName: $ESAPI.encoder().encodeForURL(brandName),
+				genericName: $ESAPI.encoder().encodeForURL(genericName),
+				substanceName: $ESAPI.encoder().encodeForURL(substanceName),
 				limit: limit
 			},
 			success: function(data, textStatus, jqXHR) {
+				
+				// handles case where no matches found has a 200 status but error
 				if (data.error) {
 					loading(true);
 					$('#adverseEventsResultsPanel').show();
@@ -217,7 +242,16 @@ function adverseEventSearch() {
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				displayError(jqXHR.responseText);
+				// check for error case for no matches from OpenFDA
+				if (jqXHR.status == 404) {
+					$('#adverseEventsResultsPanel').show();
+					$('#adverseEventsResultsPanel table').hide();
+					$('#adverseEventsResultsPanel .alert').show();
+					navigate('adverseEventsResultsPanel');
+				} else {
+					displayError(extractErrorMessage(jqXHR));
+				}
+				
 				loading(true);
 			}
 		});
@@ -266,17 +300,17 @@ function adverseEventSavedSearch() {
 		$.ajax('/' + getContext() + '/rest/search', {
 			type: 'post',
 			data: {
-				name: ssName,
+				name: $ESAPI.encoder().encodeForURL(ssName),
 				type: 'ADVERSE_EVENTS',
 				minAge: minAge ? minAge : -1,
 				maxAge: maxAge ? maxAge : -1,
 				gender: gender,
 				minWeight: minWeight ? minWeight : -1,
 				maxWeight: maxWeight ? maxWeight: -1,
-				indication: indication,
-				brandName: brandName,
-				genericName: genericName,
-				substanceName: substanceName
+				indication: $ESAPI.encoder().encodeForURL(indication),
+				brandName: $ESAPI.encoder().encodeForURL(brandName),
+				genericName: $ESAPI.encoder().encodeForURL(genericName),
+				substanceName: $ESAPI.encoder().encodeForURL(substanceName)
 			},
 			success: function(data, textStatus, jqXHR) {
 				if (data) {

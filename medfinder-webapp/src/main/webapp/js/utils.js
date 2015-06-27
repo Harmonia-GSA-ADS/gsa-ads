@@ -1,4 +1,3 @@
-
 /**
  * Clears error styles on an element
  */
@@ -265,7 +264,87 @@ function resetForm() {
 	$(this).parent('form').trigger('reset');
 }
 
+/**
+ * Extracts the error message from a reponse object
+ * @param response response object
+ * @returns Error message
+ */
+function extractErrorMessage(response) {
+	var msg = response.responseText;
+	if (response.responseJSON) {
+		msg = "Error from OpenFDA: " + response.responseJSON.error.message;
+	}
+	return msg;
+}
+
+/**
+ * Displays the error dialog with the given message
+ * @param msg Error message to display
+ */
 function displayError(msg) {
+	if (msg.error) {
+		msg = msg.error.message;
+	}
 	$('#errorDialog .modal-body p').text(msg);
 	$('#errorDialog').modal();
 }
+
+/**
+ * Custom validator for disallowing special characters.
+ * The following characters are not allowed: #()-:!@$*;/,&'"^\
+ */
+$.validator.addMethod('specialCharacters', function(value, element) {
+
+	if (value.indexOf('#') > -1) {
+		return false;
+	}
+	if (value.indexOf('(') > -1) {
+		return false;
+	}
+	if (value.indexOf(')') > -1) {
+		return false;
+	}
+	if (value.indexOf('-') > -1) {
+		return false;
+	}
+	if (value.indexOf(':') > -1) {
+		return false;
+	}
+	if (value.indexOf('!') > -1) {
+		return false;
+	}
+	if (value.indexOf('@') > -1) {
+		return false;
+	}
+	if (value.indexOf('$') > -1) {
+		return false;
+	}
+	if (value.indexOf('*') > -1) {
+		return false;
+	}
+	if (value.indexOf(';') > -1) {
+		return false;
+	}
+	if (value.indexOf('/') > -1) {
+		return false;
+	}
+	if (value.indexOf(',') > -1) {
+		return false;
+	}
+	if (value.indexOf('&') > -1) {
+		return false;
+	}
+	if (value.indexOf("'") > -1) {
+		return false;
+	}
+	if (value.indexOf('"') > -1) {
+		return false;
+	}
+	if (value.indexOf('^') > -1) {
+		return false;
+	}
+	if (value.indexOf('\\') > -1) {
+		return false;
+	}
+	return true;
+}, 'Value must not include any of the following characters: #()-:!@$*;/,&\'"^\\');
