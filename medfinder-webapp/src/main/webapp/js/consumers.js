@@ -1,3 +1,32 @@
+$(document).ready(function() {
+    		
+	// configure search info pop ups
+	$('#adverseEventInfo').popover({
+		container: 'body',
+		placement: 'right',
+		content: 'All patient and drug criteria values are joined with the AND operator when the search is performed.'
+	});
+	
+	$('#adverseEventsResultsPanel').hide();
+	$('.form-reset').click(resetForm);
+	
+	$('.ssName').keyup(clearError);
+	$('.ssSearch').click(runSavedSearch);
+	$('.ssNew').click(newSavedSearch);
+	$('.ssDelete').click(deleteSavedSearch);
+	
+	loadSavedSearches('ADVERSE_EVENTS', $('#ssList'));
+	
+	// submit form on Enter
+	$('.form-control').keyup(function(e) {
+		if (e.keyCode === 13) {
+			var formId = $(this).parents('form').attr('id');
+			if (formId === 'adverseEventsSearch') {
+				adverseEventSearch();
+			}
+		}
+	});
+});
 
 /**
  * Performs an Adverse Event search

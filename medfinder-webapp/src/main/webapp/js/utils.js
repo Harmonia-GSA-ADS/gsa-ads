@@ -117,6 +117,11 @@ function navigate(id) {
 	$('html, body').animate({ scrollTop: $("#" + id).offset().top }, 150);
 }
 
+/**
+ * Loads all saved searches of the given type and loads them into the list
+ * @param type Saved search type
+ * @param $ssList List to add searches to
+ */
 function loadSavedSearches(type, $ssList) {
 	// make request to server to get saved searches
 	$.ajax('/' + getContext() + '/rest/searches', {
@@ -193,9 +198,34 @@ function addSavedSearch(list, ssId, name, date) {
 	$('<div>').html(name + ' <small>[' + formattedDate + ' ' + formattedTime + ']</small>').appendTo($li);
 	
 	// add buttons
-	$('<button>').attr('type', 'button').addClass('btn btn-xs btn-success ssSearch').css('margin-right','4px').text('Search').appendTo($li);
-	$('<button>').attr('type', 'button').addClass('btn btn-xs btn-warning ssNew').css('margin-right','4px').text('New').appendTo($li);
-	$('<button>').attr('type', 'button').addClass('btn btn-xs btn-danger ssDelete').text('Delete').appendTo($li);
+	$('<button>').attr('type', 'button')
+		.addClass('btn btn-xs btn-success ssSearch')
+		.css('margin-right','4px')
+		.text('Search')
+		.attr('data-toggle', 'tooltip')
+		.attr('data-placement', 'bottom')
+		.attr('title', 'Execute the saved search')
+		.appendTo($li);
+	$('<button>')
+		.attr('type', 'button')
+		.addClass('btn btn-xs btn-warning ssNew')
+		.css('margin-right','4px')
+		.text('New')
+		.attr('data-toggle', 'tooltip')
+		.attr('data-placement', 'bottom')
+		.attr('title', 'Fill form with the saved search values')
+		.appendTo($li);
+	$('<button>')
+		.attr('type', 'button')
+		.addClass('btn btn-xs btn-danger ssDelete')
+		.text('Delete')
+		.attr('data-toggle', 'tooltip')
+		.attr('data-placement', 'bottom')
+		.attr('title', 'Delete the saved search')
+		.appendTo($li);
+	
+	// enable tooltips
+	$('[data-toggle="tooltip"]').tooltip();
 	
 	$('.ssSearch').click(runSavedSearch);
 	$('.ssNew').click(newSavedSearch);

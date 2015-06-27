@@ -1,3 +1,46 @@
+$(document).ready(function() {
+    		
+	// configure search info pop ups
+	$('#routeInfo').popover({
+		container: 'body',
+		placement: 'right',
+		content: 'All drug criteria values are joined with the OR operator when the search is performed.'
+	});
+	$('#drugInfo').popover({
+		container: 'body',
+		placement: 'right',
+		content: 'The criteria values are joined with the AND operator when the search is performed.'
+	});
+	
+	$('#routesResultsPanel').hide();
+	$('#drugsResultsPanel').hide();
+	$('.form-reset').click(resetForm);
+	
+	$('.ssName').keyup(clearError);
+	$('.ssSearch').click(runSavedSearch);
+	$('.ssNew').click(newSavedSearch);
+	$('.ssDelete').click(deleteSavedSearch);
+	
+	loadSavedSearches('ROUTES', $('#routeSSList'));
+	loadSavedSearches('DRUGS', $('#drugSSList'));
+	
+	// jump to tab
+	if (window.location.hash && window.location.hash.indexOf('drugLookup') > -1) {
+		$('.nav-tabs a[href="#drugLookup"]').tab('show');
+	}
+	
+	// submit form on Enter
+	$('.form-control').keyup(function(e) {
+		if (e.keyCode === 13) {
+			var formId = $(this).parents('form').attr('id');
+			if (formId === 'routeSearch') {
+				routeSearch();
+			} else if (formId === 'drugSearch') {
+				drugSearch();
+			} 
+		}
+	});
+});
 
 /**
  * Performs a Route of Administration search

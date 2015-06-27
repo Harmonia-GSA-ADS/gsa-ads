@@ -18,10 +18,6 @@
 	<!-- Font Awesome -->
     <link href="../css/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
-    <!-- Application JS -->
-    <script src="../js/utils.js"></script>
-    <script src="../js/professionals.js"></script>
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -56,8 +52,8 @@
 	<div class="container theme-showcase" role="main">
 
 		<ul class="nav nav-tabs">
-		  <li class="active"><a data-toggle="tab" href="#routeLookup">Route Lookup</a></li>
-		  <li><a data-toggle="tab" href="#drugLookup">Drug Lookup</a></li>
+		  <li class="active"><a data-toggle="tab" href="#routeLookup">Routes Lookup</a></li>
+		  <li><a data-toggle="tab" href="#drugLookup">Drugs Lookup</a></li>
 		</ul>
 		<div class="tab-content">
 		
@@ -189,7 +185,7 @@
 						<!-- Drug Lookup Search Form -->
 						<div class="panel panel-primary">
 							<div class="panel-heading">
-								<h3 class="panel-title">Drug Lookup <i id="drugInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
+								<h3 class="panel-title">Drugs Lookup <i id="drugInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
 							</div>
 							<div class="panel-body">
 								<form role="form" id="drugsSearch" action="javascript:drugSearch()">
@@ -348,51 +344,8 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
     <script src="../js/lib/jquery.validate.min.js"></script>
-        <script>
-    	$(document).ready(function() {
-    		
-    		// configure search info pop ups
-    		$('#routeInfo').popover({
-    			container: 'body',
-    			placement: 'right',
-    			content: 'All drug criteria values are joined with the OR operator when the search is performed.'
-    		});
-    		$('#drugInfo').popover({
-    			container: 'body',
-    			placement: 'right',
-    			content: 'The criteria values are joined with the AND operator when the search is performed.'
-    		});
-    		
-    		$('#routesResultsPanel').hide();
-    		$('#drugsResultsPanel').hide();
-    		$('.form-reset').click(resetForm);
-    		
-    		$('.ssName').keyup(clearError);
-    		$('.ssSearch').click(runSavedSearch);
-    		$('.ssNew').click(newSavedSearch);
-    		$('.ssDelete').click(deleteSavedSearch);
-    		
-    		loadSavedSearches('ROUTES', $('#routeSSList'))
-    		loadSavedSearches('DRUGS', $('#drugSSList'))
-    		
-    		// jump to tab
-    		if (window.location.hash && window.location.hash.indexOf('drugLookup') > -1) {
-    			$('.nav-tabs a[href="#drugLookup"]').tab('show');
-    		}
-    		
-    		// submit form on Enter
-    		$('.form-control').keyup(function(e) {
-    			if (e.keyCode === 13) {
-    				var formId = $(this).parents('form').attr('id');
-    				if (formId === 'routeSearch') {
-    					routeSearch();
-    				} else if (formId === 'drugSearch') {
-    					drugSearch();
-    				} 
-    			}
-    			
-    		});
-    	});
-    </script>
+    <!-- Application JS -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/professionals.js"></script>
   </body>
 </html>

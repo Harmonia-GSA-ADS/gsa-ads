@@ -18,9 +18,6 @@
     <!-- Application CSS -->
 	<link href="../css/styles.min.css" rel="stylesheet">
 
-    <!-- Application JS -->
-    <script src="../js/utils.js"></script>
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -70,7 +67,7 @@
 						<!-- Adverse Events Search Form -->
 						<div class="panel panel-primary">
 							<div class="panel-heading">
-								<h3 class="panel-title">Side Effect Search <i id="adverseEventInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
+								<h3 class="panel-title">Side Effects Lookup <i id="adverseEventInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
 							</div>
 							<div class="panel-body">
 								<form role="form" id="adverseEventsSearch" action="javascript:adverseEventSearch()">
@@ -173,7 +170,7 @@
 				<div class="row">
 					<div id="adverseEventsResultsPanel" class="panel panel-primary results-panel">
 						<div class="panel-heading">
-							<h3 class="panel-title">Adverse Event Search Results</h3>
+							<h3 class="panel-title">Side Effects Lookup Results</h3>
 						</div>
 						<div class="panel-body">
 						
@@ -263,38 +260,8 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
     <script src="../js/lib/jquery.validate.min.js"></script>
+    <!-- Application JS -->
+    <script src="../js/utils.js"></script>
     <script src="../js/consumers.js"></script>
-    <script>
-    	$(document).ready(function() {
-    		
-    		// configure search info pop ups
-    		$('#adverseEventInfo').popover({
-    			container: 'body',
-    			placement: 'right',
-    			content: 'All patient and drug criteria values are joined with the AND operator when the search is performed.'
-    		});
-    		
-    		$('#adverseEventsResultsPanel').hide();
-    		$('.form-reset').click(resetForm);
-    		
-    		$('.ssName').keyup(clearError);
-    		$('.ssSearch').click(runSavedSearch);
-    		$('.ssNew').click(newSavedSearch);
-    		$('.ssDelete').click(deleteSavedSearch);
-    		
-    		loadSavedSearches('ADVERSE_EVENTS', $('#ssList'))
-    		
-    		// submit form on Enter
-    		$('.form-control').keyup(function(e) {
-    			if (e.keyCode === 13) {
-    				var formId = $(this).parents('form').attr('id');
-    				if (formId === 'adverseEventsSearch') {
-    					adverseEventSearch();
-    				}
-    			}
-    			
-    		});
-    	});
-    </script>
   </body>
 </html>
