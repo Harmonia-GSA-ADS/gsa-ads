@@ -7,20 +7,35 @@ function adverseEventSearch() {
 	// validate the form
 	var validator = $('#adverseEventsSearch').validate({
 		rules: {
-			minAge: { number: true },
-			maxAge : { number: true },
-			minWeight : { number: true},
-			maxWeight : { number: true}
+			minAge: { 
+				number: true,
+				min: 0,
+				ageRangeMin: true
+			},
+			maxAge : { 
+				number: true, 
+				min: 0,
+				ageRangeMax: true
+			},
+			minWeight : { 
+				number: true,
+				min: 0,
+				weightRangeMin: true
+			},
+			maxWeight : { 
+				number: true,
+				min: 0,
+				weightRangeMax: true
+			}
 		}
 	});
+
 	var valid = validator.form();
 	
 	if (valid) {
 		loading();
 		
 		// extract user-values from form
-		var minDate = $('#minDate').val();
-		var maxDate = $('#maxDate').val();
 		var minAge = $('#minAge').val();
 		var maxAge = $('#maxAge').val();
 		var gender = $('input:radio[name=gender]:checked').val();
@@ -42,8 +57,6 @@ function adverseEventSearch() {
 		$.ajax('/' + getContext() + '/rest/events', {
 			type: 'get',
 			data: {
-				dateStart: minDate,
-				dateEnd: maxDate,
 				ageStart: minAge,
 				ageEnd: maxAge,
 				gender: gender,
@@ -154,8 +167,6 @@ function adverseEventSearch() {
 						$resultsTable.append($tr); 
 	
 						// store values in hidden field to support saved search creation
-						$('#ssMinDate').val(minDate);
-						$('#ssMaxDate').val(maxDate);
 						$('#ssMinAge').val(minAge);
 						$('#ssMaxAge').val(maxAge);
 						$('#ssGender').val(gender);
@@ -212,8 +223,6 @@ function adverseEventSavedSearch() {
 	if (ssName) {
 		
 		// extract search criteria values to save
-		var minDate = $('#ssMinDate').val();
-		var maxDate = $('#ssMaxDate').val();
 		var minAge = $('#ssMinAge').val();
 		var maxAge = $('#ssMaxAge').val();
 		var gender = $('#ssGender').val();
@@ -264,3 +273,58 @@ function adverseEventSavedSearch() {
 		$('#ssName').parent('span').addClass('has-error');
 	}
 }
+
+/**
+ * Custom validator for max age field. Min age value must be less 
+ * than max age value, unless min age or max age value is undefined.
+ */
+$.validator.addMethod('ageRangeMin', function(value, element) {
+	if (!value) { return true; }
+	console.log($(element).attr('id'));
+	if ($(element).attr('id') === 'minAge') {
+		console.log(value);
+		var maxVal = $('#maxAge').val();
+		console.log(maxVal);
+		return maxVal === '' || value <= Number(maxVal);
+	} 
+	return false;
+}, 'Minimum age must be less than or equal to maximum age');
+
+/**
+ * Custom validator for max age field. Max age value must be greater 
+ * than min age value, unless min age or max age value is undefined.
+ */
+$.validator.addMethod('ageRangeMax', function(value, element) {
+	if (!value) { return true; }
+	if ($(element).attr('id') === 'maxAge') {
+		var minVal = $('#minAge').val();
+		return minVal === '' || value >= Number(minVal);
+	}
+	return false;
+}, 'Maximum age must be greater than or equal to minimum age');
+
+/**
+ * Custom validator for min weight field. Min weight value must be less 
+ * than max weight value, unless min weight or max weight value is undefined.
+ */
+$.validator.addMethod('weightRangeMin', function(value, element) {
+	if (!value) { return true; }
+	if ($(element).attr('id') === 'minWeight') {
+		var maxVal = $('#maxWeight').val();
+		return maxVal === '' || value <= Number(maxVal);
+	} 
+	return false;
+}, 'Minimum weight must be less than or equal to maximum weight');
+
+/**
+ * Custom validator for max weight field. Max weight value must be greater 
+ * than min weight value, unless min weight or max weight value is undefined.
+ */
+$.validator.addMethod('weightRangeMax', function(value, element) {
+	if (!value) { return true; }
+	if ($(element).attr('id') === 'maxWeight') {
+		var minVal = $('#minWeight').val();
+		return minVal === '' ||  value >= Number(minVal);
+	}
+	return false;
+}, 'Maximum weight must be greater than or equal to minimum weight');
