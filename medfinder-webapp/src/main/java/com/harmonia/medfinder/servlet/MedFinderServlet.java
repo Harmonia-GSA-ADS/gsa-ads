@@ -1,7 +1,6 @@
 package com.harmonia.medfinder.servlet;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
@@ -17,13 +16,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.owasp.esapi.ESAPI;
+import org.owasp.esapi.Encoder;
+import org.owasp.esapi.errors.EncodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
@@ -39,6 +45,17 @@ import com.harmonia.medfinder.model.Search;
 public class MedFinderServlet {
 
 	/**
+	 * Static Logger
+	 */
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(MedFinderServlet.class);
+
+	/**
+	 * OpenFDA API Key. Associated with keagan@harmonia.com.
+	 */
+	private static final String API_KEY = "6ErngSrIicSDsiyvtOIOrAxu4BqVUiz7Iav6TVir";
+
+	/**
 	 * HTTP client used for contacting the OpenFDA API
 	 */
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -48,6 +65,35 @@ public class MedFinderServlet {
 	 */
 	@EJB
 	private SearchBean searchBean;
+
+	/**
+	 * Handles connecting to a query URI and processing the result
+	 * 
+	 * @param queryURI
+	 *            The URI of the query
+	 * @return A response with an appropriate status code and the content
+	 */
+	private Response executeQuery(String queryURI) {
+		String result = "";
+		int responseCode;
+
+		// add OpenFDA API key to query
+		queryURI += "&api_key=" + API_KEY;
+
+		try {
+			HttpGet httpget = new HttpGet(queryURI);
+			CloseableHttpResponse response = httpClient.execute(httpget);
+			result = EntityUtils.toString(response.getEntity());
+			responseCode = response.getStatusLine().getStatusCode();
+		} catch (Exception e) {
+			responseCode = HttpStatus.SC_OK;
+			result = "OpenFDA query could not be completed.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result)
+				.type(MediaType.APPLICATION_JSON).build();
+	}
 
 	/**
 	 * Returns a list of adverse drug events based on the supplied criteria
@@ -83,7 +129,8 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
-	public String getAdverseDrugEvents(@QueryParam("ageStart") String ageStart,
+	public Response getAdverseDrugEvents(
+			@QueryParam("ageStart") String ageStart,
 			@QueryParam("ageEnd") String ageEnd,
 			@QueryParam("dateStart") String dateStart,
 			@QueryParam("dateEnd") String dateEnd,
@@ -97,56 +144,63 @@ public class MedFinderServlet {
 			@QueryParam("substanceName") String substanceName,
 			@QueryParam("limit") Integer limit) {
 
-		String ageParameter = createAgeParameter(ageStart, ageEnd);
-		String dateParameter = createDateParameter(dateStart, dateEnd);
-		String genderParameter = createGenderParameter(gender);
-		String weightParameter = createWeightParameter(weightStart, weightEnd);
-		String drugsParameter = createDrugsParameter(indication, brandName,
-				genericName, manufacturerName, substanceName);
-		int lim = limit == null ? 5 : limit;
-
-		String and = "+AND+";
-		StringBuilder sb = new StringBuilder();
-		if (StringUtils.isNotBlank(ageParameter)) {
-			sb.append(ageParameter);
-			sb.append(and);
-		}
-		if (StringUtils.isNotBlank(dateParameter)) {
-			sb.append(dateParameter);
-			sb.append(and);
-		}
-		if (StringUtils.isNotBlank(genderParameter)) {
-			sb.append(genderParameter);
-			sb.append(and);
-		}
-		if (StringUtils.isNotBlank(weightParameter)) {
-			sb.append(weightParameter);
-			sb.append(and);
-		}
-		if (StringUtils.isNotBlank(drugsParameter)) {
-			sb.append(drugsParameter);
-		}
-
-		String search = sb.toString();
-
-		if (search.endsWith(and)) {
-			search = search.substring(0, search.length() - and.length());
-		}
-		search = search.replace(" ", "+");
-
-		String result = "";
 		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/event.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
 
-		return result;
+			// decode values from client
+			Encoder encoder = ESAPI.encoder();
+			indication = encoder.decodeFromURL(indication);
+			brandName = encoder.decodeFromURL(brandName);
+			genericName = encoder.decodeFromURL(genericName);
+			manufacturerName = encoder.decodeFromURL(manufacturerName);
+			substanceName = encoder.decodeFromURL(substanceName);
+
+			String ageParameter = createAgeParameter(ageStart, ageEnd);
+			String dateParameter = createDateParameter(dateStart, dateEnd);
+			String genderParameter = createGenderParameter(gender);
+			String weightParameter = createWeightParameter(weightStart,
+					weightEnd);
+			String drugsParameter = createDrugsParameter(indication, brandName,
+					genericName, manufacturerName, substanceName);
+			int lim = limit == null ? 5 : limit;
+
+			String and = "+AND+";
+			StringBuilder sb = new StringBuilder();
+			if (StringUtils.isNotBlank(ageParameter)) {
+				sb.append(ageParameter);
+				sb.append(and);
+			}
+			if (StringUtils.isNotBlank(dateParameter)) {
+				sb.append(dateParameter);
+				sb.append(and);
+			}
+			if (StringUtils.isNotBlank(genderParameter)) {
+				sb.append(genderParameter);
+				sb.append(and);
+			}
+			if (StringUtils.isNotBlank(weightParameter)) {
+				sb.append(weightParameter);
+				sb.append(and);
+			}
+			if (StringUtils.isNotBlank(drugsParameter)) {
+				sb.append(drugsParameter);
+			}
+
+			String search = sb.toString();
+
+			if (search.endsWith(and)) {
+				search = search.substring(0, search.length() - and.length());
+			}
+			search = search.replace(" ", "+");
+
+			String queryURI = "https://api.fda.gov/drug/event.json?search="
+					+ search + "&limit=" + lim;
+			return executeQuery(queryURI);
+		} catch (EncodingException e) {
+			LOGGER.error(e.getMessage(), e);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+					.entity("Search parameters could not be decoded.")
+					.type(MediaType.APPLICATION_JSON).build();
+		}
 	}
 
 	/**
@@ -169,31 +223,36 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/routes")
-	public String getRoutes(@QueryParam("indication") String indication,
+	public Response getRoutes(@QueryParam("indication") String indication,
 			@QueryParam("brandName") String brandName,
 			@QueryParam("genericName") String genericName,
 			@QueryParam("manufacturerName") String manufacturerName,
 			@QueryParam("substanceName") String substanceName,
 			@QueryParam("limit") Integer limit) {
 
-		String search = createRouteSearch(indication, brandName, genericName,
-				manufacturerName, substanceName);
-		search = search.replace(" ", "+");
-		int lim = limit == null ? 5 : limit;
-
-		String result = "";
 		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
+			// decode values
+			Encoder encoder = ESAPI.encoder();
+			indication = encoder.decodeFromURL(indication);
+			brandName = encoder.decodeFromURL(brandName);
+			genericName = encoder.decodeFromURL(genericName);
+			manufacturerName = encoder.decodeFromURL(manufacturerName);
+			substanceName = encoder.decodeFromURL(substanceName);
 
-		return result;
+			String search = createRouteSearch(indication, brandName,
+					genericName, manufacturerName, substanceName);
+			search = search.replace(" ", "+");
+			int lim = limit == null ? 5 : limit;
+
+			String queryURI = "https://api.fda.gov/drug/label.json?search="
+					+ search + "&limit=" + lim;
+			return executeQuery(queryURI);
+		} catch (EncodingException e) {
+			LOGGER.error(e.getMessage(), e);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+					.entity("Search parameters could not be decoded.")
+					.type(MediaType.APPLICATION_JSON).build();
+		}
 	}
 
 	/**
@@ -211,27 +270,28 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
-	public String getDrugs(@QueryParam("indication") String indication,
+	public Response getDrugs(@QueryParam("indication") String indication,
 			@QueryParam("route") String route,
 			@QueryParam("limit") Integer limit) {
 
-		String search = createDrugRouteSearch(indication, route);
-		int lim = limit == null ? 5 : limit;
-
-		search = search.replace(" ", "+");
-		String result = "";
 		try {
-			HttpGet httpget = new HttpGet(
-					"https://api.fda.gov/drug/label.json?search=" + search
-							+ "&limit=" + lim);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
-		}
+			// decode values
+			Encoder encoder = ESAPI.encoder();
+			indication = encoder.decodeFromURL(indication);
 
-		return result;
+			String search = createDrugRouteSearch(indication, route);
+			int lim = limit == null ? 5 : limit;
+			search = search.replace(" ", "+");
+
+			String queryURI = "https://api.fda.gov/drug/label.json?search="
+					+ search + "&limit=" + lim;
+			return executeQuery(queryURI);
+		} catch (EncodingException e) {
+			LOGGER.error(e.getMessage(), e);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+					.entity("Search parameters could not be decoded.")
+					.type(MediaType.APPLICATION_JSON).build();
+		}
 	}
 
 	/**
@@ -355,35 +415,38 @@ public class MedFinderServlet {
 	 * @param substanceName
 	 *            Substance name (active ingredient) of drug
 	 * @return Query string section for drugs
+	 * @throws EncodingException 
 	 */
 	private String createDrugsParameter(String indication, String brandName,
-			String genericName, String manufacturerName, String substanceName) {
+			String genericName, String manufacturerName, String substanceName) throws EncodingException {
+		Encoder encoder = ESAPI.encoder();
+		
 		StringBuilder sb = new StringBuilder("(");
 		String or = "+OR+";
 
 		if (StringUtils.isNotBlank(indication)) {
-			sb.append("patient.drug.drugindication:" + indication.toUpperCase());
+			sb.append("patient.drug.drugindication:" + encoder.encodeForURL(indication.toUpperCase()));
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(brandName)) {
 			sb.append("patient.drug.openfda.brand_name:"
-					+ brandName.toUpperCase());
+					+ encoder.encodeForURL(brandName.toUpperCase()));
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(genericName)) {
 			sb.append("patient.drug.openfda.generic_name:"
-					+ genericName.toUpperCase());
+					+ encoder.encodeForURL(genericName.toUpperCase()));
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(manufacturerName)) {
 			// This one isn't all caps
-			sb.append("patient.drug.openfda.manufacturer_name:%22"
-					+ manufacturerName + "%22");
+			sb.append("patient.drug.openfda.manufacturer_name:"
+					+ encoder.encodeForURL("\"" + manufacturerName + "\""));
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(substanceName)) {
 			sb.append("patient.drug.openfda.substance_name:"
-					+ substanceName.toUpperCase());
+					+ encoder.encodeForURL(substanceName.toUpperCase()));
 		}
 
 		String drugsConditionString = sb.toString();
@@ -416,10 +479,13 @@ public class MedFinderServlet {
 	 *            Substance name (active ingredient) of drug
 	 * @return Query string for OpenFDA queries to find routes of administration
 	 *         for drugs
+	 * @throws EncodingException 
 	 */
 	private String createRouteSearch(String indication, String brandName,
-			String genericName, String manufacturerName, String substanceName) {
+			String genericName, String manufacturerName, String substanceName) throws EncodingException {
 
+		Encoder encoder = ESAPI.encoder();
+		
 		StringBuilder sb = new StringBuilder();
 		String or = "+OR+";
 
@@ -428,6 +494,9 @@ public class MedFinderServlet {
 			sb.append(or);
 		}
 		if (StringUtils.isNotBlank(brandName)) {
+			System.out.println(brandName);
+			brandName = encoder.encodeForURL(brandName);
+			System.out.println(brandName);
 			sb.append("openfda.brand_name:" + brandName.toUpperCase());
 			sb.append(or);
 		}
@@ -462,12 +531,15 @@ public class MedFinderServlet {
 	 *            Route of administration
 	 * @return Query string for OpenFDA queries to find drugs based on purpose
 	 *         and route of administration
+	 * @throws EncodingException 
 	 */
-	private String createDrugRouteSearch(String indication, String route) {
+	private String createDrugRouteSearch(String indication, String route) throws EncodingException {
 
+		Encoder encoder = ESAPI.encoder();
+		
 		String search = "";
 		if (StringUtils.isNotBlank(indication) && StringUtils.isNotBlank(route)) {
-			search = "indications_and_usage:" + indication
+			search = "indications_and_usage:" + encoder.encodeForURL(indication)
 					+ "+AND+openfda.route:" + route.toUpperCase();
 		}
 
@@ -484,11 +556,39 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searches")
-	public List<Search> getSavedSearchesOfType(
+	public Response getSavedSearchesOfType(
 			@QueryParam("type") Search.SearchType type) {
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("type", type);
-		return searchBean.findWithNamedQuery(Search.Q_FIND_BY_TYPE, param);
+		Object result = "";
+		int responseCode;
+
+		try {
+			Map<String, Object> param = new HashMap<String, Object>();
+			param.put("type", type);
+			result = searchBean
+					.findWithNamedQuery(Search.Q_FIND_BY_TYPE, param);
+			responseCode = HttpStatus.SC_OK;
+		} catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+
+			String typeString = "";
+			switch (type) {
+			case ADVERSE_EVENTS:
+				typeString = "Side Effect";
+				break;
+			case ROUTES:
+				typeString = "Route";
+				break;
+			case DRUGS:
+				typeString = "Drug";
+				break;
+			}
+
+			result = typeString + " saved searches could not be retreived.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result)
+				.type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -501,8 +601,21 @@ public class MedFinderServlet {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/search")
-	public Search getSearchById(@QueryParam("id") String id) {
-		return searchBean.findById(id);
+	public Response getSearchById(@QueryParam("id") String id) {
+		Object result = "";
+		int responseCode;
+
+		try {
+			result = searchBean.findById(id);
+			responseCode = HttpStatus.SC_OK;
+		} catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+			result = "Requested saved search could not be retrieved.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result)
+				.type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -513,13 +626,29 @@ public class MedFinderServlet {
 	 */
 	@DELETE
 	@Path("/search/{id}")
-	public void deleteSavedSearch(@PathParam("id") String id) {
-		if (id == null) {
-			System.out.println("id is null");
-		} else {
-			System.out.println(id);
+	public Response deleteSavedSearch(@PathParam("id") String id) {
+		Object result = null;
+		int responseCode;
+
+		try {
+			if (id == null) {
+				throw new IllegalArgumentException(
+						"Saved search id must not be null.");
+			}
+			searchBean.delete(id);
+			responseCode = HttpStatus.SC_OK;
+		} catch (IllegalArgumentException e) {
+			responseCode = HttpStatus.SC_BAD_REQUEST;
+			result = e.getMessage();
+			LOGGER.error(e.toString());
+		} catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+			result = "Saved search could not be deleted.";
+			LOGGER.error(e.toString());
 		}
-		searchBean.delete(id);
+
+		return Response.status(responseCode).entity(result)
+				.type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -557,7 +686,7 @@ public class MedFinderServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/search")
-	public Search createSavedSearch(@FormParam("name") String name,
+	public Response createSavedSearch(@FormParam("name") String name,
 			@FormParam("type") Search.SearchType type,
 			@FormParam("indication") String indication,
 			@FormParam("brandName") String brandName,
@@ -569,51 +698,73 @@ public class MedFinderServlet {
 			@FormParam("minWeight") Double minWeight,
 			@FormParam("maxWeight") Double maxWeight,
 			@FormParam("gender") String gender, @FormParam("route") String route) {
+		
+		try {
 
-		Search newSearch = new Search();
-		if (StringUtils.isNotBlank(name)) {
-			newSearch.setName(name);
-		}
-		if (type != null) {
-			newSearch.setType(type);
-		}
-		if (StringUtils.isNotBlank(indication)) {
-			newSearch.setIndication(indication);
-		}
-		if (StringUtils.isNotBlank(brandName)) {
-			newSearch.setBrandName(brandName);
-		}
-		if (StringUtils.isNotBlank(genericName)) {
-			newSearch.setGenericName(genericName);
-		}
-		if (StringUtils.isNotBlank(manufacturerName)) {
-			newSearch.setManufacturerName(manufacturerName);
-		}
-		if (StringUtils.isNotBlank(substanceName)) {
-			newSearch.setSubstanceName(substanceName);
-		}
-		if (minAge != null && minAge > -1) {
-			newSearch.setMinAge(minAge);
-		}
-		if (maxAge != null && maxAge > -1) {
-			newSearch.setMaxAge(maxAge);
-		}
-		if (minWeight != null && minWeight > -1) {
-			newSearch.setMinWeight(minWeight);
-		}
-		if (maxWeight != null && maxWeight > -1) {
-			newSearch.setMaxWeight(maxWeight);
-		}
-		if (StringUtils.isNotBlank(gender)) {
-			newSearch.setGender(gender);
-		}
-		if (StringUtils.isNotBlank(route)) {
-			newSearch.setRoute(route);
-		}
+			// decode values
+			Encoder encoder = ESAPI.encoder();
+			name = encoder.decodeFromURL(name);
+			indication = encoder.decodeFromURL(indication);
+			brandName = encoder.decodeFromURL(brandName);
+			genericName = encoder.decodeFromURL(genericName);
+			manufacturerName = encoder.decodeFromURL(manufacturerName);
+			substanceName = encoder.decodeFromURL(substanceName);
 
-		searchBean.persist(newSearch);
+			Search newSearch = new Search();
+			if (StringUtils.isNotBlank(name)) {
+				newSearch.setName(name);
+			}
+			if (type != null) {
+				newSearch.setType(type);
+			}
+			if (StringUtils.isNotBlank(indication)) {
+				newSearch.setIndication(indication);
+			}
+			if (StringUtils.isNotBlank(brandName)) {
+				newSearch.setBrandName(brandName);
+			}
+			if (StringUtils.isNotBlank(genericName)) {
+				newSearch.setGenericName(genericName);
+			}
+			if (StringUtils.isNotBlank(manufacturerName)) {
+				newSearch.setManufacturerName(manufacturerName);
+			}
+			if (StringUtils.isNotBlank(substanceName)) {
+				newSearch.setSubstanceName(substanceName);
+			}
+			if (minAge != null && minAge > -1) {
+				newSearch.setMinAge(minAge);
+			}
+			if (maxAge != null && maxAge > -1) {
+				newSearch.setMaxAge(maxAge);
+			}
+			if (minWeight != null && minWeight > -1) {
+				newSearch.setMinWeight(minWeight);
+			}
+			if (maxWeight != null && maxWeight > -1) {
+				newSearch.setMaxWeight(maxWeight);
+			}
+			if (StringUtils.isNotBlank(gender)) {
+				newSearch.setGender(gender);
+			}
+			if (StringUtils.isNotBlank(route)) {
+				newSearch.setRoute(route);
+			}
 
-		return newSearch;
+			searchBean.persist(newSearch);
+
+			return Response.status(HttpStatus.SC_OK).entity(newSearch)
+					.type(MediaType.APPLICATION_JSON).build();
+		} catch (EncodingException e) {
+			LOGGER.error(e.getMessage(), e);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+					.entity("Request parameters could not be decoded.")
+					.type(MediaType.APPLICATION_JSON).build();
+		} catch (Exception e) {
+			LOGGER.error(e.toString());
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+					.entity("Search '" + name + "' could not be saved.")
+					.type(MediaType.APPLICATION_JSON).build();
+		}
 	}
-
 }

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
+    <title>MedFinder</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -17,10 +17,6 @@
     
     <!-- Application CSS -->
 	<link href="../css/styles.min.css" rel="stylesheet">
-
-    <!-- Application JS -->
-    <script src="../js/utils.js"></script>
-    <script src="../js/consumers.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -56,14 +52,14 @@
 	<div class="container theme-showcase" role="main">
 	
 		<ul class="nav nav-tabs">
-		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Adverse Events Lookup</a></li>
+		  <li class="active"><a data-toggle="tab" href="#adverseEventLookup">Side Effects Lookup</a></li>
 		</ul>
 		<div class="tab-content">
 		
 			<!-- Adverse Event Lookup Tab -->
 			<div id="adverseEventLookup" class="tab-pane fade in active">
 
-				<div class="well">Explore reported adverse events for certain patient characteristics and drugs</div>
+				<div class="well">Explore reported side effects for certain patient characteristics and drugs</div>
 
 				<div class="row">
 					<div class="col-md-8">
@@ -71,17 +67,17 @@
 						<!-- Adverse Events Search Form -->
 						<div class="panel panel-primary">
 							<div class="panel-heading">
-								<h3 class="panel-title">Adverse Event Search</h3>
+								<h3 class="panel-title">Side Effects Lookup <i id="adverseEventInfo" class="fa fa-info-circle pull-right" data-toggle="popover"></i></h3>
 							</div>
 							<div class="panel-body">
-								<form role="form" id="adverseEventsSearch">
+								<form role="form" id="adverseEventsSearch" action="javascript:adverseEventSearch()">
 									<div class="row">
 										<div class="col-md-6">
 											<fieldset>
 												<legend>Patient Information</legend>
 												<div class="form-group">
 													<div class="form-group">
-														<label for="minAge">Age (range)</label>
+														<label for="minAge">Age (Years) [range]</label>
 														<input type="input" id="minAge" name="minAge" class="form-control" placeholder="Minimum Age" />
 													</div>
 													<div class="form-group">
@@ -98,7 +94,7 @@
 													</div>
 												</div>
 												<div class="form-group">
-													<label>Weight (range)</label>
+													<label>Weight (Lbs) [range]</label>
 													<div class="form-group">
 														<input type="input" id="minWeight" name="minWeight" class="form-control" placeholder="Minimum Weight" />
 													</div>
@@ -112,30 +108,44 @@
 											<fieldset>
 												<legend>Drug Information</legend>
 												<div class="form-group">
-													<label for="indiciation">Indication</label> <input type="input"
-														id="indication" class="form-control" />
+													<label for="indiciation">Purpose/Usage</label>
+													<input type="input" id="indication" name="indication" class="form-control"  placeholder="E.g. Congestion, Pain"/>
 												</div>
 												<div class="form-group">
-													<label for="brandName">Brand Name</label> <input type="input"
-														id="brandName" class="form-control" />
+													<label for="brandName">Brand Name</label>
+													<input type="input" id="brandName" name="brandName" class="form-control" placeholder="E.g. Sudafed, Advil" />
 												</div>
 												<div class="form-group">
-													<label for="genericName">Generic Name</label> <input
-														type="input" id="genericName" class="form-control" />
+													<label for="genericName">Generic Name</label>
+													<input type="input" id="genericName" name="genericName" class="form-control" placeholder="E.g. Psuedoephedrine, Ibuprofen" />
 												</div>
 												<div class="form-group">
-													<label for="manufacturerName">Manufacturer Name</label> <input
-														type="input" id="manufacturerName" class="form-control" />
-												</div>
-												<div class="form-group">
-													<label for="substanceName">Substance Name</label> <input
-														type="input" id="substanceName" class="form-control" />
+													<label for="substanceName">Active Ingredients</label>
+													<input type="input" id="substanceName" name="substanceName" class="form-control" placeholder="E.g. Psuedoephedrine Hydrochloride, Ibuprofen" />
 												</div>
 											</fieldset>
 										</div>
 									</div>
+									
+									<!-- Search Options -->
+									<div class="row" style="padding:1em;">
+										<fieldset>
+											<legend>Search Options</legend>
+											<div class="form-group">
+												<label for="indiciation">Result Limit</label>
+												<select id="resultLimit" name="resultLimit" class="form-control">
+													<option value="5">5</option>
+													<option value="10">10</option>
+													<option selected value="15">15</option>
+													<option value="20">20</option>
+													<option value="25">25</option>
+												</select>
+											</div>
+										</fieldset>
+									</div>
 				
-									<button type="button" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
+									<button type="submit" id="adverseEventsSubmit" class="btn btn-success btn-block">Search</button>
+									<button type="button" class="btn btn-warning btn-block form-reset">Reset</button>
 				
 								</form>
 							</div>
@@ -158,28 +168,31 @@
 				
 				<!-- Results -->
 				<div class="row">
-					<div id="adverseEventsResultsPanel" class="panel panel-primary">
+					<div id="adverseEventsResultsPanel" class="panel panel-primary results-panel" style="display:none">
 						<div class="panel-heading">
-							<h3 class="panel-title">Adverse Event Search Results</h3>
+							<h3 class="panel-title">Side Effects Lookup Results</h3>
 						</div>
 						<div class="panel-body">
 						
 							<!-- Save Search Form -->
 							<div class="pull-right ss-wrap">
-								<form class="form-inline" id="saveAdverseEventsSearch" role="form">
+								<form class="form-inline" id="saveAdverseEventsSearch" role="form" action="javascript:adverseEventSavedSearch()">
 									<span>
 										<input type="text" id="ssName" class="form-control ssName" placeholder="Saved Search Name" />
 									</span>
-									<button type="button" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
+									<button type="submit" id="aeSavedSearchSubmit" class="btn btn-success">Save Search</button>
 								</form>
 							</div>
 						
 							<!-- Results Table -->
-							<table id="adverseEventsResults" class="table">
+							<table id="adverseEventsResults" class="table table-striped">
 								<thead>
 									<tr>
-										<th>Reactions</th>
+										<th>Side Effects</th>
 										<th>Drugs</th>
+										<th>Age</th>
+										<th>Gender</th>
+										<th>Weight (lbs)</th>
 										<th>Serious</th>
 										<th>Death</th>
 									</tr>
@@ -187,6 +200,11 @@
 								<tbody>
 								</tbody>
 							</table>
+							
+							<!-- No results alert -->
+							<div class="alert alert-danger" role="alert">
+								No results found!
+							</div>
 						</div>
 					</div><!-- End Adverse Events Results Panel -->
 				</div>
@@ -206,8 +224,8 @@
 	<input type="hidden" id="ssBrandName" />
 	<input type="hidden" id="ssGenericName" />
 	<input type="hidden" id="ssSubstanceName" />
-	<input type="hidden" id="ssManufacturerName" />
 
+	<!-- Delete Confirmation -->
 	<div id="confirmDelete" class="modal fade">
 	  <div class="modal-dialog modal-sm">
 	    <div class="modal-content">
@@ -225,19 +243,24 @@
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
-
-	<!-- Delete Confirmation -->
-	<div class="modal fade loading">
-		<div class="modal-dialog modal-sm">
-			      <div class="modal-header">
+	
+	<!-- Error Dialog -->
+	<div id="errorDialog" class="modal fade">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header bg-danger">
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	        <h4 class="modal-title">Delete Confirmation</h4>
+	        <h4 class="modal-title"><i class="fa fa-exclamation-triangle text-danger"></i> Error</h4>
 	      </div>
-	    	<div class="modal-content">
-				<i class="fa fa-repeat"></i>
-			</div>
-		</div>
-	</div>
+	      <div class="modal-body">
+	        <p></p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 	
 	<!-- Loading Mask -->
 	<div class="searchLoading modal fade">
@@ -255,19 +278,17 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../js/lib/bootstrap.min.js"></script>
     <script src="../js/lib/jquery.validate.min.js"></script>
-    <script>
-    	$(document).ready(function() {
-    		$('#adverseEventsSubmit').click(adverseEventSearch);
-    		$('#aeSavedSearchSubmit').click(adverseEventSavedSearch);
-    		$('#adverseEventsResultsPanel').hide();
-    		
-    		$('.ssName').keyup(clearError);
-    		$('.ssSearch').click(runSavedSearch);
-    		$('.ssNew').click(newSavedSearch);
-    		$('.ssDelete').click(deleteSavedSearch);
-    		
-    		loadAdverseEventsSavedSearches();
-    	});
-    </script>
+	<!-- esapi4js dependencies -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/lib/log4js.js"></script>
+	<!-- esapi4js i18n resources -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/resources/i18n/ESAPI_Standard_en_US.properties.js"></script>
+	<!-- esapi4js core -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/esapi-compressed.js"></script>
+    <!-- Application JS -->
+	<!-- esapi4js configuration -->
+	<script type="text/javascript" language="JavaScript" src="../js/lib/esapi4js/resources/Base.esapi.properties.js"></script>
+	 <!-- Application JS -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/consumers.js"></script>
   </body>
 </html>
