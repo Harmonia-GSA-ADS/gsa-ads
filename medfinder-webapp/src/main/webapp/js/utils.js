@@ -312,7 +312,8 @@ function resetForm() {
 function extractErrorMessage(response) {
 	var msg = response.responseText;
 	if (response.responseJSON) {
-		msg = "Error from OpenFDA: " + response.responseJSON.error.message;
+		var fdaMsg = response.responseJSON.error.message;
+		msg = "Error from OpenFDA: " + (fdaMsg ? fdaMsg : '[No message provided]');
 	}
 	return msg;
 }
@@ -330,61 +331,17 @@ function displayError(msg) {
 }
 
 /**
- * Custom validator for disallowing special characters.
- * The following characters are not allowed: #()-:!@$*;/,&'"^\
+ * Custom validator for disallowing special characters. Only alphanumeric 
+ * and whitespace characters are valid.
  */
 $.validator.addMethod('specialCharacters', function(value, element) {
 
-	if (value.indexOf('#') > -1) {
-		return false;
+	// allow blank
+	if (value === '') {
+		return true;
 	}
-	if (value.indexOf('(') > -1) {
-		return false;
-	}
-	if (value.indexOf(')') > -1) {
-		return false;
-	}
-	if (value.indexOf('-') > -1) {
-		return false;
-	}
-	if (value.indexOf(':') > -1) {
-		return false;
-	}
-	if (value.indexOf('!') > -1) {
-		return false;
-	}
-	if (value.indexOf('@') > -1) {
-		return false;
-	}
-	if (value.indexOf('$') > -1) {
-		return false;
-	}
-	if (value.indexOf('*') > -1) {
-		return false;
-	}
-	if (value.indexOf(';') > -1) {
-		return false;
-	}
-	if (value.indexOf('/') > -1) {
-		return false;
-	}
-	if (value.indexOf(',') > -1) {
-		return false;
-	}
-	if (value.indexOf('&') > -1) {
-		return false;
-	}
-	if (value.indexOf("'") > -1) {
-		return false;
-	}
-	if (value.indexOf('"') > -1) {
-		return false;
-	}
-	if (value.indexOf('^') > -1) {
-		return false;
-	}
-	if (value.indexOf('\\') > -1) {
-		return false;
-	}
-	return true;
-}, 'Value must not include any of the following characters: #()-:!@$*;/,&\'"^\\');
+	
+	// check for letters, numbers, and whitespace
+	var pattern = /^[a-z0-9\s]+$/i;
+	return pattern.test(value);
+}, 'Value must only contain alphanumeric characters and spaces.');

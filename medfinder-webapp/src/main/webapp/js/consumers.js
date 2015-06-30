@@ -4,7 +4,7 @@ $(document).ready(function() {
 	$('#adverseEventInfo').popover({
 		container: 'body',
 		placement: 'right',
-		content: 'All patient and drug criteria values are joined with the AND operator when the search is performed.'
+		content: 'Brand name, generic name, and active ingredeint are joined with the OR operator, then the drug group and all other criteria values are joined with the AND operator when the search is performed.'
 	});
 	
 	$('#adverseEventsResultsPanel').hide();
