@@ -13,6 +13,7 @@ import org.owasp.esapi.errors.EncodingException;
 /**
  * Test class for {@link OpenFDASearcher}
  * 
+ * @author janway
  * @author keagan
  */
 public class OpenFDASearcherTest {

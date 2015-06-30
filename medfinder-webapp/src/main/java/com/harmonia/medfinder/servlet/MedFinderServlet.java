@@ -208,7 +208,7 @@ public class MedFinderServlet {
 	 * @param indication Search criteria value for indication
 	 * @param brandName Search criteria value for brand name
 	 * @param genericName Search criteria value for generic name
-	 * @param manufacturer Name Search criteria value for manufacturer name
+	 * @param manufacturerName Search criteria value for manufacturer name
 	 * @param substanceName Search criteria value for substance name
 	 * @param minAge Search criteria value for min age, in years
 	 * @param maxAge Search criteria value for max age, in years

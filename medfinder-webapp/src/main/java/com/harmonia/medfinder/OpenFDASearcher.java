@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * Class that can make search requests to OpenFDA's Drugs API.
  * 
  * @author keagan
+ * @author janway
  */
 public class OpenFDASearcher {
 
@@ -39,6 +40,26 @@ public class OpenFDASearcher {
 	private static final String FDA_API_URL = "https://api.fda.gov/drug/";
 
 	/**
+	 * REST end point for adverse event search
+	 */
+	private static final String LABEL_JSON = "label.json";
+
+	/**
+	 * REST end point for label search
+	 */
+	private static final String EVENT_END_POINT = "event.json";
+
+	/**
+	 * OR representation in query string
+	 */
+	private static final String OR = "+";
+
+	/**
+	 * AND representation in query string
+	 */
+	private static final String AND = "+AND+";
+
+	/**
 	 * HTTP client used for contacting the OpenFDA API
 	 */
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -53,8 +74,6 @@ public class OpenFDASearcher {
 		String result = "";
 		int responseCode;
 
-		System.out.println(queryURI);
-		
 		try {
 			HttpGet httpget = new HttpGet(queryURI);
 			CloseableHttpResponse response = httpClient.execute(httpget);
@@ -68,6 +87,18 @@ public class OpenFDASearcher {
 		}
 
 		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
+	}
+
+	/**
+	 * Returns a query URL for OpenFDA with the provided values
+	 * 
+	 * @param endPoint REST end point
+	 * @param criteria search criteria
+	 * @param limit Result size limit
+	 * @return Request URL
+	 */
+	private String buildQueryURL(String endPoint, String criteria, int limit) {
+		return FDA_API_URL + endPoint + "?api_key=" + API_KEY + "&search=" + criteria + "&limit=" + limit;
 	}
 
 	/**
@@ -98,36 +129,37 @@ public class OpenFDASearcher {
 		String drugsParameter = createDrugsParameter(indication, brandName, genericName, manufacturerName, substanceName);
 		int lim = limit == null ? 5 : limit;
 
-		String and = "+AND+";
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(ageParameter)) {
 			sb.append(ageParameter);
-			sb.append(and);
+			sb.append(AND);
 		}
 		if (StringUtils.isNotBlank(dateParameter)) {
 			sb.append(dateParameter);
-			sb.append(and);
+			sb.append(AND);
 		}
 		if (StringUtils.isNotBlank(genderParameter)) {
 			sb.append(genderParameter);
-			sb.append(and);
+			sb.append(AND);
 		}
 		if (StringUtils.isNotBlank(weightParameter)) {
 			sb.append(weightParameter);
-			sb.append(and);
+			sb.append(AND);
 		}
 		if (StringUtils.isNotBlank(drugsParameter)) {
 			sb.append(drugsParameter);
 		}
 
+		// strip off trailing "and" if necessary
 		String search = sb.toString();
-
-		if (search.endsWith(and)) {
-			search = search.substring(0, search.length() - and.length());
+		if (search.endsWith(AND)) {
+			search = search.substring(0, search.length() - AND.length());
 		}
-		search = search.replace(" ", "+");
 
-		String queryURI = FDA_API_URL + "event.json?" + "api_key=" + API_KEY + "&search=" + search + "&limit=" + lim;
+		// turn spaces into "or"s
+		search = search.replace(" ", OR);
+
+		String queryURI = buildQueryURL(EVENT_END_POINT, search, lim);
 		return executeQuery(queryURI);
 	}
 
@@ -153,10 +185,10 @@ public class OpenFDASearcher {
 		substanceName = encoder.decodeFromURL(substanceName);
 
 		String search = createRouteSearch(indication, brandName, genericName, manufacturerName, substanceName);
-		search = search.replace(" ", "+");
+		search = search.replace(" ", OR);
 		int lim = limit == null ? 5 : limit;
 
-		String queryURI = FDA_API_URL + "label.json?" + "api_key=" + API_KEY + "&search=" + search + "&limit=" + lim;
+		String queryURI = buildQueryURL(LABEL_JSON, search, lim);
 		return executeQuery(queryURI);
 	}
 
@@ -177,9 +209,9 @@ public class OpenFDASearcher {
 
 		String search = createDrugRouteSearch(indication, route);
 		int lim = limit == null ? 5 : limit;
-		search = search.replace(" ", "+");
+		search = search.replace(" ", OR);
 
-		String queryURI = FDA_API_URL + "label.json?" + "api_key=" + API_KEY + "&search=" + search + "&limit=" + lim;
+		String queryURI = buildQueryURL(LABEL_JSON, search, lim);
 		return executeQuery(queryURI);
 	}
 
@@ -290,39 +322,43 @@ public class OpenFDASearcher {
 	private String createDrugsParameter(String indication, String brandName, String genericName, String manufacturerName, String substanceName) throws EncodingException {
 		Encoder encoder = ESAPI.encoder();
 
-		StringBuilder sb = new StringBuilder("(");
-		String or = "+";
+		StringBuilder sb = new StringBuilder(500);
 
 		if (StringUtils.isNotBlank(indication)) {
-			sb.append("patient.drug.drugindication:" + encoder.encodeForURL(indication.toUpperCase()));
-			sb.append(or);
+			sb.append("patient.drug.drugindication:");
+			sb.append(encoder.encodeForURL(indication.toUpperCase()));
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(brandName)) {
-			sb.append("patient.drug.openfda.brand_name:" + encoder.encodeForURL(brandName.toUpperCase()));
-			sb.append(or);
+			sb.append("patient.drug.openfda.brand_name:");
+			sb.append(encoder.encodeForURL(brandName.toUpperCase()));
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(genericName)) {
-			sb.append("patient.drug.openfda.generic_name:" + encoder.encodeForURL(genericName.toUpperCase()));
-			sb.append(or);
+			sb.append("patient.drug.openfda.generic_name:");
+			sb.append(encoder.encodeForURL(genericName.toUpperCase()));
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(manufacturerName)) {
 			// This one isn't all caps
-			sb.append("patient.drug.openfda.manufacturer_name:" + encoder.encodeForURL("\"" + manufacturerName + "\""));
-			sb.append(or);
+			sb.append("patient.drug.openfda.manufacturer_name:");
+			sb.append(encoder.encodeForURL("\"" + manufacturerName + "\""));
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(substanceName)) {
-			sb.append("patient.drug.openfda.substance_name:" + encoder.encodeForURL(substanceName.toUpperCase()));
+			sb.append("patient.drug.openfda.substance_name:");
+			sb.append(encoder.encodeForURL(substanceName.toUpperCase()));
 		}
 
+		// strip off trailing "or" if necessary
 		String drugsConditionString = sb.toString();
-		if (drugsConditionString.endsWith(or)) {
-			drugsConditionString = drugsConditionString.substring(0, drugsConditionString.length() - or.length());
+		if (drugsConditionString.endsWith(OR)) {
+			drugsConditionString = drugsConditionString.substring(0, drugsConditionString.length() - OR.length());
 		}
-		if (drugsConditionString.equals("(")) {
-			drugsConditionString = "";
-		}
-		else {
-			drugsConditionString += ")";
+
+		// group the criteria
+		if (StringUtils.isNotBlank(drugsConditionString)) {
+			drugsConditionString = "(" + drugsConditionString + ")";
 		}
 
 		return drugsConditionString;
@@ -345,33 +381,38 @@ public class OpenFDASearcher {
 
 		Encoder encoder = ESAPI.encoder();
 
-		StringBuilder sb = new StringBuilder();
-		String or = "+OR+";
+		StringBuilder sb = new StringBuilder(500);
 
 		if (StringUtils.isNotBlank(indication)) {
-			sb.append("indications_and_usage:" + indication);
-			sb.append(or);
+			sb.append("indications_and_usage:");
+			sb.append(indication);
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(brandName)) {
 			brandName = encoder.encodeForURL(brandName);
-			sb.append("openfda.brand_name:" + brandName.toUpperCase());
-			sb.append(or);
+			sb.append("openfda.brand_name:");
+			sb.append(brandName.toUpperCase());
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(genericName)) {
-			sb.append("openfda.generic_name:" + genericName.toUpperCase());
-			sb.append(or);
+			sb.append("openfda.generic_name:");
+			sb.append(genericName.toUpperCase());
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(manufacturerName)) {
-			sb.append("openfda.manufacturer_name:%22" + manufacturerName + "%22"); // %22 = '"'
-			sb.append(or);
+			sb.append("openfda.manufacturer_name:");
+			sb.append(encoder.encodeForURL("\"" + manufacturerName + "\""));
+			sb.append(OR);
 		}
 		if (StringUtils.isNotBlank(substanceName)) {
-			sb.append("openfda.substance_name:" + substanceName.toUpperCase());
+			sb.append("openfda.substance_name:");
+			sb.append(substanceName.toUpperCase());
 		}
 
+		// string off trailing 'or' if necessary
 		String search = sb.toString();
-		if (search.endsWith(or)) {
-			search = search.substring(0, search.length() - or.length());
+		if (search.endsWith(OR)) {
+			search = search.substring(0, search.length() - OR.length());
 		}
 
 		return search;
@@ -391,11 +432,15 @@ public class OpenFDASearcher {
 
 		Encoder encoder = ESAPI.encoder();
 
-		String search = "";
+		StringBuilder sb = new StringBuilder(200);
 		if (StringUtils.isNotBlank(indication) && StringUtils.isNotBlank(route)) {
-			search = "indications_and_usage:" + encoder.encodeForURL(indication) + "+AND+openfda.route:" + route.toUpperCase();
+			sb.append("indications_and_usage:");
+			sb.append(encoder.encodeForURL(indication));
+			sb.append(AND);
+			sb.append("openfda.route:");
+			sb.append(route.toUpperCase());
 		}
 
-		return search;
+		return sb.toString();
 	}
 }

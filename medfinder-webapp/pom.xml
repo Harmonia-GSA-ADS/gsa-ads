@@ -277,4 +277,5 @@
 		<finalName>ads</finalName>
 
 	</build>
+	<url>http://ec2-54-174-156-235.compute-1.amazonaws.com/ads/</url>
 </project>

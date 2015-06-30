@@ -25,7 +25,7 @@ import com.harmonia.medfinder.model.Search;
 /**
  * Test class for {@link SavedSearchManager}
  * 
- * @author keagan
+ * @author janway
  */
 public class SavedSearchManagerTest {
 
