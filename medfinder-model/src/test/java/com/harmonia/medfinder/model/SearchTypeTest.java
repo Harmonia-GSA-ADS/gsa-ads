@@ -18,9 +18,7 @@ public class SearchTypeTest {
 	@Test
 	public void testValues() {
 		SearchType[] values = SearchType.values();
-		Assert.assertEquals(
-				"Number of enum values does not match expected value.", 3,
-				values.length);
+		Assert.assertEquals("Number of enum values does not match expected value.", 3, values.length);
 	}
 
 	/**
@@ -28,10 +26,8 @@ public class SearchTypeTest {
 	 */
 	@Test
 	public void testValueOf() {
-		SearchType type = SearchType.valueOf(SearchType.ADVERSE_EVENTS
-				.toString());
-		Assert.assertEquals("Type does not match expected value.",
-				SearchType.ADVERSE_EVENTS, type);
+		SearchType type = SearchType.valueOf(SearchType.ADVERSE_EVENTS.toString());
+		Assert.assertEquals("Type does not match expected value.", SearchType.ADVERSE_EVENTS, type);
 
 	}
 }

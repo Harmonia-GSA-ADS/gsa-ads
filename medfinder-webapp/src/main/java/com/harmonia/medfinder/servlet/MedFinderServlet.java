@@ -22,7 +22,8 @@ import org.owasp.esapi.errors.EncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmonia.medfinder.Searcher;
+import com.harmonia.medfinder.SavedSearchManager;
+import com.harmonia.medfinder.OpenFDASearcher;
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
 
@@ -39,68 +40,49 @@ public class MedFinderServlet {
 	/**
 	 * Static Logger
 	 */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(MedFinderServlet.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MedFinderServlet.class);
 
 	/**
 	 * Object that performs the business logic for this service.
 	 */
-	private Searcher searcher = new Searcher();
+	private OpenFDASearcher searcher = new OpenFDASearcher();
+
+	/**
+	 * Object that performs the business logic for saved searches.
+	 */
+	private SavedSearchManager savedSearchManager = new SavedSearchManager();
 
 	/**
 	 * Bean for saved search related operations
 	 */
 	@EJB
 	private SearchBean searchBean;
-	
+
 	/**
 	 * Returns a list of adverse drug events based on the supplied criteria
 	 * 
-	 * @param ageStart
-	 *            Minimum age of patient, in years
-	 * @param ageEnd
-	 *            Maximum age of patient, in years
-	 * @param dateStart
-	 *            Earliest date of event
-	 * @param dateEnd
-	 *            Latest date of event
-	 * @param weightStart
-	 *            Minimum weight of patient, in pounds
-	 * @param weightEnd
-	 *            Maximum weight of patient, in pounds
-	 * @param gender
-	 *            Gender of the patient
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param ageStart Minimum age of patient, in years
+	 * @param ageEnd Maximum age of patient, in years
+	 * @param dateStart Earliest date of event
+	 * @param dateEnd Latest date of event
+	 * @param weightStart Minimum weight of patient, in pounds
+	 * @param weightEnd Maximum weight of patient, in pounds
+	 * @param gender Gender of the patient
+	 * @param indication Purpose of drug
+	 * @param brandName Brand name of drug
+	 * @param genericName Generic name of drug
+	 * @param manufacturerName Manufacturer name of drug
+	 * @param substanceName Substance name (active ingredient) of drug
+	 * @param limit The maximum number of results to return
 	 * @return List of adverse events based on the supplied criteria
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
-	public Response getAdverseDrugEvents(
-			@QueryParam("ageStart") String ageStart,
-			@QueryParam("ageEnd") String ageEnd,
-			@QueryParam("dateStart") String dateStart,
-			@QueryParam("dateEnd") String dateEnd,
-			@QueryParam("weightStart") String weightStart,
-			@QueryParam("weightEnd") String weightEnd,
-			@QueryParam("gender") String gender,
-			@QueryParam("indication") String indication,
-			@QueryParam("brandName") String brandName,
-			@QueryParam("genericName") String genericName,
-			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName,
-			@QueryParam("limit") Integer limit) {
+	public Response getAdverseDrugEvents(@QueryParam("ageStart") String ageStart, @QueryParam("ageEnd") String ageEnd, @QueryParam("dateStart") String dateStart,
+	        @QueryParam("dateEnd") String dateEnd, @QueryParam("weightStart") String weightStart, @QueryParam("weightEnd") String weightEnd, @QueryParam("gender") String gender,
+	        @QueryParam("indication") String indication, @QueryParam("brandName") String brandName, @QueryParam("genericName") String genericName,
+	        @QueryParam("manufacturerName") String manufacturerName, @QueryParam("substanceName") String substanceName, @QueryParam("limit") Integer limit) {
 
 		try {
 
@@ -112,44 +94,30 @@ public class MedFinderServlet {
 			manufacturerName = encoder.decodeFromURL(manufacturerName);
 			substanceName = encoder.decodeFromURL(substanceName);
 
-			return searcher.getAdverseDrugEvents(ageStart, ageEnd, dateStart,
-					dateEnd, weightStart, weightEnd, gender, indication,
-					brandName, genericName, manufacturerName, substanceName,
-					limit);
-		} catch (EncodingException e) {
+			return searcher.getAdverseDrugEvents(ageStart, ageEnd, dateStart, dateEnd, weightStart, weightEnd, gender, indication, brandName, genericName, manufacturerName, substanceName, limit);
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
 	/**
 	 * Returns the routes of administration for a drug
 	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param indication Purpose of drug
+	 * @param brandName Brand name of drug
+	 * @param genericName Generic name of drug
+	 * @param manufacturerName Manufacturer name of drug
+	 * @param substanceName Substance name (active ingredient) of drug
+	 * @param limit The maximum number of results to return
 	 * @return Routes of administration for a drug
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/routes")
-	public Response getRoutes(@QueryParam("indication") String indication,
-			@QueryParam("brandName") String brandName,
-			@QueryParam("genericName") String genericName,
-			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName,
-			@QueryParam("limit") Integer limit) {
+	public Response getRoutes(@QueryParam("indication") String indication, @QueryParam("brandName") String brandName, @QueryParam("genericName") String genericName,
+	        @QueryParam("manufacturerName") String manufacturerName, @QueryParam("substanceName") String substanceName, @QueryParam("limit") Integer limit) {
 
 		try {
 			// decode values
@@ -160,13 +128,11 @@ public class MedFinderServlet {
 			manufacturerName = encoder.decodeFromURL(manufacturerName);
 			substanceName = encoder.decodeFromURL(substanceName);
 
-			return searcher.getRoutes(indication, brandName, genericName,
-					manufacturerName, substanceName, limit);
-		} catch (EncodingException e) {
+			return searcher.getRoutes(indication, brandName, genericName, manufacturerName, substanceName, limit);
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -174,20 +140,15 @@ public class MedFinderServlet {
 	 * Returns the drugs matching the given indication and route of
 	 * administration
 	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param route
-	 *            Route of administration of the drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param indication Purpose of drug
+	 * @param route Route of administration of the drug
+	 * @param limit The maximum number of results to return
 	 * @return Drugs matching the given indication and route of administration
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
-	public Response getDrugs(@QueryParam("indication") String indication,
-			@QueryParam("route") String route,
-			@QueryParam("limit") Integer limit) {
+	public Response getDrugs(@QueryParam("indication") String indication, @QueryParam("route") String route, @QueryParam("limit") Integer limit) {
 
 		try {
 			// decode values
@@ -195,105 +156,77 @@ public class MedFinderServlet {
 			indication = encoder.decodeFromURL(indication);
 
 			return searcher.getDrugs(indication, route, limit);
-		} catch (EncodingException e) {
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
 	/**
 	 * Returns all saved searches with the given type
 	 * 
-	 * @param type
-	 *            Saved search type
+	 * @param type Saved search type
 	 * @return List of all saved searches with the given type
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searches")
-	public Response getSavedSearchesOfType(
-			@QueryParam("type") Search.SearchType type) {
-		return searcher.getSavedSearchesOfType(type, searchBean);
+	public Response getSavedSearchesOfType(@QueryParam("type") Search.SearchType type) {
+		return savedSearchManager.getSavedSearchesOfType(type, searchBean);
 	}
 
 	/**
 	 * Returns the saved search with the given id
 	 * 
-	 * @param id
-	 *            Id of the saved search
+	 * @param id Id of the saved search
 	 * @return Saved search with the given id
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/search")
 	public Response getSearchById(@QueryParam("id") String id) {
-		return searcher.getSearchById(id, searchBean);
+		return savedSearchManager.getSearchById(id, searchBean);
 	}
 
 	/**
 	 * Deletes the saved search with the given id
 	 * 
-	 * @param id
-	 *            Id of the saved search
+	 * @param id Id of the saved search
 	 */
 	@DELETE
 	@Path("/search/{id}")
 	public Response deleteSavedSearch(@PathParam("id") String id) {
-		return searcher.deleteSavedSearch(id, searchBean);
+		return savedSearchManager.deleteSavedSearch(id, searchBean);
 	}
 
 	/**
 	 * Creates a saved search
 	 * 
-	 * @param name
-	 *            Name of the saved search
-	 * @param type
-	 *            Type of the saved search
-	 * @param indication
-	 *            Search criteria value for indication
-	 * @param brandName
-	 *            Search criteria value for brand name
-	 * @param genericName
-	 *            Search criteria value for generic name
-	 * @param manufacturer
-	 *            Name Search criteria value for manufacturer name
-	 * @param substanceName
-	 *            Search criteria value for substance name
-	 * @param minAge
-	 *            Search criteria value for min age, in years
-	 * @param maxAge
-	 *            Search criteria value for max age, in years
-	 * @param minWeight
-	 *            Search criteria value for min weight, in pounds
-	 * @param maxWeight
-	 *            Search criteria value for max weight, in pounds
-	 * @param gender
-	 *            Search criteria value for gender
-	 * @param route
-	 *            Search criteria value for route
+	 * @param name Name of the saved search
+	 * @param type Type of the saved search
+	 * @param indication Search criteria value for indication
+	 * @param brandName Search criteria value for brand name
+	 * @param genericName Search criteria value for generic name
+	 * @param manufacturer Name Search criteria value for manufacturer name
+	 * @param substanceName Search criteria value for substance name
+	 * @param minAge Search criteria value for min age, in years
+	 * @param maxAge Search criteria value for max age, in years
+	 * @param minWeight Search criteria value for min weight, in pounds
+	 * @param maxWeight Search criteria value for max weight, in pounds
+	 * @param gender Search criteria value for gender
+	 * @param route Search criteria value for route
 	 * @return New saved search
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/search")
-	public Response createSavedSearch(@FormParam("name") String name,
-			@FormParam("type") Search.SearchType type,
-			@FormParam("indication") String indication,
-			@FormParam("brandName") String brandName,
-			@FormParam("genericName") String genericName,
-			@FormParam("manufacturerName") String manufacturerName,
-			@FormParam("substanceName") String substanceName,
-			@FormParam("minAge") Integer minAge,
-			@FormParam("maxAge") Integer maxAge,
-			@FormParam("minWeight") Double minWeight,
-			@FormParam("maxWeight") Double maxWeight,
-			@FormParam("gender") String gender, @FormParam("route") String route) {
+	public Response createSavedSearch(@FormParam("name") String name, @FormParam("type") Search.SearchType type, @FormParam("indication") String indication, @FormParam("brandName") String brandName,
+	        @FormParam("genericName") String genericName, @FormParam("manufacturerName") String manufacturerName, @FormParam("substanceName") String substanceName,
+	        @FormParam("minAge") Integer minAge, @FormParam("maxAge") Integer maxAge, @FormParam("minWeight") Double minWeight, @FormParam("maxWeight") Double maxWeight,
+	        @FormParam("gender") String gender, @FormParam("route") String route) {
 
-		return searcher.createSavedSearch(name, type, indication, brandName,
-				genericName, manufacturerName, substanceName, minAge, maxAge,
-				minWeight, maxWeight, gender, route, searchBean);
+		return savedSearchManager.createSavedSearch(name, type, indication, brandName, genericName, manufacturerName, substanceName, minAge, maxAge, minWeight, maxWeight, gender, route, searchBean);
 	}
 }

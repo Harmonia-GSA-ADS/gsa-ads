@@ -29,13 +29,11 @@ public class SearchTypeConverterTest {
 	public void testConvertToDatabaseColumn() {
 		SearchTypeConverter converter = new SearchTypeConverter();
 
-		String dbAdverseEvents = converter
-				.convertToDatabaseColumn(SearchType.ADVERSE_EVENTS);
+		String dbAdverseEvents = converter.convertToDatabaseColumn(SearchType.ADVERSE_EVENTS);
 		String dbDrugs = converter.convertToDatabaseColumn(SearchType.DRUGS);
 		String dbRoutes = converter.convertToDatabaseColumn(SearchType.ROUTES);
 
-		Assert.assertEquals("ADVERSE_EVENTS was not properly converted.", "A",
-				dbAdverseEvents);
+		Assert.assertEquals("ADVERSE_EVENTS was not properly converted.", "A", dbAdverseEvents);
 		Assert.assertEquals("DRUGS was not properly converted.", "D", dbDrugs);
 		Assert.assertEquals("ROUTES was not properly converted.", "R", dbRoutes);
 	}
@@ -51,12 +49,9 @@ public class SearchTypeConverterTest {
 		SearchType eaDrugs = converter.convertToEntityAttribute("D");
 		SearchType eaRoutes = converter.convertToEntityAttribute("R");
 
-		Assert.assertEquals("ADVERSE_EVENTS entity was not properly resolved.",
-				SearchType.ADVERSE_EVENTS, eaAdverseEvents);
-		Assert.assertEquals("DRUGS entity was not properly resolved.",
-				SearchType.DRUGS, eaDrugs);
-		Assert.assertEquals("ROUTES entity was not properly resolved.",
-				SearchType.ROUTES, eaRoutes);
+		Assert.assertEquals("ADVERSE_EVENTS entity was not properly resolved.", SearchType.ADVERSE_EVENTS, eaAdverseEvents);
+		Assert.assertEquals("DRUGS entity was not properly resolved.", SearchType.DRUGS, eaDrugs);
+		Assert.assertEquals("ROUTES entity was not properly resolved.", SearchType.ROUTES, eaRoutes);
 	}
 
 	/**
