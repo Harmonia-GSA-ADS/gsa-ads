@@ -167,7 +167,7 @@ public class Search {
 	 * @return Date and time that the search was saved
 	 */
 	public Date getDatetime() {
-		return datetime;
+		return (Date)datetime.clone();
 	}
 
 	/**
