@@ -1,0 +1,11 @@
+# Mark the commands below to be run as a batch
+batch
+
+# Add MySQL driver
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource)
+
+# Add the datasource
+data-source add --name=ADS_DS --driver-name=mysql --jndi-name=java:jboss/datasources/ADS_DS --connection-url=jdbc:mysql://localhost:3306/ads?useUnicode=true&amp;characterEncoding=UTF-8 --user-name=ads --password=ads --use-java-context=true --jta=true --min-pool-size=10 --max-pool-size=100 --pool-prefill=true --prepared-statements-cache-size=32 --share-prepared-statements=true --enabled=true
+
+# Execute the batch
+run-batch
