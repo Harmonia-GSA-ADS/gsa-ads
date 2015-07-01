@@ -2,6 +2,7 @@ package com.harmonia.medfinder.servlet;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,8 +23,8 @@ import org.owasp.esapi.errors.EncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmonia.medfinder.SavedSearchManager;
 import com.harmonia.medfinder.OpenFDASearcher;
+import com.harmonia.medfinder.SavedSearchManager;
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
 
@@ -50,6 +51,7 @@ public class MedFinderServlet {
 	/**
 	 * Object that performs the business logic for saved searches.
 	 */
+	@Inject
 	private SavedSearchManager savedSearchManager = new SavedSearchManager();
 
 	/**
@@ -173,7 +175,34 @@ public class MedFinderServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searches")
 	public Response getSavedSearchesOfType(@QueryParam("type") Search.SearchType type) {
-		return savedSearchManager.getSavedSearchesOfType(type, searchBean);
+		Object result = "";
+		int responseCode;
+
+		try {
+			result = savedSearchManager.getSavedSearchesOfType(type);
+			responseCode = HttpStatus.SC_OK;
+		}
+		catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+
+			String typeString = "";
+			switch (type) {
+			case ADVERSE_EVENTS:
+				typeString = "Side Effect";
+				break;
+			case ROUTES:
+				typeString = "Route";
+				break;
+			case DRUGS:
+				typeString = "Drug";
+				break;
+			}
+
+			result = typeString + " saved searches could not be retreived.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -186,7 +215,21 @@ public class MedFinderServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/search")
 	public Response getSearchById(@QueryParam("id") String id) {
-		return savedSearchManager.getSearchById(id, searchBean);
+		Object result = "";
+		int responseCode;
+
+		try {
+			result = searchBean.findById(id);
+			responseCode = HttpStatus.SC_OK;
+			result = savedSearchManager.getSearchById(id);
+		}
+		catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+			result = "Requested saved search could not be retrieved.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -197,7 +240,25 @@ public class MedFinderServlet {
 	@DELETE
 	@Path("/search/{id}")
 	public Response deleteSavedSearch(@PathParam("id") String id) {
-		return savedSearchManager.deleteSavedSearch(id, searchBean);
+		Object result = null;
+		int responseCode;
+
+		try {
+			savedSearchManager.deleteSavedSearch(id);
+			responseCode = HttpStatus.SC_OK;
+		}
+		catch (IllegalArgumentException e) {
+			responseCode = HttpStatus.SC_BAD_REQUEST;
+			result = e.getMessage();
+			LOGGER.error(e.toString());
+		}
+		catch (Exception e) {
+			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+			result = "Saved search could not be deleted.";
+			LOGGER.error(e.toString());
+		}
+
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -227,6 +288,27 @@ public class MedFinderServlet {
 	        @FormParam("minAge") Integer minAge, @FormParam("maxAge") Integer maxAge, @FormParam("minWeight") Double minWeight, @FormParam("maxWeight") Double maxWeight,
 	        @FormParam("gender") String gender, @FormParam("route") String route) {
 
-		return savedSearchManager.createSavedSearch(name, type, indication, brandName, genericName, manufacturerName, substanceName, minAge, maxAge, minWeight, maxWeight, gender, route, searchBean);
+		try {
+
+			// decode values
+			Encoder encoder = ESAPI.encoder();
+			name = encoder.decodeFromURL(name);
+			indication = encoder.decodeFromURL(indication);
+			brandName = encoder.decodeFromURL(brandName);
+			genericName = encoder.decodeFromURL(genericName);
+			manufacturerName = encoder.decodeFromURL(manufacturerName);
+			substanceName = encoder.decodeFromURL(substanceName);
+
+			Search search = savedSearchManager.createSavedSearch(name, type, indication, brandName, genericName, manufacturerName, substanceName, minAge, maxAge, minWeight, maxWeight, gender, route);
+			return Response.status(HttpStatus.SC_OK).entity(search).type(MediaType.APPLICATION_JSON).build();
+		}
+		catch (EncodingException e) {
+			LOGGER.error(e.getMessage(), e);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Request parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
+		}
+		catch (Exception e) {
+			LOGGER.error(e.toString());
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search '" + name + "' could not be saved.").type(MediaType.APPLICATION_JSON).build();
+		}
 	}
 }

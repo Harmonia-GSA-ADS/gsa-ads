@@ -2,171 +2,127 @@ package com.harmonia.medfinder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.httpclient.HttpStatus;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
+import com.harmonia.medfinder.model.Search.SearchType;
 
 /**
  * Test class for {@link SavedSearchManager}
  * 
  * @author janway
+ * @author keagan
  */
+@RunWith(MockitoJUnitRunner.class)
 public class SavedSearchManagerTest {
+
+	/**
+	 * Enable exception testing
+	 */
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	/**
 	 * Saved search manager
 	 */
+	@InjectMocks
 	private SavedSearchManager savedSearchManager;
 
 	/**
 	 * Mocked search bean
 	 */
+	@Mock
 	private SearchBean searchBeanMock;
 
 	/**
-	 * Set up for the test
-	 * 
-	 * @throws NoSuchFieldException
-	 * @throws SecurityException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	@Before
-	public void beforeTest() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		savedSearchManager = new SavedSearchManager();
-		searchBeanMock = mock(SearchBean.class);
-	}
-
-	/**
-	 * Tests
-	 * {@link SavedSearchManager#getSavedSearchesOfType(SearchType, SearchBean)}
+	 * Tests {@link SavedSearchManager#getSavedSearchesOfType(SearchType)}
 	 */
 	@Test
 	public void testGetSavedSearchesOfType() {
 		List<Search> list = new LinkedList<Search>();
+		Search search = new Search();
+		search.setType(SearchType.ADVERSE_EVENTS);
 		when(searchBeanMock.findWithNamedQuery(anyString(), Mockito.anyMapOf(String.class, Object.class))).thenReturn(list);
-		Response resp = savedSearchManager.getSavedSearchesOfType(Search.SearchType.ADVERSE_EVENTS, searchBeanMock);
-		assertEquals("Returned list was not expected.", list, resp.getEntity());
-		assertEquals("Response code was not expected.", HttpStatus.SC_OK, resp.getStatus());
+
+		List<Search> result = savedSearchManager.getSavedSearchesOfType(Search.SearchType.ADVERSE_EVENTS);
+		assertEquals("Returned list does not match.", list, result);
 	}
 
 	/**
 	 * Tests the error case for
-	 * {@link SavedSearchManager#getSavedSearchesOfType(SearchType, SearchBean)}
+	 * {@link SavedSearchManager#getSavedSearchesOfType(SearchType)}
 	 */
 	@Test
 	public void testGetSavedSearchesOfTypeError() {
-		when(searchBeanMock.findWithNamedQuery(anyString(), Mockito.anyMapOf(String.class, Object.class))).thenThrow(new RuntimeException());
-		Response resp = savedSearchManager.getSavedSearchesOfType(Search.SearchType.ADVERSE_EVENTS, searchBeanMock);
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).startsWith("Side Effect"));
-		assertEquals("Unexpected response code.", HttpStatus.SC_INTERNAL_SERVER_ERROR, resp.getStatus());
+		thrown.expect(IllegalArgumentException.class);
+		savedSearchManager.getSavedSearchesOfType(null);
 	}
 
 	/**
-	 * Tests {@link SavedSearchManager#getSearchById(String, SearchBean)}
+	 * Tests {@link SavedSearchManager#getSearchById(String)}
 	 */
 	@Test
 	public void testGetSearchById() {
 		Search search = new Search();
 		when(searchBeanMock.findById(anyObject())).thenReturn(search);
-		Response resp = savedSearchManager.getSearchById("", searchBeanMock);
-		assertEquals("Returned search was not expected.", search, resp.getEntity());
-		assertEquals("Response code was not expected.", HttpStatus.SC_OK, resp.getStatus());
+		Search result = savedSearchManager.getSearchById(search.getId());
+		assertEquals("Returned search did not match.", search, result);
 	}
 
 	/**
-	 * Tests error case for
-	 * {@link SavedSearchManager#getSearchById(String, SearchBean)}
+	 * Tests error case for {@link SavedSearchManager#getSearchById(String)}
 	 */
 	@Test
 	public void testGetSearchByIdError() {
-		when(searchBeanMock.findById(anyObject())).thenThrow(new RuntimeException());
-		Response resp = savedSearchManager.getSearchById("", searchBeanMock);
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).equals("Requested saved search could not be retrieved."));
-		assertEquals("Unexpected response code.", HttpStatus.SC_INTERNAL_SERVER_ERROR, resp.getStatus());
+		thrown.expect(IllegalArgumentException.class);
+		savedSearchManager.getSearchById("");
 	}
 
 	/**
-	 * Tests {@link SavedSearchManager#deleteSavedSearch(String, SearchBean)}
+	 * Tests {@link SavedSearchManager#deleteSavedSearch(String)}
 	 */
 	@Test
 	public void testDeleteSavedSearch() {
 		String id = "1234";
-		Response resp = savedSearchManager.deleteSavedSearch(id, searchBeanMock);
+		savedSearchManager.deleteSavedSearch(id);
 		Mockito.verify(searchBeanMock).delete(id);
-		assertNull("Unexpected response entity.", resp.getEntity());
-		assertEquals("Unexpected response code.", HttpStatus.SC_OK, resp.getStatus());
 	}
 
 	/**
 	 * Tests error case when id is null for
-	 * {@link SavedSearchManager#deleteSavedSearch(String, SearchBean)}
+	 * {@link SavedSearchManager#deleteSavedSearch(String)}
 	 */
 	@Test
 	public void testDeleteSavedSearchNull() {
-		String id = null;
-		Response resp = savedSearchManager.deleteSavedSearch(id, searchBeanMock);
-		assertEquals("Unexpected response code.", HttpStatus.SC_BAD_REQUEST, resp.getStatus());
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).equals("Saved search id must not be null."));
-	}
-
-	/**
-	 * Tests error case when id is invalid for
-	 * {@link SavedSearchManager#deleteSavedSearch(String, SearchBean)}
-	 */
-	@Test
-	public void testDeleteSavedSearchError() {
-		String id = "1234";
-		Mockito.doThrow(new RuntimeException()).when(searchBeanMock).delete(anyString());
-		Response resp = savedSearchManager.deleteSavedSearch(id, searchBeanMock);
-		assertEquals("Unexpected response code.", HttpStatus.SC_INTERNAL_SERVER_ERROR, resp.getStatus());
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).equals("Saved search could not be deleted."));
+		thrown.expect(IllegalArgumentException.class);
+		savedSearchManager.deleteSavedSearch(null);
 	}
 
 	/**
 	 * Tests
-	 * {@link SavedSearchManager#createSavedSearch(String, com.harmonia.medfinder.model.Search.SearchType, String, String, String, String, String, Integer, Integer, Double, Double, String, String, SearchBean)}
+	 * {@link SavedSearchManager#createSavedSearch(String, SearchType, String, String, String, String, String, Integer, Integer, Double, Double, String, String)}
 	 */
 	@Test
 	public void testCreateSavedSearch() {
-		Response resp = savedSearchManager.createSavedSearch(null, null, null, null, null, null, null, null, null, null, null, null, null, searchBeanMock);
+		String name = "test";
+		Search search = savedSearchManager.createSavedSearch(name, null, null, null, null, null, null, null, null, null, null, null, null);
 		Mockito.verify(searchBeanMock).persist(Mockito.any(Search.class));
-		assertEquals("Unexpected response code.", HttpStatus.SC_OK, resp.getStatus());
-		assertNotNull("Returned search was null.", resp.getEntity());
-	}
-
-	/**
-	 * Test the encoding error case for
-	 * {@link SavedSearchManager#createSavedSearch(String, com.harmonia.medfinder.model.Search.SearchType, String, String, String, String, String, Integer, Integer, Double, Double, String, String, SearchBean)}
-	 */
-	@Test
-	public void testCreateSavedSearchEncodingError() {
-		Response resp = savedSearchManager.createSavedSearch("%=?", null, null, null, null, null, null, null, null, null, null, null, null, searchBeanMock);
-		assertEquals("Unexpected response code.", HttpStatus.SC_INTERNAL_SERVER_ERROR, resp.getStatus());
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).equals("Request parameters could not be decoded."));
-	}
-
-	@Test
-	public void testCreateSavedSearchError() {
-		Mockito.doThrow(new RuntimeException()).when(searchBeanMock).persist(Mockito.any(Search.class));
-		Response resp = savedSearchManager.createSavedSearch("name", null, null, null, null, null, null, null, null, null, null, null, null, searchBeanMock);
-		assertEquals("Unexpected response code.", HttpStatus.SC_INTERNAL_SERVER_ERROR, resp.getStatus());
-		assertTrue("Unexpected error message.", ((String)resp.getEntity()).equals("Search 'name' could not be saved."));
+		assertNotNull("Returned search was null.", search);
+		assertEquals("Search name does not match.", name, search.getName());
 	}
 }
