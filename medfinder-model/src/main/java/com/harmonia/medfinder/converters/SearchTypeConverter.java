@@ -12,22 +12,20 @@ import com.harmonia.medfinder.model.Search.SearchType;
  * @author keagan
  */
 @Converter(autoApply = true)
-public class SearchTypeConverter implements
-		AttributeConverter<SearchType, String> {
+public class SearchTypeConverter implements AttributeConverter<SearchType, String> {
+
 	/**
 	 * Converts a SearchType used in the application to a string to be stored in
 	 * the database
 	 * 
-	 * @param type
-	 *            the SearchType to be converted
+	 * @param type the SearchType to be converted
 	 * @return a string representation of the SearchType, which can be stored in
 	 *         the database
-	 * @throws IllegalArgumentException
-	 *             if type does not correspond to a known SearchType
+	 * @throws IllegalArgumentException if type does not correspond to a known
+	 *         SearchType
 	 */
 	@Override
-	public String convertToDatabaseColumn(SearchType type)
-			throws IllegalArgumentException {
+	public String convertToDatabaseColumn(SearchType type) throws IllegalArgumentException {
 		switch (type) {
 		case ADVERSE_EVENTS:
 			return "A";
@@ -43,15 +41,14 @@ public class SearchTypeConverter implements
 	/**
 	 * Converts a string value from the database to its associated SearchType
 	 * 
-	 * @param dbData
-	 *            the string representation of the SearchType from the database.
+	 * @param dbData the string representation of the SearchType from the
+	 *        database.
 	 * @return the SearchType which corresponds to the dbData string.
-	 * @throws IllegalArgumentException
-	 *             if dbData does not correspond to a known SearchType
+	 * @throws IllegalArgumentException if dbData does not correspond to a known
+	 *         SearchType
 	 */
 	@Override
-	public SearchType convertToEntityAttribute(String dbData)
-			throws IllegalArgumentException {
+	public SearchType convertToEntityAttribute(String dbData) throws IllegalArgumentException {
 		switch (dbData) {
 		case "A":
 			return SearchType.ADVERSE_EVENTS;

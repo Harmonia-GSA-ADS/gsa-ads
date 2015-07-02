@@ -22,15 +22,17 @@ import com.harmonia.medfinder.converters.SearchTypeConverter;
 @NamedQuery(name = Search.Q_FIND_BY_TYPE, query = "SELECT s FROM Search s WHERE s.type = :type")
 public class Search {
 
-	public static final String Q_FIND_BY_TYPE = "Search.findByType"; 
-	
+	public static final String Q_FIND_BY_TYPE = "Search.findByType";
+
 	/**
 	 * Enumeration for search type
 	 * 
 	 * @author keagan
 	 */
 	public enum SearchType {
-		ADVERSE_EVENTS, ROUTES, DRUGS
+		ADVERSE_EVENTS,
+		ROUTES,
+		DRUGS
 	}
 
 	/**
@@ -154,8 +156,7 @@ public class Search {
 	/**
 	 * Sets the name of the saved search
 	 * 
-	 * @param name
-	 *            Name of the saved search
+	 * @param name Name of the saved search
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -167,7 +168,7 @@ public class Search {
 	 * @return Date and time that the search was saved
 	 */
 	public Date getDatetime() {
-		return datetime;
+		return (Date)datetime.clone();
 	}
 
 	/**
@@ -182,8 +183,7 @@ public class Search {
 	/**
 	 * Sets the search type
 	 * 
-	 * @param type
-	 *            Search type
+	 * @param type Search type
 	 */
 	public void setType(SearchType type) {
 		this.type = type;
@@ -201,8 +201,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Purpose of a drug
 	 * 
-	 * @param indication
-	 *            Search criteria: Purpose of a drug
+	 * @param indication Search criteria: Purpose of a drug
 	 */
 	public void setIndication(String indication) {
 		this.indication = indication;
@@ -220,8 +219,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Brand name of a drug
 	 * 
-	 * @param brandName
-	 *            Search criteria: Brand name of a drug
+	 * @param brandName Search criteria: Brand name of a drug
 	 */
 	public void setBrandName(String brandName) {
 		this.brandName = brandName;
@@ -239,8 +237,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Generic name of a drug
 	 * 
-	 * @param genericName
-	 *            Search criteria: Generic name of a drug
+	 * @param genericName Search criteria: Generic name of a drug
 	 */
 	public void setGenericName(String genericName) {
 		this.genericName = genericName;
@@ -258,8 +255,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Manufacturer name of a drug
 	 * 
-	 * @param manufacturerName
-	 *            Search criteria: Manufacturer name of a drug
+	 * @param manufacturerName Search criteria: Manufacturer name of a drug
 	 */
 	public void setManufacturerName(String manufacturerName) {
 		this.manufacturerName = manufacturerName;
@@ -277,8 +273,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Substance name of a drug
 	 * 
-	 * @param substanceName
-	 *            Search criteria: Substance name of a drug
+	 * @param substanceName Search criteria: Substance name of a drug
 	 */
 	public void setSubstanceName(String substanceName) {
 		this.substanceName = substanceName;
@@ -296,8 +291,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Minimum age of a patient
 	 * 
-	 * @param minAge
-	 *            Search criteria: Minimum age of a patient
+	 * @param minAge Search criteria: Minimum age of a patient
 	 */
 	public void setMinAge(int minAge) {
 		this.minAge = minAge;
@@ -315,8 +309,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Maximum age of a patient
 	 * 
-	 * @param maxAge
-	 *            Search criteria: Maximum age of a patient
+	 * @param maxAge Search criteria: Maximum age of a patient
 	 */
 	public void setMaxAge(int maxAge) {
 		this.maxAge = maxAge;
@@ -334,8 +327,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Minimum weight of a patient
 	 * 
-	 * @param minWeight
-	 *            Search criteria: Minimum weight of a patient
+	 * @param minWeight Search criteria: Minimum weight of a patient
 	 */
 	public void setMinWeight(double minWeight) {
 		this.minWeight = minWeight;
@@ -353,8 +345,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Maximum weight of a patient
 	 * 
-	 * @param maxWeight
-	 *            Search criteria: Maximum weight of a patient
+	 * @param maxWeight Search criteria: Maximum weight of a patient
 	 */
 	public void setMaxWeight(double maxWeight) {
 		this.maxWeight = maxWeight;
@@ -372,8 +363,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Gender of a patient
 	 * 
-	 * @param gender
-	 *            Search criteria: Gender of a patient
+	 * @param gender Search criteria: Gender of a patient
 	 */
 	public void setGender(String gender) {
 		this.gender = gender;
@@ -391,8 +381,7 @@ public class Search {
 	/**
 	 * Sets the search criteria: Route of administration for a drug
 	 * 
-	 * @param route
-	 *            Search criteria: Route of administration for a drug
+	 * @param route Search criteria: Route of administration for a drug
 	 */
 	public void setRoute(String route) {
 		this.route = route;

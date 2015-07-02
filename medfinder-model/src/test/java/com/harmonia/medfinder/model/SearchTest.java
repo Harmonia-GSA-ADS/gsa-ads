@@ -49,8 +49,7 @@ public class SearchTest {
 		String brandName = "Brand Name";
 		search.setBrandName(brandName);
 
-		Assert.assertEquals("Brand name does not match expected value.",
-				brandName, search.getBrandName());
+		Assert.assertEquals("Brand name does not match expected value.", brandName, search.getBrandName());
 	}
 
 	/**
@@ -63,8 +62,7 @@ public class SearchTest {
 		String gender = "Male";
 		search.setGender(gender);
 
-		Assert.assertEquals("Gender does not match expected value.", gender,
-				search.getGender());
+		Assert.assertEquals("Gender does not match expected value.", gender, search.getGender());
 	}
 
 	/**
@@ -78,8 +76,7 @@ public class SearchTest {
 		String genericName = "Generic Name";
 		search.setGenericName(genericName);
 
-		Assert.assertEquals("Generic name does not match expected value.",
-				genericName, search.getGenericName());
+		Assert.assertEquals("Generic name does not match expected value.", genericName, search.getGenericName());
 	}
 
 	/**
@@ -93,8 +90,7 @@ public class SearchTest {
 		String indication = "Indication";
 		search.setIndication(indication);
 
-		Assert.assertEquals("Indication does not match expected value.",
-				indication, search.getIndication());
+		Assert.assertEquals("Indication does not match expected value.", indication, search.getIndication());
 	}
 
 	/**
@@ -108,8 +104,7 @@ public class SearchTest {
 		String manufacturerName = "Manufacturer Name";
 		search.setManufacturerName(manufacturerName);
 
-		Assert.assertEquals("Manufacturer name does not match expected value.",
-				manufacturerName, search.getManufacturerName());
+		Assert.assertEquals("Manufacturer name does not match expected value.", manufacturerName, search.getManufacturerName());
 	}
 
 	/**
@@ -122,8 +117,7 @@ public class SearchTest {
 		int minAge = 20;
 		search.setMinAge(minAge);
 
-		Assert.assertEquals("Min age does not match expected value.", minAge,
-				search.getMinAge());
+		Assert.assertEquals("Min age does not match expected value.", minAge, search.getMinAge());
 	}
 
 	/**
@@ -136,8 +130,7 @@ public class SearchTest {
 		int maxAge = 45;
 		search.setMaxAge(maxAge);
 
-		Assert.assertEquals("Max age does not match expected value.", maxAge,
-				search.getMaxAge());
+		Assert.assertEquals("Max age does not match expected value.", maxAge, search.getMaxAge());
 	}
 
 	/**
@@ -151,8 +144,7 @@ public class SearchTest {
 		double minWeight = 110.5;
 		search.setMinWeight(minWeight);
 
-		Assert.assertEquals("Min weight does not match expected value.",
-				minWeight, search.getMinWeight(), 0);
+		Assert.assertEquals("Min weight does not match expected value.", minWeight, search.getMinWeight(), 0);
 	}
 
 	/**
@@ -166,8 +158,7 @@ public class SearchTest {
 		double maxWeight = 150.7;
 		search.setMaxWeight(maxWeight);
 
-		Assert.assertEquals("Max weight does not match expected value.",
-				maxWeight, search.getMaxWeight(), 0);
+		Assert.assertEquals("Max weight does not match expected value.", maxWeight, search.getMaxWeight(), 0);
 	}
 
 	/**
@@ -180,8 +171,7 @@ public class SearchTest {
 		String name = "Name";
 		search.setName(name);
 
-		Assert.assertEquals("Name does not match expected value.", name,
-				search.getName());
+		Assert.assertEquals("Name does not match expected value.", name, search.getName());
 	}
 
 	/**
@@ -194,8 +184,7 @@ public class SearchTest {
 		String route = "Route";
 		search.setRoute(route);
 
-		Assert.assertEquals("Route does not match expected value.", route,
-				search.getRoute());
+		Assert.assertEquals("Route does not match expected value.", route, search.getRoute());
 	}
 
 	/**
@@ -209,8 +198,7 @@ public class SearchTest {
 		String substanceName = "Substance Name";
 		search.setSubstanceName(substanceName);
 
-		Assert.assertEquals("Substance name does not match expected value.",
-				substanceName, search.getSubstanceName());
+		Assert.assertEquals("Substance name does not match expected value.", substanceName, search.getSubstanceName());
 	}
 
 	/**
@@ -222,7 +210,6 @@ public class SearchTest {
 		SearchType type = SearchType.ADVERSE_EVENTS;
 		search.setType(type);
 
-		Assert.assertEquals("Search type does not match expected value.", type,
-				search.getType());
+		Assert.assertEquals("Search type does not match expected value.", type, search.getType());
 	}
 }

@@ -1,3 +1,34 @@
+$(document).ready(function() {
+	$('.confirmDeleteTrue').on('click',function() {
+
+		var $dialog = $(this).parents('.modal');
+		var ssId = $dialog.data('ssId');
+		var $list = $dialog.data('list');
+		
+		// make delete call to server
+		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
+			type: 'delete',
+			dataType: 'text',
+			success: function(data, textStatus, jqXHR) {
+				console.log($('#confirmDelete').data('list'));
+				$('li[ssId=' + ssId + ']').remove();
+				$('#confirmDelete').modal('hide');
+				
+				// if no searches are present, add "no searches" text
+				if ($list.children().length === 0) {
+					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($list);
+				}
+				
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#confirmDelete').modal('hide');
+				displayError(jqXHR.responseText);
+				console.log(errorThrown);
+			}
+		});
+	});
+});
+
 /**
  * Clears error styles on an element
  */
@@ -81,31 +112,40 @@ function deleteSavedSearch() {
 	var $li = $(this).parent('li');
 	var $list = $li.parent('ul');
 	var ssId = $li.attr('ssId');
-	
-	$('.confirmDeleteTrue').click(function() {
+	$('#confirmDelete').data('list', $list);
+	$('#confirmDelete').data('ssId', ssId);
 
-		// make delete call to server
-		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
-			type: 'delete',
-			dataType: 'text',
-			success: function(data, textStatus, jqXHR) {
-				$li.remove();
-				$('#confirmDelete').modal('hide');
-				
-				// if no searches are present, add "no searches" text
-				if ($list.children().length === 0) {
-					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($list);
-				}
-				
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				$('#confirmDelete').modal('hide');
-				displayError(jqXHR.responseText);
-				console.log(errorThrown);
-			}
-		});
-	});
-	$('#confirmDelete').modal();
+	
+//	$('.confirmDeleteTrue').on('click',function() {
+//
+//		var button = this;
+//		
+//		// make delete call to server
+//		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
+//			type: 'delete',
+//			dataType: 'text',
+//			success: function(data, textStatus, jqXHR) {
+//				console.log($('#confirmDelete').data('list'));
+//				$(button).off('click');
+//				$li.remove();
+//				$('#confirmDelete').modal('hide');
+//				
+//				// if no searches are present, add "no searches" text
+//				if ($list.children().length === 0) {
+//					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($list);
+//				}
+//				
+//			},
+//			error: function(jqXHR, textStatus, errorThrown) {
+//				$(button).off('click');
+//				$('#confirmDelete').modal('hide');
+//				displayError(jqXHR.responseText);
+//				console.log(errorThrown);
+//			}
+//		});
+//	});
+	
+	$('#confirmDelete').modal('show');
 }
 
 /**
@@ -166,7 +206,7 @@ function addSavedSearch(list, ssId, name, date) {
 	}
 	
 	// create list item
-	$li = $('<li>').attr('ssId', ssId).addClass('list-group-item');
+	var $li = $('<li>').attr('ssId', ssId).addClass('list-group-item');
 	$li.appendTo(list);
 	
 	// format date
@@ -272,7 +312,8 @@ function resetForm() {
 function extractErrorMessage(response) {
 	var msg = response.responseText;
 	if (response.responseJSON) {
-		msg = "Error from OpenFDA: " + response.responseJSON.error.message;
+		var fdaMsg = response.responseJSON.error.message;
+		msg = "Error from OpenFDA: " + (fdaMsg ? fdaMsg : '[No message provided]');
 	}
 	return msg;
 }
@@ -290,61 +331,17 @@ function displayError(msg) {
 }
 
 /**
- * Custom validator for disallowing special characters.
- * The following characters are not allowed: #()-:!@$*;/,&'"^\
+ * Custom validator for disallowing special characters. Only alphanumeric 
+ * and whitespace characters are valid.
  */
 $.validator.addMethod('specialCharacters', function(value, element) {
 
-	if (value.indexOf('#') > -1) {
-		return false;
+	// allow blank
+	if (value === '') {
+		return true;
 	}
-	if (value.indexOf('(') > -1) {
-		return false;
-	}
-	if (value.indexOf(')') > -1) {
-		return false;
-	}
-	if (value.indexOf('-') > -1) {
-		return false;
-	}
-	if (value.indexOf(':') > -1) {
-		return false;
-	}
-	if (value.indexOf('!') > -1) {
-		return false;
-	}
-	if (value.indexOf('@') > -1) {
-		return false;
-	}
-	if (value.indexOf('$') > -1) {
-		return false;
-	}
-	if (value.indexOf('*') > -1) {
-		return false;
-	}
-	if (value.indexOf(';') > -1) {
-		return false;
-	}
-	if (value.indexOf('/') > -1) {
-		return false;
-	}
-	if (value.indexOf(',') > -1) {
-		return false;
-	}
-	if (value.indexOf('&') > -1) {
-		return false;
-	}
-	if (value.indexOf("'") > -1) {
-		return false;
-	}
-	if (value.indexOf('"') > -1) {
-		return false;
-	}
-	if (value.indexOf('^') > -1) {
-		return false;
-	}
-	if (value.indexOf('\\') > -1) {
-		return false;
-	}
-	return true;
-}, 'Value must not include any of the following characters: #()-:!@$*;/,&\'"^\\');
+	
+	// check for letters, numbers, and whitespace
+	var pattern = /^[a-z0-9\s]+$/i;
+	return pattern.test(value);
+}, 'Value must only contain alphanumeric characters and spaces.');

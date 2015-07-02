@@ -1,10 +1,8 @@
 package com.harmonia.medfinder.servlet;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,19 +16,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.owasp.esapi.ESAPI;
 import org.owasp.esapi.Encoder;
 import org.owasp.esapi.errors.EncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmonia.medfinder.OpenFDASearcher;
+import com.harmonia.medfinder.SavedSearchManager;
 import com.harmonia.medfinder.ejb.bean.SearchBean;
 import com.harmonia.medfinder.model.Search;
 
@@ -47,18 +41,18 @@ public class MedFinderServlet {
 	/**
 	 * Static Logger
 	 */
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(MedFinderServlet.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MedFinderServlet.class);
 
 	/**
-	 * OpenFDA API Key. Associated with keagan@harmonia.com.
+	 * Object that performs the business logic for this service.
 	 */
-	private static final String API_KEY = "6ErngSrIicSDsiyvtOIOrAxu4BqVUiz7Iav6TVir";
+	private OpenFDASearcher searcher = new OpenFDASearcher();
 
 	/**
-	 * HTTP client used for contacting the OpenFDA API
+	 * Object that performs the business logic for saved searches.
 	 */
-	private CloseableHttpClient httpClient = HttpClients.createDefault();
+	@Inject
+	private SavedSearchManager savedSearchManager = new SavedSearchManager();
 
 	/**
 	 * Bean for saved search related operations
@@ -67,82 +61,30 @@ public class MedFinderServlet {
 	private SearchBean searchBean;
 
 	/**
-	 * Handles connecting to a query URI and processing the result
-	 * 
-	 * @param queryURI
-	 *            The URI of the query
-	 * @return A response with an appropriate status code and the content
-	 */
-	private Response executeQuery(String queryURI) {
-		String result = "";
-		int responseCode;
-
-		// add OpenFDA API key to query
-		queryURI += "&api_key=" + API_KEY;
-
-		try {
-			HttpGet httpget = new HttpGet(queryURI);
-			CloseableHttpResponse response = httpClient.execute(httpget);
-			result = EntityUtils.toString(response.getEntity());
-			responseCode = response.getStatusLine().getStatusCode();
-		} catch (Exception e) {
-			responseCode = HttpStatus.SC_OK;
-			result = "OpenFDA query could not be completed.";
-			LOGGER.error(e.toString());
-		}
-
-		return Response.status(responseCode).entity(result)
-				.type(MediaType.APPLICATION_JSON).build();
-	}
-
-	/**
 	 * Returns a list of adverse drug events based on the supplied criteria
 	 * 
-	 * @param ageStart
-	 *            Minimum age of patient, in years
-	 * @param ageEnd
-	 *            Maximum age of patient, in years
-	 * @param dateStart
-	 *            Earliest date of event
-	 * @param dateEnd
-	 *            Latest date of event
-	 * @param weightStart
-	 *            Minimum weight of patient, in pounds
-	 * @param weightEnd
-	 *            Maximum weight of patient, in pounds
-	 * @param gender
-	 *            Gender of the patient
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param ageStart Minimum age of patient, in years
+	 * @param ageEnd Maximum age of patient, in years
+	 * @param dateStart Earliest date of event
+	 * @param dateEnd Latest date of event
+	 * @param weightStart Minimum weight of patient, in pounds
+	 * @param weightEnd Maximum weight of patient, in pounds
+	 * @param gender Gender of the patient
+	 * @param indication Purpose of drug
+	 * @param brandName Brand name of drug
+	 * @param genericName Generic name of drug
+	 * @param manufacturerName Manufacturer name of drug
+	 * @param substanceName Substance name (active ingredient) of drug
+	 * @param limit The maximum number of results to return
 	 * @return List of adverse events based on the supplied criteria
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("events")
-	public Response getAdverseDrugEvents(
-			@QueryParam("ageStart") String ageStart,
-			@QueryParam("ageEnd") String ageEnd,
-			@QueryParam("dateStart") String dateStart,
-			@QueryParam("dateEnd") String dateEnd,
-			@QueryParam("weightStart") String weightStart,
-			@QueryParam("weightEnd") String weightEnd,
-			@QueryParam("gender") String gender,
-			@QueryParam("indication") String indication,
-			@QueryParam("brandName") String brandName,
-			@QueryParam("genericName") String genericName,
-			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName,
-			@QueryParam("limit") Integer limit) {
+	public Response getAdverseDrugEvents(@QueryParam("ageStart") String ageStart, @QueryParam("ageEnd") String ageEnd, @QueryParam("dateStart") String dateStart,
+	        @QueryParam("dateEnd") String dateEnd, @QueryParam("weightStart") String weightStart, @QueryParam("weightEnd") String weightEnd, @QueryParam("gender") String gender,
+	        @QueryParam("indication") String indication, @QueryParam("brandName") String brandName, @QueryParam("genericName") String genericName,
+	        @QueryParam("manufacturerName") String manufacturerName, @QueryParam("substanceName") String substanceName, @QueryParam("limit") Integer limit) {
 
 		try {
 
@@ -154,81 +96,30 @@ public class MedFinderServlet {
 			manufacturerName = encoder.decodeFromURL(manufacturerName);
 			substanceName = encoder.decodeFromURL(substanceName);
 
-			String ageParameter = createAgeParameter(ageStart, ageEnd);
-			String dateParameter = createDateParameter(dateStart, dateEnd);
-			String genderParameter = createGenderParameter(gender);
-			String weightParameter = createWeightParameter(weightStart,
-					weightEnd);
-			String drugsParameter = createDrugsParameter(indication, brandName,
-					genericName, manufacturerName, substanceName);
-			int lim = limit == null ? 5 : limit;
-
-			String and = "+AND+";
-			StringBuilder sb = new StringBuilder();
-			if (StringUtils.isNotBlank(ageParameter)) {
-				sb.append(ageParameter);
-				sb.append(and);
-			}
-			if (StringUtils.isNotBlank(dateParameter)) {
-				sb.append(dateParameter);
-				sb.append(and);
-			}
-			if (StringUtils.isNotBlank(genderParameter)) {
-				sb.append(genderParameter);
-				sb.append(and);
-			}
-			if (StringUtils.isNotBlank(weightParameter)) {
-				sb.append(weightParameter);
-				sb.append(and);
-			}
-			if (StringUtils.isNotBlank(drugsParameter)) {
-				sb.append(drugsParameter);
-			}
-
-			String search = sb.toString();
-
-			if (search.endsWith(and)) {
-				search = search.substring(0, search.length() - and.length());
-			}
-			search = search.replace(" ", "+");
-
-			String queryURI = "https://api.fda.gov/drug/event.json?search="
-					+ search + "&limit=" + lim;
-			return executeQuery(queryURI);
-		} catch (EncodingException e) {
+			return searcher.getAdverseDrugEvents(ageStart, ageEnd, dateStart, dateEnd, weightStart, weightEnd, gender, indication, brandName, genericName, manufacturerName, substanceName, limit);
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
 	/**
 	 * Returns the routes of administration for a drug
 	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param indication Purpose of drug
+	 * @param brandName Brand name of drug
+	 * @param genericName Generic name of drug
+	 * @param manufacturerName Manufacturer name of drug
+	 * @param substanceName Substance name (active ingredient) of drug
+	 * @param limit The maximum number of results to return
 	 * @return Routes of administration for a drug
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/routes")
-	public Response getRoutes(@QueryParam("indication") String indication,
-			@QueryParam("brandName") String brandName,
-			@QueryParam("genericName") String genericName,
-			@QueryParam("manufacturerName") String manufacturerName,
-			@QueryParam("substanceName") String substanceName,
-			@QueryParam("limit") Integer limit) {
+	public Response getRoutes(@QueryParam("indication") String indication, @QueryParam("brandName") String brandName, @QueryParam("genericName") String genericName,
+	        @QueryParam("manufacturerName") String manufacturerName, @QueryParam("substanceName") String substanceName, @QueryParam("limit") Integer limit) {
 
 		try {
 			// decode values
@@ -239,19 +130,11 @@ public class MedFinderServlet {
 			manufacturerName = encoder.decodeFromURL(manufacturerName);
 			substanceName = encoder.decodeFromURL(substanceName);
 
-			String search = createRouteSearch(indication, brandName,
-					genericName, manufacturerName, substanceName);
-			search = search.replace(" ", "+");
-			int lim = limit == null ? 5 : limit;
-
-			String queryURI = "https://api.fda.gov/drug/label.json?search="
-					+ search + "&limit=" + lim;
-			return executeQuery(queryURI);
-		} catch (EncodingException e) {
+			return searcher.getRoutes(indication, brandName, genericName, manufacturerName, substanceName, limit);
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 
@@ -259,315 +142,47 @@ public class MedFinderServlet {
 	 * Returns the drugs matching the given indication and route of
 	 * administration
 	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param route
-	 *            Route of administration of the drug
-	 * @param limit
-	 *            The maximum number of results to return
+	 * @param indication Purpose of drug
+	 * @param route Route of administration of the drug
+	 * @param limit The maximum number of results to return
 	 * @return Drugs matching the given indication and route of administration
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/drugs")
-	public Response getDrugs(@QueryParam("indication") String indication,
-			@QueryParam("route") String route,
-			@QueryParam("limit") Integer limit) {
+	public Response getDrugs(@QueryParam("indication") String indication, @QueryParam("route") String route, @QueryParam("limit") Integer limit) {
 
 		try {
 			// decode values
 			Encoder encoder = ESAPI.encoder();
 			indication = encoder.decodeFromURL(indication);
 
-			String search = createDrugRouteSearch(indication, route);
-			int lim = limit == null ? 5 : limit;
-			search = search.replace(" ", "+");
-
-			String queryURI = "https://api.fda.gov/drug/label.json?search="
-					+ search + "&limit=" + lim;
-			return executeQuery(queryURI);
-		} catch (EncodingException e) {
+			return searcher.getDrugs(indication, route, limit);
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
 		}
-	}
-
-	/**
-	 * Creates the patient age parameter for OpenFDA queries
-	 * 
-	 * @param ageStart
-	 *            Minimum age of patient, in years
-	 * @param ageEnd
-	 *            Maximum age of patient, in years
-	 * @return Query string section for patient age
-	 */
-	private String createAgeParameter(String ageStart, String ageEnd) {
-		if (StringUtils.isNotBlank(ageStart) && StringUtils.isBlank(ageEnd)) {
-			ageEnd = ageStart;
-		}
-		if (StringUtils.isBlank(ageStart) && StringUtils.isNotBlank(ageEnd)) {
-			ageStart = ageEnd;
-		}
-		String ageConditionString = "";
-		if (StringUtils.isNotBlank(ageStart)) {
-			ageConditionString = "patient.patientonsetage:[" + ageStart
-					+ "+TO+" + ageEnd + "]+AND+patient.patientonsetageunit:801";
-		}
-		return ageConditionString;
-	}
-
-	/**
-	 * Creates the event date range parameter for OpenFDA queries
-	 * 
-	 * @param dateStart
-	 *            Earliest date of event
-	 * @param dateEnd
-	 *            Latest date of event
-	 * @return Query string section for event date range
-	 */
-	private String createDateParameter(String dateStart, String dateEnd) {
-		if (StringUtils.isNotBlank(dateStart) && StringUtils.isBlank(dateEnd)) {
-			dateEnd = dateStart;
-		}
-		if (StringUtils.isBlank(dateStart) && StringUtils.isNotBlank(dateEnd)) {
-			dateStart = dateEnd;
-		}
-		String dateConditionString = "";
-		if (StringUtils.isNotBlank(dateStart)) {
-			dateConditionString = "receivedate:[" + dateStart + "+TO+"
-					+ dateEnd + "]";
-		}
-		return dateConditionString;
-	}
-
-	/**
-	 * Creates the gender parameter for OpenFDA queries
-	 * 
-	 * @param gender
-	 *            Gender of the patient
-	 * @return Query string section for gender
-	 */
-	private String createGenderParameter(String gender) {
-		String genderValue = null;
-		if (StringUtils.isNotBlank(gender)) {
-			if (gender.equalsIgnoreCase("male")) {
-				genderValue = "1";
-			}
-			if (gender.equalsIgnoreCase("female")) {
-				genderValue = "2";
-			}
-			if (gender.equalsIgnoreCase("unknown")) {
-				genderValue = "0";
-			}
-		}
-		String genderConditionString = "";
-		if (StringUtils.isNotBlank(genderValue)) {
-			genderConditionString = "patient.patientsex:" + genderValue;
-		}
-		return genderConditionString;
-	}
-
-	/**
-	 * Creates the weight range parameter for OpenFDA queries
-	 * 
-	 * @param weightStart
-	 *            Minimum weight of patient, in pounds
-	 * @param weightEnd
-	 *            Maximum weight of patient, in pounds
-	 * @return Query string section for weight range
-	 */
-	private String createWeightParameter(String weightStart, String weightEnd) {
-		if (StringUtils.isNotBlank(weightStart))
-			weightStart = "" + Integer.parseInt(weightStart) * 0.453592; // lbs
-																			// to
-																			// kg
-		if (StringUtils.isNotBlank(weightEnd))
-			weightEnd = "" + Integer.parseInt(weightEnd) * 0.453592;
-		if (StringUtils.isNotBlank(weightStart)
-				&& StringUtils.isBlank(weightEnd)) {
-			weightEnd = weightStart;
-		}
-		if (StringUtils.isBlank(weightStart)
-				&& StringUtils.isNotBlank(weightEnd)) {
-			weightStart = weightEnd;
-		}
-		String weightConditionString = "";
-		if (StringUtils.isNotBlank(weightStart)) {
-			weightConditionString = "patient.patientweight:[" + weightStart
-					+ "+TO+" + weightEnd + "]";
-		}
-		return weightConditionString;
-	}
-
-	/**
-	 * Creates the drugs parameter for OpenFDA queries
-	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @return Query string section for drugs
-	 * @throws EncodingException 
-	 */
-	private String createDrugsParameter(String indication, String brandName,
-			String genericName, String manufacturerName, String substanceName) throws EncodingException {
-		Encoder encoder = ESAPI.encoder();
-		
-		StringBuilder sb = new StringBuilder("(");
-		String or = "+OR+";
-
-		if (StringUtils.isNotBlank(indication)) {
-			sb.append("patient.drug.drugindication:" + encoder.encodeForURL(indication.toUpperCase()));
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(brandName)) {
-			sb.append("patient.drug.openfda.brand_name:"
-					+ encoder.encodeForURL(brandName.toUpperCase()));
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(genericName)) {
-			sb.append("patient.drug.openfda.generic_name:"
-					+ encoder.encodeForURL(genericName.toUpperCase()));
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(manufacturerName)) {
-			// This one isn't all caps
-			sb.append("patient.drug.openfda.manufacturer_name:"
-					+ encoder.encodeForURL("\"" + manufacturerName + "\""));
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(substanceName)) {
-			sb.append("patient.drug.openfda.substance_name:"
-					+ encoder.encodeForURL(substanceName.toUpperCase()));
-		}
-
-		String drugsConditionString = sb.toString();
-		if (drugsConditionString.endsWith(or)) {
-			drugsConditionString = drugsConditionString.substring(0,
-					drugsConditionString.length() - or.length());
-		}
-		if (drugsConditionString.equals("(")) {
-			drugsConditionString = "";
-		} else {
-			drugsConditionString += ")";
-		}
-
-		return drugsConditionString;
-	}
-
-	/**
-	 * Creates the query string for OpenFDA queries to find routes of
-	 * administration for drugs
-	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param brandName
-	 *            Brand name of drug
-	 * @param genericName
-	 *            Generic name of drug
-	 * @param manufacturerName
-	 *            Manufacturer name of drug
-	 * @param substanceName
-	 *            Substance name (active ingredient) of drug
-	 * @return Query string for OpenFDA queries to find routes of administration
-	 *         for drugs
-	 * @throws EncodingException 
-	 */
-	private String createRouteSearch(String indication, String brandName,
-			String genericName, String manufacturerName, String substanceName) throws EncodingException {
-
-		Encoder encoder = ESAPI.encoder();
-		
-		StringBuilder sb = new StringBuilder();
-		String or = "+OR+";
-
-		if (StringUtils.isNotBlank(indication)) {
-			sb.append("indications_and_usage:" + indication);
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(brandName)) {
-			System.out.println(brandName);
-			brandName = encoder.encodeForURL(brandName);
-			System.out.println(brandName);
-			sb.append("openfda.brand_name:" + brandName.toUpperCase());
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(genericName)) {
-			sb.append("openfda.generic_name:" + genericName.toUpperCase());
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(manufacturerName)) {
-			sb.append("openfda.manufacturer_name:%22" + manufacturerName
-					+ "%22"); // %22 = '"'
-			sb.append(or);
-		}
-		if (StringUtils.isNotBlank(substanceName)) {
-			sb.append("openfda.substance_name:" + substanceName.toUpperCase());
-		}
-
-		String search = sb.toString();
-		if (search.endsWith(or)) {
-			search = search.substring(0, search.length() - or.length());
-		}
-
-		return search;
-	}
-
-	/**
-	 * Creates the query string for OpenFDA queries to find drugs based on
-	 * purpose and route of administration
-	 * 
-	 * @param indication
-	 *            Purpose of drug
-	 * @param route
-	 *            Route of administration
-	 * @return Query string for OpenFDA queries to find drugs based on purpose
-	 *         and route of administration
-	 * @throws EncodingException 
-	 */
-	private String createDrugRouteSearch(String indication, String route) throws EncodingException {
-
-		Encoder encoder = ESAPI.encoder();
-		
-		String search = "";
-		if (StringUtils.isNotBlank(indication) && StringUtils.isNotBlank(route)) {
-			search = "indications_and_usage:" + encoder.encodeForURL(indication)
-					+ "+AND+openfda.route:" + route.toUpperCase();
-		}
-
-		return search;
 	}
 
 	/**
 	 * Returns all saved searches with the given type
 	 * 
-	 * @param type
-	 *            Saved search type
+	 * @param type Saved search type
 	 * @return List of all saved searches with the given type
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searches")
-	public Response getSavedSearchesOfType(
-			@QueryParam("type") Search.SearchType type) {
+	public Response getSavedSearchesOfType(@QueryParam("type") Search.SearchType type) {
 		Object result = "";
 		int responseCode;
 
 		try {
-			Map<String, Object> param = new HashMap<String, Object>();
-			param.put("type", type);
-			result = searchBean
-					.findWithNamedQuery(Search.Q_FIND_BY_TYPE, param);
+			result = savedSearchManager.getSavedSearchesOfType(type);
 			responseCode = HttpStatus.SC_OK;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
 
 			String typeString = "";
@@ -587,15 +202,13 @@ public class MedFinderServlet {
 			LOGGER.error(e.toString());
 		}
 
-		return Response.status(responseCode).entity(result)
-				.type(MediaType.APPLICATION_JSON).build();
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
 	 * Returns the saved search with the given id
 	 * 
-	 * @param id
-	 *            Id of the saved search
+	 * @param id Id of the saved search
 	 * @return Saved search with the given id
 	 */
 	@GET
@@ -608,21 +221,21 @@ public class MedFinderServlet {
 		try {
 			result = searchBean.findById(id);
 			responseCode = HttpStatus.SC_OK;
-		} catch (Exception e) {
+			result = savedSearchManager.getSearchById(id);
+		}
+		catch (Exception e) {
 			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
 			result = "Requested saved search could not be retrieved.";
 			LOGGER.error(e.toString());
 		}
 
-		return Response.status(responseCode).entity(result)
-				.type(MediaType.APPLICATION_JSON).build();
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
 	 * Deletes the saved search with the given id
 	 * 
-	 * @param id
-	 *            Id of the saved search
+	 * @param id Id of the saved search
 	 */
 	@DELETE
 	@Path("/search/{id}")
@@ -631,74 +244,50 @@ public class MedFinderServlet {
 		int responseCode;
 
 		try {
-			if (id == null) {
-				throw new IllegalArgumentException(
-						"Saved search id must not be null.");
-			}
-			searchBean.delete(id);
+			savedSearchManager.deleteSavedSearch(id);
 			responseCode = HttpStatus.SC_OK;
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException e) {
 			responseCode = HttpStatus.SC_BAD_REQUEST;
 			result = e.getMessage();
 			LOGGER.error(e.toString());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			responseCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
 			result = "Saved search could not be deleted.";
 			LOGGER.error(e.toString());
 		}
 
-		return Response.status(responseCode).entity(result)
-				.type(MediaType.APPLICATION_JSON).build();
+		return Response.status(responseCode).entity(result).type(MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
 	 * Creates a saved search
 	 * 
-	 * @param name
-	 *            Name of the saved search
-	 * @param type
-	 *            Type of the saved search
-	 * @param indication
-	 *            Search criteria value for indication
-	 * @param brandName
-	 *            Search criteria value for brand name
-	 * @param genericName
-	 *            Search criteria value for generic name
-	 * @param manufacturer
-	 *            Name Search criteria value for manufacturer name
-	 * @param substanceName
-	 *            Search criteria value for substance name
-	 * @param minAge
-	 *            Search criteria value for min age, in years
-	 * @param maxAge
-	 *            Search criteria value for max age, in years
-	 * @param minWeight
-	 *            Search criteria value for min weight, in pounds
-	 * @param maxWeight
-	 *            Search criteria value for max weight, in pounds
-	 * @param gender
-	 *            Search criteria value for gender
-	 * @param route
-	 *            Search criteria value for route
+	 * @param name Name of the saved search
+	 * @param type Type of the saved search
+	 * @param indication Search criteria value for indication
+	 * @param brandName Search criteria value for brand name
+	 * @param genericName Search criteria value for generic name
+	 * @param manufacturerName Search criteria value for manufacturer name
+	 * @param substanceName Search criteria value for substance name
+	 * @param minAge Search criteria value for min age, in years
+	 * @param maxAge Search criteria value for max age, in years
+	 * @param minWeight Search criteria value for min weight, in pounds
+	 * @param maxWeight Search criteria value for max weight, in pounds
+	 * @param gender Search criteria value for gender
+	 * @param route Search criteria value for route
 	 * @return New saved search
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/search")
-	public Response createSavedSearch(@FormParam("name") String name,
-			@FormParam("type") Search.SearchType type,
-			@FormParam("indication") String indication,
-			@FormParam("brandName") String brandName,
-			@FormParam("genericName") String genericName,
-			@FormParam("manufacturerName") String manufacturerName,
-			@FormParam("substanceName") String substanceName,
-			@FormParam("minAge") Integer minAge,
-			@FormParam("maxAge") Integer maxAge,
-			@FormParam("minWeight") Double minWeight,
-			@FormParam("maxWeight") Double maxWeight,
-			@FormParam("gender") String gender, @FormParam("route") String route) {
-		
+	public Response createSavedSearch(@FormParam("name") String name, @FormParam("type") Search.SearchType type, @FormParam("indication") String indication, @FormParam("brandName") String brandName,
+	        @FormParam("genericName") String genericName, @FormParam("manufacturerName") String manufacturerName, @FormParam("substanceName") String substanceName,
+	        @FormParam("minAge") Integer minAge, @FormParam("maxAge") Integer maxAge, @FormParam("minWeight") Double minWeight, @FormParam("maxWeight") Double maxWeight,
+	        @FormParam("gender") String gender, @FormParam("route") String route) {
+
 		try {
 
 			// decode values
@@ -710,61 +299,16 @@ public class MedFinderServlet {
 			manufacturerName = encoder.decodeFromURL(manufacturerName);
 			substanceName = encoder.decodeFromURL(substanceName);
 
-			Search newSearch = new Search();
-			if (StringUtils.isNotBlank(name)) {
-				newSearch.setName(name);
-			}
-			if (type != null) {
-				newSearch.setType(type);
-			}
-			if (StringUtils.isNotBlank(indication)) {
-				newSearch.setIndication(indication);
-			}
-			if (StringUtils.isNotBlank(brandName)) {
-				newSearch.setBrandName(brandName);
-			}
-			if (StringUtils.isNotBlank(genericName)) {
-				newSearch.setGenericName(genericName);
-			}
-			if (StringUtils.isNotBlank(manufacturerName)) {
-				newSearch.setManufacturerName(manufacturerName);
-			}
-			if (StringUtils.isNotBlank(substanceName)) {
-				newSearch.setSubstanceName(substanceName);
-			}
-			if (minAge != null && minAge > -1) {
-				newSearch.setMinAge(minAge);
-			}
-			if (maxAge != null && maxAge > -1) {
-				newSearch.setMaxAge(maxAge);
-			}
-			if (minWeight != null && minWeight > -1) {
-				newSearch.setMinWeight(minWeight);
-			}
-			if (maxWeight != null && maxWeight > -1) {
-				newSearch.setMaxWeight(maxWeight);
-			}
-			if (StringUtils.isNotBlank(gender)) {
-				newSearch.setGender(gender);
-			}
-			if (StringUtils.isNotBlank(route)) {
-				newSearch.setRoute(route);
-			}
-
-			searchBean.persist(newSearch);
-
-			return Response.status(HttpStatus.SC_OK).entity(newSearch)
-					.type(MediaType.APPLICATION_JSON).build();
-		} catch (EncodingException e) {
+			Search search = savedSearchManager.createSavedSearch(name, type, indication, brandName, genericName, manufacturerName, substanceName, minAge, maxAge, minWeight, maxWeight, gender, route);
+			return Response.status(HttpStatus.SC_OK).entity(search).type(MediaType.APPLICATION_JSON).build();
+		}
+		catch (EncodingException e) {
 			LOGGER.error(e.getMessage(), e);
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Request parameters could not be decoded.")
-					.type(MediaType.APPLICATION_JSON).build();
-		} catch (Exception e) {
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Request parameters could not be decoded.").type(MediaType.APPLICATION_JSON).build();
+		}
+		catch (Exception e) {
 			LOGGER.error(e.toString());
-			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-					.entity("Search '" + name + "' could not be saved.")
-					.type(MediaType.APPLICATION_JSON).build();
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("Search '" + name + "' could not be saved.").type(MediaType.APPLICATION_JSON).build();
 		}
 	}
 }
