@@ -1,0 +1,11 @@
+Harmonia uses an internally hosted Jenkins as our continuous integration platform. We use the [Git Flow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) model within our Git repository which provides two main branches named develop and master. The develop branch is where developers commit code as they work towards the next release. The master branch holds the latest released version of the code along with tags for previous versions. Any release can always be built from the master branch. We had four Jenkins jobs for MedFinder seen below.
+ 
+![Jenkins Jobs for MedFinder](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Builds.png) "Jenkins Jobs for MedFinder") 
+ 
+The [MedFinder\_Develop job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Develop%20%5bJenkins%5d.pdf) compiles the application code from the develop branch into a deployable WAR file along with running unit tests and static code analysis tools. The page shows the charts produced from the static code analysis tools like FindBugs and PMD, warnings from Java and JavaDoc, unit test results, and [unit test code coverage](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Unit_Tests/MedFinder%20Unit%20Test%20Coverage.pdf).
+
+The [MedFinder\_Develop\_Stage job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Develop_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Develop*. It deploys the WAR file to the stage server.
+
+The [MedFinder\_Master job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Master%20[Jenkins].pdf) performs the same activities as the *MedFinder_Develop* build but for the master branch.
+
+The [MedFinder\_Master\_Stage job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. It deploys the WAR file to the production server, which is the Amazon Web Services (AWS) instance.
