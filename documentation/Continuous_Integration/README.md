@@ -2,7 +2,7 @@ Harmonia uses an internally hosted Jenkins as our continuous integration platfor
  
 ![Jenkins Jobs for MedFinder](https://raw.githubusercontent.com/HarmoniaHoldings/medfinder/develop/documentation/Continuous_Integration/MedFinder_Builds.png "Jenkins Jobs for MedFinder") 
  
-The [MedFinder\_Develop job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Develop%20%5bJenkins%5d.pdf) compiles the application code from the develop branch into a deployable WAR file along with running unit tests and static code analysis tools. The page shows the charts produced from the static code analysis tools like FindBugs and PMD, warnings from Java and JavaDoc, unit test results, and [unit test code coverage](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Unit_Tests/MedFinder%20Unit%20Test%20Coverage.pdf).
+The [MedFinder\_Develop job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Develop%20%5bJenkins%5d.pdf) compiles the application code from the develop branch into a deployable WAR file along with running unit tests and static code analysis tools. The page shows the charts produced from the static code analysis tools like FindBugs and PMD, warnings from Java and JavaDoc, unit test results, and [unit test code coverage](../Unit_Tests/MedFinder%20Unit%20Test%20Coverage.pdf).
 
 The [MedFinder\_Develop\_Stage job](https://github.com/HarmoniaHoldings/medfinder/tree/master/documentation/Continuous_Integration/MedFinder_Develop_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Develop*. It deploys the WAR file to the stage server.
 
