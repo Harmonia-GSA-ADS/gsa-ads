@@ -19,7 +19,7 @@ Docker RHEL Installation Instructions: [https://docs.docker.com/installation/rhe
 
 ## Database Container Setup
 
-To install, configure, and run the database server, use a command similar to the following. The command below creates and runs a new Docker container named medfinder-db based on the mysql container provided by the Docker container repository. Each of the -e options specifies an environment variable specific to this Docker container to configure the application. The container uses these environment variables to initialize the database. The -v option maps a location on the host file system to the file system of the container. This ensures that all data written to the database is actually stored on the host file system. The -d option specifies that the container should run in daemon mode (as a service).
+To install, configure, and run the database server, use a command similar to the following. The command below creates and runs a new Docker container named *medfinder-db* based on the mysql container provided by the Docker container repository. Each of the **-e** options specifies an environment variable specific to this Docker container to configure the application. The container uses these environment variables to initialize the database. The **-v** option maps a location on the host file system to the file system of the container. This ensures that all data written to the database is actually stored on the host file system. The **-d** option specifies that the container should run in daemon mode (as a service).
 
 ```
 sudo docker run \
@@ -63,7 +63,7 @@ cd docker/medfinder-app
 sudo docker build --tag wildfly-medfinder .
 ```
 
-5\.	Once the Docker application container is built, we can create the run Docker application container with the following command. The command below creates and runs a new Docker container named medfinder-app based on the wildfly-medfinder container we just created. The --link option tells Docker to allow the new container being created to communicate with the container named medfinder-db which hosts our database server. The mysql portion of this command forms the prefix for environment variables exposed by the medfinder-db container making them identifiable within the medfinder-app container. The -p option maps port 80 on the host to port 8080 on the container, allowing traffic on the host to access the container and changing the port in the process. The -d option specifies that the container should run in daemon mode (as a service).
+5\.	Once the Docker application container is built, we can create the run Docker application container with the following command. The command below creates and runs a new Docker container named *medfinder-app* based on the wildfly-medfinder container we just created. The **--link** option tells Docker to allow the new container being created to communicate with the container named *medfinder-db* which hosts our database server. The **mysql** portion of this command forms the prefix for environment variables exposed by the *medfinder-db* container making them identifiable within the *medfinder-app* container. The **-p** option maps port 80 on the host to port 8080 on the container, allowing traffic on the host to access the container and changing the port in the process. The **-d** option specifies that the container should run in daemon mode (as a service).
 
 ```
 sudo docker run \
