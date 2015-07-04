@@ -15,7 +15,7 @@ The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs 
 # Container Deployment
 
 Harmonia deployed MedFinder using Docker, which is a platform that enables rapid deployment of applications in isolation from other applications on a system.
-See the [configuration files](../../docker) used to support the deployment and the [installation procedure](MedFinder%20-%20Installation%20Procedure.docx).
+See the [configuration files](../../docker) used to support the deployment and the [installation procedure](MedFinder%20Installation%20Procedure.md).
 
 The figure beow is a screenshot showing the output of the docker ps command which lists the running containers. The first container named *medfinder-app* contains a Wildfly instance in which the MedFinder application is deployed. The second container named *medfinder-db* contains the MySQL database.
 
