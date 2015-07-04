@@ -94,7 +94,7 @@ function routeSearch() {
 		$resultsTable.empty();
 		
 		// make call to server and display results
-		$.ajax('/' + getContext() + '/rest/routes', {
+		$.ajax('/rest/routes', {
 			type: 'get',
 			data: {
 				indication: $ESAPI.encoder().encodeForURL(indication),
@@ -224,7 +224,7 @@ function routeSavedSearch() {
 		var substanceName = $('#ssRouteSubstanceName').val();
 		
 		// make request to server to create saved search
-		$.ajax('/' + getContext() + '/rest/search', {
+		$.ajax('/rest/search', {
 			type: 'post',
 			data: {
 				name: $ESAPI.encoder().encodeForURL(ssName),
@@ -292,7 +292,7 @@ function drugSearch() {
 		$resultsTable.empty();
 		
 		// make call to server and display results
-		$.ajax('/' + getContext() + '/rest/drugs', {
+		$.ajax('/rest/drugs', {
 			type: 'get',
 			data: {
 				indication: $ESAPI.encoder().encodeForURL(indication),
@@ -413,7 +413,7 @@ function drugSavedSearch() {
 		var route = $('#ssDrugRoute').val();
 		
 		// make request to server to create saved search
-		$.ajax('/' + getContext() + '/rest/search', {
+		$.ajax('/rest/search', {
 			type: 'post',
 			data: {
 				name: $ESAPI.encoder().encodeForURL(ssName),
