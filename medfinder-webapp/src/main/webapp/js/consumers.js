@@ -106,7 +106,7 @@ function adverseEventSearch() {
 		$resultsTable.empty();
 	
 		// make search request to server
-		$.ajax('/' + getContext() + '/rest/events', {
+		$.ajax('/rest/events', {
 			type: 'get',
 			data: {
 				ageStart: minAge,
@@ -297,7 +297,7 @@ function adverseEventSavedSearch() {
 		var substanceName = $('#ssSubstanceName').val();
 		
 		// make request to server to create saved search
-		$.ajax('/' + getContext() + '/rest/search', {
+		$.ajax('/rest/search', {
 			type: 'post',
 			data: {
 				name: $ESAPI.encoder().encodeForURL(ssName),

@@ -6,7 +6,7 @@ $(document).ready(function() {
 		var $list = $dialog.data('list');
 		
 		// make delete call to server
-		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
+		$.ajax('/rest/search/' + ssId, {
 			type: 'delete',
 			dataType: 'text',
 			success: function(data, textStatus, jqXHR) {
@@ -43,7 +43,7 @@ function runSavedSearch() {
 	var ssId = $(this).parent('li').attr('ssId');
 	
 	// get saved search data from server
-	$.ajax('/' + getContext() + '/rest/search', {
+	$.ajax('/rest/search', {
 		type: 'get',
 		data: {
 			id: ssId,
@@ -79,7 +79,7 @@ function newSavedSearch() {
 	var ssId = $(this).parent('li').attr('ssId');
 	
 	// get saved search data from server
-	$.ajax('/' + getContext() + '/rest/search', {
+	$.ajax('/rest/search', {
 		type: 'get',
 		data: {
 			id: ssId,
@@ -114,37 +114,6 @@ function deleteSavedSearch() {
 	var ssId = $li.attr('ssId');
 	$('#confirmDelete').data('list', $list);
 	$('#confirmDelete').data('ssId', ssId);
-
-	
-//	$('.confirmDeleteTrue').on('click',function() {
-//
-//		var button = this;
-//		
-//		// make delete call to server
-//		$.ajax('/' + getContext() + '/rest/search/' + ssId, {
-//			type: 'delete',
-//			dataType: 'text',
-//			success: function(data, textStatus, jqXHR) {
-//				console.log($('#confirmDelete').data('list'));
-//				$(button).off('click');
-//				$li.remove();
-//				$('#confirmDelete').modal('hide');
-//				
-//				// if no searches are present, add "no searches" text
-//				if ($list.children().length === 0) {
-//					$('<li>').text('No saved searches.').addClass('list-group-item').appendTo($list);
-//				}
-//				
-//			},
-//			error: function(jqXHR, textStatus, errorThrown) {
-//				$(button).off('click');
-//				$('#confirmDelete').modal('hide');
-//				displayError(jqXHR.responseText);
-//				console.log(errorThrown);
-//			}
-//		});
-//	});
-	
 	$('#confirmDelete').modal('show');
 }
 
@@ -163,7 +132,7 @@ function navigate(id) {
  */
 function loadSavedSearches(type, $ssList) {
 	// make request to server to get saved searches
-	$.ajax('/' + getContext() + '/rest/searches', {
+	$.ajax('/rest/searches', {
 		type: 'get',
 		data: {
 			type: type
@@ -282,19 +251,6 @@ function loading(hide) {
 	} else {
 		$('.searchLoading').modal();
 	}
-}
-
-/**
- * Get the context given the different deployment paths.
- */
-function getContext() {
-	var context = location.pathname;
-	if (context.indexOf('medfinder') > -1) {
-		context = 'medfinder-webapp';
-	} else {
-		context = 'ads';
-	}
-	return context;
 }
 
 /**
