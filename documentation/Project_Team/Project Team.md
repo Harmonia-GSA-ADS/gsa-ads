@@ -3,7 +3,9 @@
 ## Product Owner
 **Labor Category**: N/A
 
+**Team Member**:
 * Marc Abrams
+
 **Responsibilities**:
 * Had ultimate authority and responsibility for the quality of the prototype
 * Drove direction of the project
@@ -15,6 +17,7 @@
 
 **Team Member**:
 * Kelly Eagan
+
 **Responsibilities**:
 * Managed daily team activities to keep project on schedule
 * Identified how to compress Harmonia's standard Agile process into a compressed time frame while building support by consulting with team members
@@ -41,6 +44,7 @@
 
 **Team Member**:
 * Kelly Eagan
+
 **Responsibilities**:
 * Developed client-side application using Bootstrap, jQuery, and CSS with Less
 * Interfaced with server-side REST API
@@ -55,6 +59,7 @@
 * Chris Eagan
 * Robert Harry
 * Scott Willey
+
 **Responsibilities**:
 * Configured and deployed application to Amazon Web Services
 * Configured Docker deployment on Red Hat Enterprise Linux server
