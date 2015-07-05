@@ -24,4 +24,16 @@
 	<listener>
 		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
 	</listener>
+
+	<!-- Disallow unnecessary methods -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Method white list</web-resource-name>
+			<url-pattern>/*</url-pattern>
+			<http-method-omission>GET</http-method-omission>
+			<http-method-omission>POST</http-method-omission>
+			<http-method-omission>DELETE</http-method-omission>
+		</web-resource-collection>
+		<auth-constraint />
+	</security-constraint>
 </web-app>
