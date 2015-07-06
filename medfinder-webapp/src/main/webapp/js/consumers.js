@@ -4,37 +4,15 @@ $(document).ready(function() {
 	$('#adverseEventInfo').popover({
 		container: 'body',
 		placement: 'right',
-		content: 'Brand name, generic name, and active ingredeint are joined with the OR operator, then the drug group and all other criteria values are joined with the AND operator when the search is performed.'
+		content: 'Brand name, generic name, and active ingredient are joined with the OR operator, then the drug group and all other criteria values are joined with the AND operator when the search is performed.'
 	});
 	
 	$('#adverseEventsResultsPanel').hide();
 	$('.form-reset').click(resetForm);
 	
-	$('.ssName').keyup(clearError);
-	$('.ssSearch').click(runSavedSearch);
-	$('.ssNew').click(newSavedSearch);
-	$('.ssDelete').click(deleteSavedSearch);
-	
 	loadSavedSearches('ADVERSE_EVENTS', $('#ssList'));
 	
-	// submit form on Enter
-	$('.form-control').keyup(function(e) {
-		if (e.keyCode === 13) {
-			var formId = $(this).parents('form').attr('id');
-			if (formId === 'adverseEventsSearch') {
-				adverseEventSearch();
-			}
-		}
-	});
-	
 	// Initialize the ESAPI api
-    Base.esapi.properties.logging['ApplicationLogger'] = {
-        Level: org.owasp.esapi.Logger.ALL,
-        Appenders: [ new Log4js.ConsoleAppender() ],
-        LogUrl: true,
-        LogApplicationName: true,
-        EncodingRequired: true
-    };
 	Base.esapi.properties.application.Name = "MedFinder";
 	org.owasp.esapi.ESAPI.initialize();
 });
@@ -49,21 +27,25 @@ function adverseEventSearch() {
 		rules: {
 			minAge: { 
 				number: true,
+				integer: true,
 				min: 0,
 				ageRangeMin: true
 			},
 			maxAge : { 
 				number: true, 
+				integer: true,
 				min: 0,
 				ageRangeMax: true
 			},
 			minWeight : { 
 				number: true,
+				integer: true,
 				min: 0,
 				weightRangeMin: true
 			},
 			maxWeight : { 
 				number: true,
+				integer: true,
 				min: 0,
 				weightRangeMax: true
 			},
@@ -280,10 +262,24 @@ function populateAdverseEventsSearchForm(savedSearch) {
  */
 function adverseEventSavedSearch() {
 	
-	// get name
-	var ssName = $('#ssName').val();
+	// validate the form
+	var validator = $('#saveAdverseEventsSearch').validate({
+		rules: {
+			ssName: { 
+				required: true,
+				maxlength: 255,
+				specialCharacters: true
+			}
+		},
+		errorPlacement: function(error, element) {
+			element.before(error);
+		}
+	});
 	
-	if (ssName) {
+	var valid = validator.form();
+	if (valid) {
+		// get name
+		var ssName = $('#ssName').val();
 		
 		// extract search criteria values to save
 		var minAge = $('#ssMinAge').val();
@@ -329,11 +325,8 @@ function adverseEventSavedSearch() {
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				displayError(jqXHR.responseText);
-				console.log(errorThrown);
 			}
 		});
-	} else {
-		$('#ssName').parent('span').addClass('has-error');
 	}
 }
 

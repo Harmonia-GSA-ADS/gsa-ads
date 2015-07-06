@@ -23,6 +23,18 @@
 * Identified how to compress Harmonia's standard Agile process into a compressed time frame while building support by consulting with team members
 * Acted as Scrum Master
 
+## Technical Architect
+**Labor Category**: Category 2 - Technical Architect
+
+**Team Member**:
+* Kelly Eagan
+
+**Responsibilities**:
+* Selected technologies used within the application
+* Developed the front and backend architectures
+* Used Git version control system
+* Wrote user stories and contributed to the product backlog
+
 ## Backend Developer
 **Labor Category**: Category 7 - Backend Developer
 
