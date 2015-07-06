@@ -6,7 +6,7 @@
 
 	<groupId>com.harmonia.medfinder</groupId>
 	<artifactId>medfinder</artifactId>
-	<version>1.6</version>
+	<version>1.7-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MedFinder</name>
