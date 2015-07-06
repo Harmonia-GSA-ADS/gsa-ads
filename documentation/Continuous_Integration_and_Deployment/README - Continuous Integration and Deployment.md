@@ -10,7 +10,7 @@ The [MedFinder\_Develop\_Stage job](MedFinder_Develop_Stage%20[Jenkins].pdf) run
 
 The [MedFinder\_Master job](MedFinder_Master%20[Jenkins].pdf) performs the same activities as the *MedFinder_Develop* build but for the master branch.
 
-The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. It deploys the WAR file to the production server, which is the [Amazon Web Services (AWS) instance](MedFinder%20AWS%20Instance.pdf).
+The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. Through Jenkins, we use continuous deployment to a Docker container on an [Amazon Web Service (AWS) Platform as a Service instance]((MedFinder%20AWS%20Instance.pdf)).
 
 # Container Deployment
 

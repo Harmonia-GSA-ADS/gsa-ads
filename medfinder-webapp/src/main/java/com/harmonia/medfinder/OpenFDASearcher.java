@@ -224,10 +224,10 @@ public class OpenFDASearcher {
 	 */
 	private String createAgeParameter(String ageStart, String ageEnd) {
 		if (StringUtils.isNotBlank(ageStart) && StringUtils.isBlank(ageEnd)) {
-			ageEnd = ageStart;
+			ageEnd = "200";
 		}
 		if (StringUtils.isBlank(ageStart) && StringUtils.isNotBlank(ageEnd)) {
-			ageStart = ageEnd;
+			ageStart = "0";
 		}
 		String ageConditionString = "";
 		if (StringUtils.isNotBlank(ageStart)) {
@@ -291,15 +291,15 @@ public class OpenFDASearcher {
 	 * @return Query string section for weight range
 	 */
 	private String createWeightParameter(String weightStart, String weightEnd) {
-		if (StringUtils.isNotBlank(weightStart)) weightStart = "" + Integer.parseInt(weightStart) * 0.453592; // lbs
+		if (StringUtils.isNotBlank(weightStart)) weightStart = "" + Float.parseFloat(weightStart) * 0.453592; // lbs
 		                                                                                                      // to
 		                                                                                                      // kg
-		if (StringUtils.isNotBlank(weightEnd)) weightEnd = "" + Integer.parseInt(weightEnd) * 0.453592;
+		if (StringUtils.isNotBlank(weightEnd)) weightEnd = "" + Float.parseFloat(weightEnd) * 0.453592;
 		if (StringUtils.isNotBlank(weightStart) && StringUtils.isBlank(weightEnd)) {
-			weightEnd = weightStart;
+			weightEnd = "500";
 		}
 		if (StringUtils.isBlank(weightStart) && StringUtils.isNotBlank(weightEnd)) {
-			weightStart = weightEnd;
+			weightStart = "0";
 		}
 		String weightConditionString = "";
 		if (StringUtils.isNotBlank(weightStart)) {

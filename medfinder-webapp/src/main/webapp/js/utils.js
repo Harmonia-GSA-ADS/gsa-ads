@@ -10,7 +10,6 @@ $(document).ready(function() {
 			type: 'delete',
 			dataType: 'text',
 			success: function(data, textStatus, jqXHR) {
-				console.log($('#confirmDelete').data('list'));
 				$('li[ssId=' + ssId + ']').remove();
 				$('#confirmDelete').modal('hide');
 				
@@ -23,7 +22,6 @@ $(document).ready(function() {
 			error: function(jqXHR, textStatus, errorThrown) {
 				$('#confirmDelete').modal('hide');
 				displayError(jqXHR.responseText);
-				console.log(errorThrown);
 			}
 		});
 	});
@@ -67,7 +65,6 @@ function runSavedSearch() {
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			displayError(jqXHR.responseText);
-			console.log(errorThrown);
 		}
 	});
 }
@@ -100,7 +97,6 @@ function newSavedSearch() {
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			displayError(jqXHR.responseText);
-			console.log(errorThrown);
 		}
 	});
 }
@@ -155,7 +151,6 @@ function loadSavedSearches(type, $ssList) {
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			displayError(jqXHR.responseText);
-			console.log(errorThrown);
 		}
 	});
 }
@@ -213,7 +208,7 @@ function addSavedSearch(list, ssId, name, date) {
 		.attr('data-toggle', 'tooltip')
 		.attr('data-placement', 'bottom')
 		.attr('title', 'Execute the saved search')
-		.appendTo($li);
+		.appendTo($li).click(runSavedSearch);
 	$('<button>')
 		.attr('type', 'button')
 		.addClass('btn btn-xs btn-warning ssNew')
@@ -222,7 +217,7 @@ function addSavedSearch(list, ssId, name, date) {
 		.attr('data-toggle', 'tooltip')
 		.attr('data-placement', 'bottom')
 		.attr('title', 'Fill form with the saved search values')
-		.appendTo($li);
+		.appendTo($li).click(newSavedSearch);
 	$('<button>')
 		.attr('type', 'button')
 		.addClass('btn btn-xs btn-danger ssDelete')
@@ -230,14 +225,10 @@ function addSavedSearch(list, ssId, name, date) {
 		.attr('data-toggle', 'tooltip')
 		.attr('data-placement', 'bottom')
 		.attr('title', 'Delete the saved search')
-		.appendTo($li);
+		.appendTo($li).click(deleteSavedSearch);
 	
 	// enable tooltips
 	$('[data-toggle="tooltip"]').tooltip();
-	
-	$('.ssSearch').click(runSavedSearch);
-	$('.ssNew').click(newSavedSearch);
-	$('.ssDelete').click(deleteSavedSearch);
 }
 
 /**
@@ -301,3 +292,22 @@ $.validator.addMethod('specialCharacters', function(value, element) {
 	var pattern = /^[a-z0-9\s]+$/i;
 	return pattern.test(value);
 }, 'Value must only contain alphanumeric characters and spaces.');
+
+/**
+ * Custom validator for ensuring a value is an integer
+ */
+$.validator.addMethod('integer', function(value, element) {
+
+	// allow blank
+	if (value === '') {
+		return true;
+	}
+	
+	// check for integer
+	var x;
+	if (isNaN(value)) {
+		return false;
+	}
+	x = parseFloat(value);
+	return (x | 0) === x;
+}, 'Value must be an integer.');

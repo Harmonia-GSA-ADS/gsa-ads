@@ -34,5 +34,5 @@
 | Technology  | Usage                                                     | License                      |
 |-------------|-----------------------------------------------------------|------------------------------|
 | [WildFly](http://wildfly.org/)  | Application server | [LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) |
-| [MySQL](https://www.mysql.com/)    | Database | [FOSS Licenses](https://www.mysql.com/about/legal/licensing/foss-exception/) |
+| [MySQL](https://www.mysql.com/)    | Database | [GPLv2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) |
 | [Docker](https://www.docker.com/) | Container deployment platform | [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) |

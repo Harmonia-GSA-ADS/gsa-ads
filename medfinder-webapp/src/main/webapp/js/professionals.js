@@ -16,11 +16,6 @@ $(document).ready(function() {
 	$('#drugsResultsPanel').hide();
 	$('.form-reset').click(resetForm);
 	
-	$('.ssName').keyup(clearError);
-	$('.ssSearch').click(runSavedSearch);
-	$('.ssNew').click(newSavedSearch);
-	$('.ssDelete').click(deleteSavedSearch);
-	
 	loadSavedSearches('ROUTES', $('#routeSSList'));
 	loadSavedSearches('DRUGS', $('#drugSSList'));
 	
@@ -29,26 +24,7 @@ $(document).ready(function() {
 		$('.nav-tabs a[href="#drugLookup"]').tab('show');
 	}
 	
-	// submit form on Enter
-	$('.form-control').keyup(function(e) {
-		if (e.keyCode === 13) {
-			var formId = $(this).parents('form').attr('id');
-			if (formId === 'routeSearch') {
-				routeSearch();
-			} else if (formId === 'drugSearch') {
-				drugSearch();
-			} 
-		}
-	});
-	
 	// Initialize the ESAPI api
-    Base.esapi.properties.logging['ApplicationLogger'] = {
-        Level: org.owasp.esapi.Logger.ALL,
-        Appenders: [ new Log4js.ConsoleAppender() ],
-        LogUrl: true,
-        LogApplicationName: true,
-        EncodingRequired: true
-    };
 	Base.esapi.properties.application.Name = "MedFinder";
 	org.owasp.esapi.ESAPI.initialize();
 });
@@ -213,9 +189,25 @@ function populateRoutesSearchForm(savedSearch) {
  */
 function routeSavedSearch() {
 	
-	// get name
-	var ssName = $('#routeSSName').val();
-	if (ssName) {
+	// validate the form
+	var validator = $('#saveRoutesSearch').validate({
+		rules: {
+			routeSSName: { 
+				required: true,
+				maxlength: 255,
+				specialCharacters: true
+			}
+		},
+		errorPlacement: function(error, element) {
+			element.before(error);
+		}
+	});
+	
+	var valid = validator.form();
+	if (valid) {
+		
+		// get name
+		var ssName = $('#routeSSName').val();
 		
 		// extract search criteria values to save
 		var indication = $('#ssRouteIndication').val();
@@ -254,8 +246,6 @@ function routeSavedSearch() {
 				loading(true);
 			}
 		});
-	} else {
-		$('#routeSSName').parent('span').addClass('has-error');
 	}
 }
 
@@ -404,9 +394,25 @@ function populateDrugsSearchForm(savedSearch) {
  */
 function drugSavedSearch() {
 	
-	// get name
-	var ssName = $('#drugSSName').val();
-	if (ssName) {
+	// validate the form
+	var validator = $('#saveDrugsSearch').validate({
+		rules: {
+			drugSSName: { 
+				required: true,
+				maxlength: 255,
+				specialCharacters: true
+			}
+		},
+		errorPlacement: function(error, element) {
+			element.before(error);
+		}
+	});
+	
+	var valid = validator.form();
+	if (valid) {
+			
+		// get name
+		var ssName = $('#drugSSName').val();
 		
 		// extract search criteria values to save
 		var indication = $('#ssDrugIndication').val();
@@ -440,8 +446,6 @@ function drugSavedSearch() {
 				displayError(jqXHR.responseText);
 			}
 		});
-	} else {
-		$('#drugSSName').parent('span').addClass('has-error');
 	}
 }
 
