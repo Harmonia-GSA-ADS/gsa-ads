@@ -14,9 +14,10 @@ The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs 
 
 # Container Deployment
 
-Harmonia deployed MedFinder using Docker, which is a platform that enables rapid deployment of applications in isolation from other applications on a system.
-See the [configuration files](../../docker) used to support the deployment and the [installation procedure](MedFinder%20Installation%20Procedure.md).
-
-The figure beow is a screenshot showing the output of the docker ps command which lists the running containers. The first container named *medfinder-app* contains a Wildfly instance in which the MedFinder application is deployed. The second container named *medfinder-db* contains the MySQL database.
+Harmonia deployed MedFinder using Docker, which is a platform that enables rapid deployment of applications in isolation from other applications on a system. We install MySQL using the official MySQL Docker into a container named *medfinder-db*. We install Wildfly using the official Wildfly Docker container and make several customizations, through the Docker configuration file, that are needed to run MedFinder. The MedFinder application is deployed in the WildFly instance. The figure below is a screenshot showing the output of the docker ps command which lists the running containers.
 
  ![Docker Container Listing](MedFinder_Docker.png "Docker Container Lister")
+ 
+See the [configuration files](../../docker) used to support the deployment and the [installation procedure](MedFinder%20Installation%20Procedure.md).
+ 
+On larger projects, we use Puppet to manage the configurations for sets of servers and the configurations are committed to the Git repositories for the projects.  Puppet can be used to manage Docker containers in sophisticated deployment scenarios. Because MedFinder required such a simple deployment, we did not make use of Puppet for this effort.
