@@ -31,7 +31,7 @@ Harmonia employs Human Factors trained experts that ensure applications we build
 
 ## Build the service using agile and iterative practices
 
-Play 4 was a hallmark of our approach to realizing MedFinder.  The process used to build the application for this solicitation can be found at in the [README file](../README.md). A detailed description of [Harmonia's Agile process](../Agile_Process/Harmonia's%20Agile%20Process.docx) is also available.
+Play 4 was a hallmark of our approach to realizing MedFinder.  The process used to build the application for this solicitation can be found at in the [README file](../../README.md). A detailed description of [Harmonia's Agile process](../Agile_Process/Harmonia's%20Agile%20Process.docx) is also available.
 
 ## Structure budgets and contracts to support delivery
 
@@ -69,7 +69,7 @@ The unit tests are run as part of our Jenkins builds, which are triggered automa
 
 ## Manage security and privacy through reusable processes
 
-MedFinder does not collect or store personal information. Nevertheless, we followed the HTTPS Everywhere guidance in [Office of Management and Budget M-15-13](https://www.whitehouse.gov/sites/default/files/omb/memoranda/2015/m-15-13.pd). This provides privacy to consumers and medical professionals who use MedFinder, for example from an eavesdropper who wishes to see what drugs a particular user is interested in by HTTPS's encryption of query parameters and response data. We also used the OWASP Enterprise Security API (ESAPI) library in the client and the server for parameter encoding to protect against injection attacks
+MedFinder does not collect or store personal information. Nevertheless, we followed the HTTPS Everywhere guidance in [Office of Management and Budget M-15-13](https://www.whitehouse.gov/sites/default/files/omb/memoranda/2015/m-15-13.pdf). This provides privacy to consumers and medical professionals who use MedFinder, for example from an eavesdropper who wishes to see what drugs a particular user is interested in by HTTPS's encryption of query parameters and response data. We also used the OWASP Enterprise Security API (ESAPI) library in the client and the server for parameter encoding to protect against injection attacks
 
 MedFinder is deployed on AWS which is a FedRAMP Compliant Cloud Service Provider.
 

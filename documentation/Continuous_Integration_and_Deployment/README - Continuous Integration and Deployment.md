@@ -10,7 +10,7 @@ The [MedFinder\_Develop\_Stage job](MedFinder_Develop_Stage%20[Jenkins].pdf) run
 
 The [MedFinder\_Master job](MedFinder_Master%20[Jenkins].pdf) performs the same activities as the *MedFinder_Develop* build but for the master branch.
 
-The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. Through Jenkins, we use continuous deployment to a Docker container on an [Amazon Web Service (AWS) Platform as a Service instance]((MedFinder%20AWS%20Instance.pdf)).
+The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. Through Jenkins, we use continuous deployment to a Docker container on an [Amazon Web Service (AWS) Platform as a Service instance](MedFinder%20AWS%20Instance.pdf).
 
 # Container Deployment
 
@@ -20,4 +20,4 @@ Harmonia deployed MedFinder using Docker, which is a platform that enables rapid
  
 See the [configuration files](../../docker) used to support the deployment and the [installation procedure](MedFinder%20Installation%20Procedure.md).
  
-On larger projects, we use Puppet to manage the configurations for sets of servers and the configurations are committed to the Git repositories for the projects.  Puppet can be used to manage Docker containers in sophisticated deployment scenarios. Because MedFinder required such a simple deployment, we did not make use of Puppet for this effort.
+On larger projects, we use Puppet to manage the configurations for sets of servers and the configurations are committed to the Git repositories for the projects.  Puppet can be used to manage Docker containers in sophisticated deployment scenarios. Because existing Docker images were readily available which met MedFinder's requirements, the complexity of the deployment did not require the use of Puppet for container configuration management.

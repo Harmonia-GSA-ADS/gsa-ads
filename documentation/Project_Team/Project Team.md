@@ -4,7 +4,7 @@
 **Labor Category**: N/A
 
 **Team Member**:
-* Marc Abrams
+* Dr. Marc Abrams
 
 **Responsibilities**:
 * Had ultimate authority and responsibility for the quality of the prototype
