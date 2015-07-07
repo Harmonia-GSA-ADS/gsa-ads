@@ -4,6 +4,7 @@ Harmonia uses an internally hosted Jenkins as our continuous integration platfor
  
 ![Jenkins Jobs for MedFinder](MedFinder_Builds.png "Jenkins Jobs for MedFinder") 
  
+<a name="tests"></a>
 The [MedFinder\_Develop job](MedFinder_Develop%20%5bJenkins%5d.pdf) compiles the application code from the develop branch into a deployable WAR file along with running unit tests and static code analysis tools. The page shows the charts produced from the static code analysis tools like FindBugs and PMD (to detect any code exhibiting NIST’s Common Weakness Enumeration), warnings from Java and JavaDoc, unit test results, and [unit test code coverage](../Unit_Tests/MedFinder%20Unit%20Test%20Coverage.pdf).
 
 The [MedFinder\_Develop\_Stage job](MedFinder_Develop_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Develop*. It deploys the WAR file to the stage server.
@@ -12,6 +13,7 @@ The [MedFinder\_Master job](MedFinder_Master%20[Jenkins].pdf) performs the same 
 
 The [MedFinder\_Master\_Stage job](MedFinder_Master_Stage%20[Jenkins].pdf) runs automatically upon a successful build of *MedFinder_Master*. Through Jenkins, we use continuous deployment to a Docker container on an [Amazon Web Service (AWS) Platform as a Service instance](MedFinder%20AWS%20Instance.pdf).
 
+<a name="container"></a>
 # Container Deployment
 
 Harmonia deployed MedFinder using Docker, which is a platform that enables rapid deployment of applications in isolation from other applications on a system. We install MySQL using the official MySQL Docker into a container named *medfinder-db*. We install Wildfly using the official Wildfly Docker container and make several customizations, through the Docker configuration file, that are needed to run MedFinder. The MedFinder application is deployed in the WildFly instance. The figure below is a screenshot showing the output of the docker ps command which lists the running containers.
